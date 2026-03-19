@@ -1,0 +1,31 @@
+# Railway deployment configuration for CraftPolicy Legal Audit backend
+# Docs: https://docs.railway.app/reference/config-as-code
+
+[build]
+builder = "nixpacks"
+buildCommand = "npm install --omit=dev"
+
+[deploy]
+startCommand = "npm start"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[environments]
+
+[environments.production]
+# Persistent volume must be mounted at /data in Railway dashboard
+# Environment variables to set in Railway dashboard:
+#   ANTHROPIC_API_KEY   — required
+#   INTERNAL_API_KEY    — required (shared secret with frontend)
+#   DATABASE_URL        — /data/toc_audit.db  (Railway persistent volume)
+#   PORT                — set automatically by Railway
+#   CLAUDE_MODEL        — optional, default claude-sonnet-4-6
+#   CLAUDE_MAX_TOKENS   — optional, default 8192
+#   DAILY_BUDGET_USD    — optional, default 20
+#   BLOB_READ_WRITE_TOKEN — required if using Vercel Blob storage
+
+[[services]]
+name = "toc-audit-backend"
+
+[services.source]
+rootDirectory = "backend"

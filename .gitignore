@@ -1,19 +1,35 @@
 
-# Reference files — temporary, never committed
+# Reference files — never committed
 _reference/
 
-# Backend build artifacts
+# Environment files
+.env
+.env.local
+backend/.env
+backend/.env.local
+frontend/.env.local
+
+# Backend
 backend/node_modules/
 backend/package-lock.json
 *.db
 *.db-shm
 *.db-wal
 
-# Frontend build artifacts
+# Frontend
 frontend/node_modules/
 frontend/.next/
-frontend/.env.local
 frontend/*.local
-
-# Frontend TypeScript build cache
 frontend/tsconfig.tsbuildinfo
+
+# OS / editors
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
