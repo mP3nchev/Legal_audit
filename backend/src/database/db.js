@@ -14,7 +14,7 @@ function log(data) {
  */
 function initDatabase() {
   try {
-    const dbPath = path.resolve(__dirname, '../../audits.db');
+    const dbPath = process.env.DATABASE_URL || path.resolve('/data/toc_audit.db');
 
     // Create database connection
     db = new Database(dbPath);
@@ -42,6 +42,9 @@ function initDatabase() {
     db.exec(schema);
 
     log({ level: 'info', event: 'db_schema_applied' });
+
+    // Run toc tables migration (idempotent — IF NOT EXISTS guards)
+    require('./migrate-add-toc').run(db);
 
     return db;
   } catch (error) {

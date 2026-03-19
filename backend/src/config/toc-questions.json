@@ -1,0 +1,32 @@
+{
+  "has_registration": {
+    "question": "Има ли опция за регистрация / потребителски акаунт?",
+    "type": "boolean",
+    "applies_to": "toc",
+    "skip_criteria_if_false": [12, 13, 14]
+  },
+  "processes_payments": {
+    "question": "Обработва ли сайтът плащания или съхранява платежни данни?",
+    "type": "boolean",
+    "applies_to": "both",
+    "skip_criteria_if_false": [8, 9, 15, 16]
+  },
+  "has_newsletter": {
+    "question": "Има ли абонамент за бюлетин / маркетингови имейли?",
+    "type": "boolean",
+    "applies_to": "privacy",
+    "skip_criteria_if_false": [11, 12]
+  },
+  "uses_cookies_analytics": {
+    "question": "Използва ли сайтът бисквитки за аналитика или реклама?",
+    "type": "boolean",
+    "applies_to": "privacy",
+    "skip_criteria_if_false": [13, 14]
+  },
+  "serves_minors": {
+    "question": "Насочен ли е сайтът към деца или непълнолетни (под 16 г.)?",
+    "type": "boolean",
+    "applies_to": "both",
+    "skip_criteria_if_false": [17, 18]
+  }
+}
