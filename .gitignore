@@ -8,3 +8,12 @@ backend/package-lock.json
 *.db
 *.db-shm
 *.db-wal
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/.next/
+frontend/.env.local
+frontend/*.local
+
+# Frontend TypeScript build cache
+frontend/tsconfig.tsbuildinfo
