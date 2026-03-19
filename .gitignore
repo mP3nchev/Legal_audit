@@ -1,0 +1,10 @@
+
+# Reference files — temporary, never committed
+_reference/
+
+# Backend build artifacts
+backend/node_modules/
+backend/package-lock.json
+*.db
+*.db-shm
+*.db-wal
