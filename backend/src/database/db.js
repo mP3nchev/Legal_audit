@@ -14,7 +14,9 @@ function log(data) {
  */
 function initDatabase() {
   try {
-    const dbPath = process.env.DATABASE_URL || path.resolve('/data/toc_audit.db');
+    // DATABASE_URL must be set explicitly to use a persistent volume (e.g. /data/toc_audit.db).
+    // Fallback to a local path inside the project — always writable, but ephemeral on cloud.
+    const dbPath = process.env.DATABASE_URL || path.resolve(__dirname, '../../toc_audit.db');
 
     // Ensure the directory exists (Render / Railway persistent volume may not pre-create it)
     const dbDir = path.dirname(dbPath);
