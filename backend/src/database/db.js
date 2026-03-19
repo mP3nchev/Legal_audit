@@ -16,6 +16,13 @@ function initDatabase() {
   try {
     const dbPath = process.env.DATABASE_URL || path.resolve('/data/toc_audit.db');
 
+    // Ensure the directory exists (Render / Railway persistent volume may not pre-create it)
+    const dbDir = path.dirname(dbPath);
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+      log({ level: 'info', event: 'db_dir_created', dir: dbDir });
+    }
+
     // Create database connection
     db = new Database(dbPath);
 
