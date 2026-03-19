@@ -63,7 +63,7 @@ export function calculateTotal(criteria: Criterion[]): { tier_scores: TierScores
 
   for (let t = 1; t <= 4; t++) {
     const ts = calculateTierScore(criteria, t);
-    (tier_scores as Record<string, TierResult>)[`tier${t}`] = ts;
+    (tier_scores as unknown as Record<string, TierResult>)[`tier${t}`] = ts;
     total_score     += ts.score;
     total_max_score += ts.max;
   }
