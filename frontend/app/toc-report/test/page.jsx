@@ -282,7 +282,7 @@ function AuditTableSection({ t }) {
             <div key={num} className="rounded-xl overflow-hidden"
               style={{ border: '1px solid var(--cp-neutral-40)' }}>
               <div className="flex items-center justify-between px-4 py-3"
-                style={{ backgroundColor: 'var(--cp-blue-150)', color: 'white' }}>
+                style={{ backgroundColor: '#0175ff', color: 'white' }}>
                 <span className="text-sm font-bold">{t.tierWord} {num} — {label}</span>
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full"
                   style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
@@ -337,8 +337,7 @@ function SeverityBadge({ severity, label }) {
     low:      { bg: 'var(--cp-success-light)', text: 'var(--cp-success)'  },
   }[severity] ?? { bg: 'var(--cp-blue-15)', text: 'var(--cp-blue-150)' };
   return (
-    <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
-      style={{ backgroundColor: s.bg, color: s.text }}>{label}</span>
+    <span style={{ backgroundColor: s.bg, color: s.text }}>{label}</span>
   );
 }
 
