@@ -157,7 +157,7 @@ export function TocAuditForm() {
   const handleComplete = useCallback((uid, status) => {
     const tCb = i18n[language];
     setPollingStatus(status === 'partial' ? tCb.pollPartial : tCb.pollDone);
-    setTimeout(() => router.push(`/toc-report/${uid}`), 800);
+    setTimeout(() => router.push(`/toc-report/${uid}?lang=${language}`), 800);
   }, [router, language]);
 
   const handlePollError = useCallback((msg) => {
@@ -187,7 +187,7 @@ export function TocAuditForm() {
 
     // ⚠️ TEST MODE — bypass API
     if (isTestMode) {
-      router.push('/toc-report/test');
+      router.push(`/toc-report/test?lang=${language}`);
       return;
     }
 

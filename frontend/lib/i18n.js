@@ -109,3 +109,126 @@ export const i18n = {
     auditIdLabel:     'Audit ID',
   },
 };
+
+// ── Report page translations (test page + future real report) ─────────────────
+export const reportI18n = {
+  bg: {
+    // Cover
+    auditTitle:       'GDPR & Privacy Policy\nCompliance Audit',
+    tagline:          'Оценка на съответствието на ниво ръководство с приложими препоръки',
+    confidenceLabel:  'Ниво на достоверност',
+    confidenceText:   'Одитът съчетава автоматизиран анализ на документи с AI-базирана оценка за осигуряване на надеждни резултати, валидирани спрямо критериите на GDPR.',
+    website:          'Уебсайт',
+    scanDate:         'Дата на одита',
+    preparedFor:      'Подготвено за',
+    preparedBy:       'Подготвено от',
+
+    // Scope
+    scopeTitle:       'Обхват & Методология',
+    scopeSubtitle:    'Какво и как тествахме',
+    whatTested:       'Тествано',
+    howTested:        'Метод на анализ',
+    limitations:      'Ограничения',
+
+    // Audit table
+    tableTitle:       'Детайлна одитна таблица',
+    colNum:           '#',
+    colCriterion:     'Критерий',
+    colScore:         'Оценка',
+    colFindings:      'Констатации & обяснение',
+    tierWord:         'Ниво',
+    complianceWord:   'съответствие',
+
+    // Privacy Analysis
+    analysisTitle:    'Анализ на Privacy Policy',
+    analysisSubtitle: 'Оценка на критериите за съответствие с детайлни обяснения',
+    totalCriteria:    'Общо критерии',
+    nonCompliant:     'Несъответствие',
+    compliant:        'Съответствие',
+    finalScoreLabel:  'Краен резултат — Privacy Policy',
+    pointsWord:       'точки',
+
+    // Verbal scale labels (for FinalScoreBar)
+    verbal: {
+      'Критичен риск':         'Критичен риск',
+      'Несъответствие':        'Несъответствие',
+      'Частично съответствие': 'Частично',
+      'Адекватно':             'Адекватно',
+      'Високо съответствие':   'Високо',
+      'Пълно съответствие':    'Пълно съответствие',
+    },
+    verbalRisk: {
+      critical: 'Критичен риск',
+      high:     'Висок риск',
+      medium:   'Среден риск',
+      good:     'Добро ниво',
+    },
+
+    // Recommendations
+    recTitle:    'Приоритетни препоръки',
+    recSubtitle: 'Критични проблеми, изискващи незабавно внимание',
+    recCritical: '⚠ Критичен риск',
+    recSuggested:'Препоръчано подобрение',
+    recLevel:    'Ниво',
+    recAction:   'Препоръчано действие:',
+    recUrgent:   'Спешно: Актуализирайте документа, за да включва конкретна информация относно',
+    recGdpr:     'съгласно чл. 13 GDPR.',
+  },
+
+  en: {
+    auditTitle:       'GDPR & Privacy Policy\nCompliance Audit',
+    tagline:          'Executive-level compliance assessment with actionable recommendations',
+    confidenceLabel:  'Confidence Level',
+    confidenceText:   'This audit combines automated document analysis with AI-assisted evaluation to ensure high-confidence findings derived from the submitted document and validated against GDPR criteria.',
+    website:          'Website',
+    scanDate:         'Scan Date',
+    preparedFor:      'Prepared For',
+    preparedBy:       'Prepared By',
+
+    scopeTitle:       'Scope & Methodology',
+    scopeSubtitle:    'What we tested and how we tested it',
+    whatTested:       'What We Tested',
+    howTested:        'How We Tested',
+    limitations:      'Limitations',
+
+    tableTitle:       'Detailed Audit Table',
+    colNum:           '#',
+    colCriterion:     'Criterion',
+    colScore:         'Score',
+    colFindings:      'Findings & Explanation',
+    tierWord:         'Level',
+    complianceWord:   'compliance',
+
+    analysisTitle:    'Privacy Policy Analysis',
+    analysisSubtitle: 'Compliance criteria evaluation with detailed explanations',
+    totalCriteria:    'Total Criteria',
+    nonCompliant:     'Non-Compliant',
+    compliant:        'Compliant',
+    finalScoreLabel:  'Final Privacy Policy Score',
+    pointsWord:       'points',
+
+    verbal: {
+      'Критичен риск':         'Critical Risk',
+      'Несъответствие':        'Non-Compliance',
+      'Частично съответствие': 'Partial',
+      'Адекватно':             'Adequate',
+      'Високо съответствие':   'High',
+      'Пълно съответствие':    'Full Compliance',
+    },
+    verbalRisk: {
+      critical: 'Critical Risk',
+      high:     'High Risk',
+      medium:   'Medium Risk',
+      good:     'Good Level',
+    },
+
+    recTitle:    'Priority Recommendations',
+    recSubtitle: 'Critical issues requiring immediate attention',
+    recCritical: '⚠ Critical Risk',
+    recSuggested:'Recommended Improvement',
+    recLevel:    'Level',
+    recAction:   'Recommended Action:',
+    recUrgent:   'Urgent: Update the document to include specific information regarding',
+    recGdpr:     'per Art. 13 GDPR.',
+  },
+};

@@ -2,14 +2,16 @@
 // ⚠️ TEST ONLY — delete together with lib/test-audit-fixture.js when done.
 // Route: /toc-report/test  |  Trigger: client_name=CP_TEST + site=https://craftpolicy.com/
 
+import { useSearchParams } from 'next/navigation';
 import {
   Globe, Calendar, User, Building2,
   Microscope, CheckCircle2, FlaskConical, AlertCircle,
   FileText, XCircle, ExternalLink, AlertTriangle,
 } from 'lucide-react';
 import { TEST_AUDIT_META, TEST_PRIVACY_RESULT } from '@/lib/test-audit-fixture';
+import { reportI18n } from '@/lib/i18n';
 
-// ── Tier label map ────────────────────────────────────────────────────────────
+// ── Data ──────────────────────────────────────────────────────────────────────
 const TIER_LABELS = {
   1: 'Организационна прозрачност',
   2: 'Правно основание & съхранение',
@@ -17,15 +19,9 @@ const TIER_LABELS = {
   4: 'Допълнителни изисквания',
 };
 
-// ── Static mock data ──────────────────────────────────────────────────────────
-const META = {
-  targetUrl:   TEST_AUDIT_META.site_url,
-  scanDate:    new Date(TEST_AUDIT_META.created_at).toLocaleDateString('en-GB'),
-  preparedFor: TEST_AUDIT_META.client_name,
-  preparedBy:  'CraftPolicy Audit Engine v1',
-};
+const { criteria, tier_scores, total_score, total_max_score } = TEST_PRIVACY_RESULT;
 
-const SCOPE = {
+const SCOPE_DATA = {
   whatWeTested: [
     'Наличие и достъпност на Privacy Policy документа',
     'Идентификация на администратора на лични данни',
@@ -38,35 +34,45 @@ const SCOPE = {
   ],
   howWeTested: [
     {
-      method:      'Автоматичен текстов анализ',
-      description: 'Claude AI прочита и анализира съдържанието на документа спрямо 8-те критерия, разпределени в 4 нива с различна тежест.',
+      method_bg: 'Автоматичен текстов анализ',
+      method_en: 'Automated Text Analysis',
+      desc_bg: 'Claude AI прочита и анализира съдържанието на документа спрямо 8 критерия, разпределени в 4 нива с различна тежест.',
+      desc_en: 'Claude AI reads and evaluates the document content against 8 criteria distributed across 4 weighted tiers.',
     },
     {
-      method:      'Претеглена оценка (×множител)',
-      description: 'Всяко ниво носи различна тежест: Ниво 1 ×3, Ниво 2 ×2, Ниво 3 ×1.5, Ниво 4 ×1.',
+      method_bg: 'Претеглена оценка (×множител)',
+      method_en: 'Weighted Scoring (×multiplier)',
+      desc_bg: 'Всяко ниво носи различна тежест: Ниво 1 ×3, Ниво 2 ×2, Ниво 3 ×1.5, Ниво 4 ×1.',
+      desc_en: 'Each level carries a different weight: Level 1 ×3, Level 2 ×2, Level 3 ×1.5, Level 4 ×1.',
     },
     {
-      method:      'Verbal scale класификация',
-      description: 'Крайният процент се преобразува в 6-степенна скала от „Критичен риск" до „Пълно съответствие".',
+      method_bg: 'Verbal scale класификация',
+      method_en: 'Verbal Scale Classification',
+      desc_bg: 'Крайният процент се преобразува в 6-степенна скала от „Критичен риск" до „Пълно съответствие".',
+      desc_en: 'The final percentage maps to a 6-level scale from "Critical Risk" to "Full Compliance".',
     },
   ],
-  limitations: [
+  limitations_bg: [
     'Анализът е базиран единствено на текстовото съдържание на предоставения документ.',
     'Техническото изпълнение (cookie banner, consent management) не се проверява в тази версия.',
     'Резултатите са индикативни и не заместват юридическа консултация.',
   ],
+  limitations_en: [
+    'Analysis is based solely on the textual content of the submitted document.',
+    'Technical implementation (cookie banner, consent management) is not verified in this version.',
+    'Results are indicative and do not substitute legal advice.',
+  ],
 };
 
-// Derive privacy analysis from fixture
-const { criteria, tier_scores, total_score, total_max_score } = TEST_PRIVACY_RESULT;
-const PRIVACY_ANALYSIS = {
+const PRIVACY_ANALYSIS_DATA = {
   tiers: [1, 2, 3, 4].map(t => {
     const ts    = tier_scores[`tier${t}`];
     const items = criteria.filter(c => c.tier === t);
     const pct   = Math.round(ts.pct);
     return {
       id:           `tier${t}`,
-      name:         `Ниво ${t} — ${TIER_LABELS[t]}`,
+      name_bg:      `Ниво ${t} — ${TIER_LABELS[t]}`,
+      name_en:      `Level ${t} — ${TIER_LABELS[t]}`,
       severity:     pct >= 76 ? 'low' : pct >= 61 ? 'medium' : pct >= 31 ? 'high' : 'critical',
       percentage:   pct,
       earnedPoints: ts.score,
@@ -83,6 +89,29 @@ const PRIVACY_ANALYSIS = {
   finalScore: total_score,
   finalTotal: total_max_score,
 };
+
+// ── Verbal scale helpers ──────────────────────────────────────────────────────
+const VERBAL_SEGS = [
+  { range_bg: '0–30%',   range_en: '0–30%',   label: 'Критичен риск',         min: 0,  max: 30  },
+  { range_bg: '31–50%',  range_en: '31–50%',  label: 'Несъответствие',         min: 31, max: 50  },
+  { range_bg: '51–60%',  range_en: '51–60%',  label: 'Частично съответствие',  min: 51, max: 60  },
+  { range_bg: '61–75%',  range_en: '61–75%',  label: 'Адекватно',              min: 61, max: 75  },
+  { range_bg: '76–89%',  range_en: '76–89%',  label: 'Високо съответствие',    min: 76, max: 89  },
+  { range_bg: '90–100%', range_en: '90–100%', label: 'Пълно съответствие',     min: 90, max: 100 },
+];
+const INACTIVE_BG = ['#0155B9','#1e6ed4','#449AFF','#6badff','#ACCEF7','#C6E0FF'];
+
+function getVerbalLabel(pct) {
+  const seg = VERBAL_SEGS.find(s => pct >= s.min && pct <= s.max);
+  return seg?.label ?? 'Адекватно';
+}
+
+function getRiskWord(pct, t) {
+  if (pct < 30)  return t.verbalRisk.critical;
+  if (pct < 60)  return t.verbalRisk.high;
+  if (pct < 80)  return t.verbalRisk.medium;
+  return t.verbalRisk.good;
+}
 
 // ── Shared section wrapper ────────────────────────────────────────────────────
 function ReportSection({ id, title, subtitle, icon, children }) {
@@ -104,63 +133,53 @@ function ReportSection({ id, title, subtitle, icon, children }) {
 }
 
 // ── 1. Cover Page ─────────────────────────────────────────────────────────────
-function DetailCell({ icon, label, value, mono = false }) {
+function DetailCell({ icon, label, value }) {
   return (
     <div className="px-6 py-4" style={{ backgroundColor: 'var(--cp-white)' }}>
       <div className="flex items-center gap-2 mb-1" style={{ color: 'var(--cp-neutral-80)' }}>
         {icon}
         <span className="text-xs font-medium uppercase tracking-wider">{label}</span>
       </div>
-      <p className={`text-sm font-medium break-all ${mono ? 'font-mono text-xs' : ''}`}
-        style={{ color: 'var(--cp-neutral-100)' }}>
-        {value}
-      </p>
+      <p className="text-sm font-medium break-all" style={{ color: 'var(--cp-neutral-100)' }}>{value}</p>
     </div>
   );
 }
 
-function CoverSection({ meta }) {
+function CoverSection({ t }) {
+  const meta = {
+    targetUrl:   TEST_AUDIT_META.site_url,
+    scanDate:    new Date(TEST_AUDIT_META.created_at).toLocaleDateString('en-GB'),
+    preparedFor: TEST_AUDIT_META.client_name,
+    preparedBy:  'CraftPolicy Audit Engine v1',
+  };
   return (
     <section id="cover" className="scroll-mt-24">
       <div className="rounded-2xl overflow-hidden"
         style={{ border: '1px solid var(--cp-neutral-40)', backgroundColor: 'var(--cp-white)' }}>
-
-        {/* Gradient band */}
         <div className="px-8 py-10" style={{ background: 'linear-gradient(-133deg, #accef7, #e7edf5)' }}>
           <div className="flex items-center gap-2 mb-6">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg font-black text-white text-sm"
               style={{ backgroundColor: 'var(--cp-blue-100)' }}>CP</div>
-            <span className="text-xl font-bold tracking-tight" style={{ color: 'var(--cp-blue-100)' }}>
-              CraftPolicy
-            </span>
+            <span className="text-xl font-bold tracking-tight" style={{ color: 'var(--cp-blue-100)' }}>CraftPolicy</span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight leading-tight lg:text-4xl"
-            style={{ color: 'var(--cp-blue-100)' }}>
-            GDPR & Privacy Policy<br />Compliance Audit
+            style={{ color: 'var(--cp-blue-100)', whiteSpace: 'pre-line' }}>
+            {t.auditTitle}
           </h1>
-          <p className="mt-3 text-base" style={{ color: '#4a5568' }}>
-            Executive-level compliance assessment with actionable recommendations
-          </p>
+          <p className="mt-3 text-base" style={{ color: '#4a5568' }}>{t.tagline}</p>
         </div>
-
-        {/* Details grid — 4 cells (2×2) */}
-        <div className="grid grid-cols-2 gap-px"
-          style={{ backgroundColor: 'var(--cp-neutral-40)' }}>
-          <DetailCell icon={<Globe     className="h-4 w-4" />} label="Website"      value={meta.targetUrl} />
-          <DetailCell icon={<Calendar  className="h-4 w-4" />} label="Scan Date"    value={meta.scanDate} />
-          <DetailCell icon={<User      className="h-4 w-4" />} label="Prepared For" value={meta.preparedFor} />
-          <DetailCell icon={<Building2 className="h-4 w-4" />} label="Prepared By"  value={meta.preparedBy} />
+        <div className="grid grid-cols-2 gap-px" style={{ backgroundColor: 'var(--cp-neutral-40)' }}>
+          <DetailCell icon={<Globe     className="h-4 w-4" />} label={t.website}     value={meta.targetUrl} />
+          <DetailCell icon={<Calendar  className="h-4 w-4" />} label={t.scanDate}    value={meta.scanDate} />
+          <DetailCell icon={<User      className="h-4 w-4" />} label={t.preparedFor} value={meta.preparedFor} />
+          <DetailCell icon={<Building2 className="h-4 w-4" />} label={t.preparedBy}  value={meta.preparedBy} />
         </div>
-
-        {/* Confidence note */}
         <div className="border-t px-8 py-4"
           style={{ borderColor: 'var(--cp-neutral-40)', backgroundColor: 'var(--cp-blue-5)' }}>
           <p className="text-xs leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
             <span className="font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>
-              Confidence Level:
-            </span>{' '}
-            This audit combines automated document analysis with AI-assisted evaluation to ensure
-            high-confidence findings derived from the submitted document and validated against GDPR criteria.
+              {t.confidenceLabel}:
+            </span>{' '}{t.confidenceText}
           </p>
         </div>
       </div>
@@ -169,73 +188,56 @@ function CoverSection({ meta }) {
 }
 
 // ── 2. Scope & Methodology ────────────────────────────────────────────────────
-function ScopeSection({ scope }) {
+function ScopeSection({ t, lang }) {
   return (
-    <ReportSection
-      id="scope"
-      title="Scope & Methodology"
-      subtitle="What we tested and how we tested it"
-      icon={<Microscope className="h-5 w-5" />}
-    >
+    <ReportSection id="scope" title={t.scopeTitle} subtitle={t.scopeSubtitle}
+      icon={<Microscope className="h-5 w-5" />}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* What we tested */}
         <div className="rounded-xl border p-5"
           style={{ borderColor: 'var(--cp-neutral-40)', backgroundColor: 'var(--cp-neutral-20)' }}>
           <div className="flex items-center gap-2 mb-4">
             <CheckCircle2 className="h-4 w-4" style={{ color: 'var(--cp-success)' }} />
-            <h3 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>
-              What We Tested
-            </h3>
+            <h3 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>{t.whatTested}</h3>
           </div>
           <ul className="space-y-2">
-            {scope.whatWeTested.map(item => (
+            {SCOPE_DATA.whatWeTested.map(item => (
               <li key={item} className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
                   style={{ backgroundColor: 'var(--cp-blue-100)' }} />
-                <span className="text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-90)' }}>
-                  {item}
-                </span>
+                <span className="text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-90)' }}>{item}</span>
               </li>
             ))}
           </ul>
         </div>
-
-        {/* How we tested */}
         <div className="space-y-3">
-          {scope.howWeTested.map(method => (
-            <div key={method.method} className="rounded-xl border p-4"
+          {SCOPE_DATA.howWeTested.map((m, i) => (
+            <div key={i} className="rounded-xl border p-4"
               style={{ borderColor: 'var(--cp-neutral-40)', backgroundColor: 'var(--cp-white)' }}>
               <div className="flex items-center gap-2 mb-1.5">
                 <FlaskConical className="h-3.5 w-3.5" style={{ color: 'var(--cp-blue-100)' }} />
                 <h4 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>
-                  {method.method}
+                  {lang === 'en' ? m.method_en : m.method_bg}
                 </h4>
               </div>
               <p className="text-xs leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
-                {method.description}
+                {lang === 'en' ? m.desc_en : m.desc_bg}
               </p>
             </div>
           ))}
         </div>
       </div>
-
-      {/* Limitations — light blue (not yellow) */}
       <div className="mt-6 rounded-xl border p-4"
         style={{ borderColor: 'var(--cp-blue-40)', backgroundColor: 'var(--cp-blue-5)' }}>
         <div className="flex items-center gap-2 mb-2">
           <AlertCircle className="h-4 w-4" style={{ color: 'var(--cp-blue-150)' }} />
-          <h3 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>
-            Limitations
-          </h3>
+          <h3 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>{t.limitations}</h3>
         </div>
         <ul className="space-y-1.5">
-          {scope.limitations.map(item => (
+          {(lang === 'en' ? SCOPE_DATA.limitations_en : SCOPE_DATA.limitations_bg).map(item => (
             <li key={item} className="flex items-start gap-2">
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
                 style={{ backgroundColor: 'var(--cp-blue-150)' }} />
-              <span className="text-xs leading-relaxed" style={{ color: 'var(--cp-neutral-90)' }}>
-                {item}
-              </span>
+              <span className="text-xs leading-relaxed" style={{ color: 'var(--cp-neutral-90)' }}>{item}</span>
             </li>
           ))}
         </ul>
@@ -250,12 +252,9 @@ function ScoreDots({ score, max = 5 }) {
     <div className="flex items-center gap-1">
       {Array.from({ length: max }).map((_, i) => (
         <span key={i} style={{
-          display:         'inline-block',
-          width:           '0.9375rem',
-          height:          '0.9375rem',
-          borderRadius:    '50%',
+          display: 'inline-block', width: '0.9375rem', height: '0.9375rem',
+          borderRadius: '50%', flexShrink: 0,
           backgroundColor: i < score ? 'var(--cp-blue-100)' : 'var(--cp-neutral-40)',
-          flexShrink:      0,
         }} />
       ))}
       <span className="ml-1.5 text-xs font-bold tabular-nums" style={{ color: 'var(--cp-neutral-80)' }}>
@@ -265,69 +264,48 @@ function ScoreDots({ score, max = 5 }) {
   );
 }
 
-function AuditTableSection({ criteria, tierScores }) {
-  const tiers = [1, 2, 3, 4].map(t => ({
-    num:   t,
-    label: TIER_LABELS[t],
-    ts:    tierScores[`tier${t}`],
-    items: criteria.filter(c => c.tier === t),
+function AuditTableSection({ t }) {
+  const tiers = [1, 2, 3, 4].map(n => ({
+    num: n, label: TIER_LABELS[n], ts: tier_scores[`tier${n}`],
+    items: criteria.filter(c => c.tier === n),
   }));
 
   return (
-    <ReportSection
-      id="audit-table"
-      title="Детайлна одитна таблица"
-      subtitle={`Privacy Policy · ${criteria.length} критерия · 4 нива`}
-      icon={<FileText className="h-5 w-5" />}
-    >
+    <ReportSection id="audit-table" title={t.tableTitle}
+      subtitle={`Privacy Policy · ${criteria.length} ${t.colCriterion.toLowerCase()} · 4 ${t.tierWord.toLowerCase()}`}
+      icon={<FileText className="h-5 w-5" />}>
       <div className="space-y-5">
         {tiers.map(({ num, label, ts, items }) => {
           const pct = Math.round(ts?.pct ?? 0);
           return (
             <div key={num} className="rounded-xl overflow-hidden"
               style={{ border: '1px solid var(--cp-neutral-40)' }}>
-
-              {/* Tier header */}
               <div className="flex items-center justify-between px-4 py-3"
                 style={{ backgroundColor: 'var(--cp-blue-150)', color: 'white' }}>
-                <span className="text-sm font-bold">Ниво {num} — {label}</span>
+                <span className="text-sm font-bold">{t.tierWord} {num} — {label}</span>
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full"
                   style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
-                  {pct}% съответствие
+                  {pct}% {t.complianceWord}
                 </span>
               </div>
-
-              {/* Column headers */}
               <div className="grid text-[11px] font-bold uppercase tracking-wide px-4 py-2"
-                style={{
-                  gridTemplateColumns: '44px 1fr 150px 1fr',
-                  gap: '16px',
-                  backgroundColor: 'var(--cp-blue-15)',
-                  color: 'var(--cp-blue-150)',
-                }}>
-                <div>#</div><div>Критерий</div><div>Оценка</div><div>Констатации & обяснение</div>
+                style={{ gridTemplateColumns: '44px 1fr 150px 1fr', gap: '16px',
+                  backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
+                <div>{t.colNum}</div><div>{t.colCriterion}</div>
+                <div>{t.colScore}</div><div>{t.colFindings}</div>
               </div>
-
-              {/* Rows — no multiplier label, no score verdict */}
               {items.map((c, idx) => (
                 <div key={c.id} className="grid px-4 py-4 items-start"
-                  style={{
-                    gridTemplateColumns: '44px 1fr 150px 1fr',
-                    gap: '16px',
+                  style={{ gridTemplateColumns: '44px 1fr 150px 1fr', gap: '16px',
                     borderTop: '1px solid var(--cp-neutral-40)',
-                    backgroundColor: idx % 2 === 0 ? 'white' : 'var(--cp-neutral-20)',
-                  }}>
+                    backgroundColor: idx % 2 === 0 ? 'white' : 'var(--cp-neutral-20)' }}>
                   <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold"
                     style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
                     {c.id - 100}
                   </div>
                   <p className="text-sm font-semibold leading-snug pt-0.5"
-                    style={{ color: 'var(--cp-neutral-100)' }}>
-                    {c.name}
-                  </p>
-                  <div className="pt-0.5">
-                    <ScoreDots score={c.score} />
-                  </div>
+                    style={{ color: 'var(--cp-neutral-100)' }}>{c.name}</p>
+                  <div className="pt-0.5"><ScoreDots score={c.score} /></div>
                   <p className="text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
                     {c.explanation}
                   </p>
@@ -351,134 +329,80 @@ function StatusIcon({ status }) {
 }
 
 function SeverityBadge({ severity, label }) {
-  const styles = {
+  const s = {
     critical: { bg: 'var(--cp-error-light)',   text: 'var(--cp-error)'   },
     high:     { bg: '#fff7ed',                 text: '#c2410c'            },
     medium:   { bg: 'var(--cp-blue-15)',       text: 'var(--cp-blue-150)' },
     low:      { bg: 'var(--cp-success-light)', text: 'var(--cp-success)'  },
-  };
-  const s = styles[severity] ?? styles.medium;
+  }[severity] ?? { bg: 'var(--cp-blue-15)', text: 'var(--cp-blue-150)' };
   return (
     <span className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
-      style={{ backgroundColor: s.bg, color: s.text }}>
-      {label}
-    </span>
+      style={{ backgroundColor: s.bg, color: s.text }}>{label}</span>
   );
 }
 
-// Static (always-expanded) tier block — no accordion
-function TierBlock({ tier }) {
+// ── Issue 1 fix: single-row tier block (no criteria, no subtotal) ─────────────
+function TierBlock({ tier, t }) {
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--cp-neutral-40)' }}>
-      {/* Header — static, no toggle */}
-      <div className="flex items-center justify-between px-5 py-3.5"
-        style={{ backgroundColor: 'var(--cp-neutral-20)' }}>
-        <div className="flex items-center gap-3">
-          <h3 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>
-            {tier.name}
-          </h3>
-          <SeverityBadge severity={tier.severity} label={`${tier.percentage}%`} />
-        </div>
-        <span className="text-xs tabular-nums" style={{ color: 'var(--cp-neutral-80)' }}>
-          {tier.earnedPoints}/{tier.maxPoints} pts
-        </span>
+    <div className="flex items-center justify-between px-5 py-3.5 rounded-xl"
+      style={{ border: '1px solid var(--cp-neutral-40)', backgroundColor: 'var(--cp-neutral-20)' }}>
+      <div className="flex items-center gap-3 min-w-0">
+        <h3 className="text-sm font-semibold truncate" style={{ color: 'var(--cp-neutral-100)' }}>
+          {t.lang === 'en' ? tier.name_en : tier.name_bg}
+        </h3>
+        <SeverityBadge severity={tier.severity} label={`${t.verbal[tier.name_bg.replace(/^Ниво \d — /, '')] ?? tier.percentage + '%'}`} />
       </div>
-
-      {/* Criteria — always visible */}
-      <div className="divide-y" style={{ divideColor: 'var(--cp-neutral-40)' }}>
-        {tier.criteria.map(c => (
-          <div key={c.name} className="px-5 py-3.5"
-            style={{ backgroundColor: 'var(--cp-white)', borderTopColor: 'var(--cp-neutral-40)', borderTopWidth: '1px' }}>
-            <div className="flex items-start justify-between gap-3 mb-1.5">
-              <div className="flex items-start gap-2.5 flex-1">
-                <StatusIcon status={c.status} />
-                <span className="text-sm font-medium" style={{ color: 'var(--cp-neutral-100)' }}>
-                  {c.name}
-                </span>
-              </div>
-              <span className="shrink-0 text-xs font-semibold tabular-nums"
-                style={{ color: 'var(--cp-neutral-80)' }}>
-                {c.score}/{c.maxScore}
-              </span>
-            </div>
-            <p className="text-xs leading-relaxed pl-[26px]" style={{ color: 'var(--cp-neutral-80)' }}>
-              {c.explanation}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* Tier subtotal */}
-      <div className="flex items-center justify-between px-5 py-3 border-t"
-        style={{ backgroundColor: 'var(--cp-neutral-20)', borderColor: 'var(--cp-neutral-40)' }}>
-        <span className="text-xs font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>
-          {tier.name.split(' — ')[0]} Subtotal:
-        </span>
-        <span className="text-xs font-bold" style={{ color: 'var(--cp-neutral-100)' }}>
-          {tier.percentage}%
-        </span>
-      </div>
+      {/* Issue 1: percentage replaces earnedPoints/maxPoints, slightly bigger */}
+      <span className="text-xl font-extrabold tabular-nums shrink-0 ml-4"
+        style={{ color: 'var(--cp-blue-150)' }}>
+        {tier.percentage}%
+      </span>
     </div>
   );
 }
 
-// Compact final score with verbal-scale cells
-function FinalScoreBar({ finalScore, finalTotal }) {
-  const pct  = finalTotal > 0 ? Math.round((finalScore / finalTotal) * 100) : 0;
-  const segs = [
-    { range: '0–30%',   label: 'Критичен риск',     min: 0,  max: 30  },
-    { range: '31–50%',  label: 'Несъответствие',     min: 31, max: 50  },
-    { range: '51–60%',  label: 'Частично',           min: 51, max: 60  },
-    { range: '61–75%',  label: 'Адекватно',          min: 61, max: 75  },
-    { range: '76–89%',  label: 'Високо',             min: 76, max: 89  },
-    { range: '90–100%', label: 'Пълно съответствие', min: 90, max: 100 },
-  ];
-  const activeIdx = segs.findIndex(s => pct >= s.min && pct <= s.max);
-  const inactiveBg = ['#0155B9','#1e6ed4','#449AFF','#6badff','#ACCEF7','#C6E0FF'];
+// ── Issue 3 fix: compact horizontal final score row ───────────────────────────
+function FinalScoreBar({ finalScore, finalTotal, t }) {
+  const pct        = finalTotal > 0 ? Math.round((finalScore / finalTotal) * 100) : 0;
+  const verbalKey  = getVerbalLabel(pct);
+  const verbalDisp = t.verbal[verbalKey] ?? verbalKey;
+  const riskDisp   = getRiskWord(pct, t);
+  const activeIdx  = VERBAL_SEGS.findIndex(s => pct >= s.min && pct <= s.max);
 
   return (
     <div className="mt-6 rounded-xl overflow-hidden" style={{ border: '1px solid var(--cp-neutral-40)' }}>
-      {/* Score row */}
-      <div className="flex items-center justify-between px-6 py-4"
-        style={{ backgroundColor: '#d2e2f5' }}>
+      {/* Issue 3: percentage moved right with verbal label next to it */}
+      <div className="flex items-center justify-between px-6 py-4" style={{ backgroundColor: '#d2e2f5' }}>
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest mb-0.5"
-            style={{ color: '#0155b9' }}>
-            Final Privacy Policy Score
-          </p>
-          <p className="text-xs" style={{ color: '#0155b9' }}>
-            {finalScore}/{finalTotal} точки
-          </p>
-        </div>
-        <p className="text-4xl font-extrabold tabular-nums" style={{ color: '#0155b9' }}>{pct}%</p>
-        <div className="text-right">
-          <p className="text-sm font-bold" style={{ color: '#0155b9' }}>
-            {pct >= 90 ? 'Пълно съответствие'
-              : pct >= 76 ? 'Високо съответствие'
-              : pct >= 61 ? 'Адекватно'
-              : pct >= 51 ? 'Частично съответствие'
-              : pct >= 31 ? 'Несъответствие'
-              : 'Критичен риск'}
+          <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#0155b9' }}>
+            {t.finalScoreLabel}
           </p>
           <p className="text-xs mt-0.5" style={{ color: '#0155b9', opacity: 0.7 }}>
-            {pct < 60 ? 'Изисква корекция' : pct < 80 ? 'Среден риск' : 'Добро ниво'}
+            {finalScore}/{finalTotal} {t.pointsWord}
           </p>
         </div>
+        {/* Percentage + verbal label on the right */}
+        <div className="flex items-center gap-3">
+          <p className="text-4xl font-extrabold tabular-nums" style={{ color: '#0155b9' }}>{pct}%</p>
+          <div className="text-right">
+            <p className="text-sm font-bold leading-tight" style={{ color: '#0155b9' }}>{verbalDisp}</p>
+            <p className="text-xs mt-0.5" style={{ color: '#0155b9', opacity: 0.7 }}>{riskDisp}</p>
+          </div>
+        </div>
       </div>
-
       {/* Verbal scale cells */}
       <div className="flex" style={{ borderTop: '1px solid var(--cp-neutral-40)' }}>
-        {segs.map((s, i) => (
+        {VERBAL_SEGS.map((s, i) => (
           <div key={i} className="flex-1 py-2 text-center"
             style={{
-              backgroundColor: i === activeIdx ? 'var(--cp-blue-100)' : inactiveBg[i],
+              backgroundColor: i === activeIdx ? 'var(--cp-blue-100)' : INACTIVE_BG[i],
               color:           i === activeIdx || i <= 2 ? 'white' : 'var(--cp-neutral-100)',
               outline:         i === activeIdx ? '2px solid var(--cp-blue-150)' : 'none',
               outlineOffset:   '-2px',
-              borderRight:     i < segs.length - 1 ? '1px solid rgba(255,255,255,0.2)' : 'none',
+              borderRight:     i < VERBAL_SEGS.length - 1 ? '1px solid rgba(255,255,255,0.2)' : 'none',
             }}>
-            <p className="text-[10px] font-bold">{s.range}</p>
-            <p className="text-[9px] mt-0.5 opacity-90">{s.label}</p>
+            <p className="text-[10px] font-bold">{t.lang === 'en' ? s.range_en : s.range_bg}</p>
+            <p className="text-[9px] mt-0.5 opacity-90">{t.verbal[s.label] ?? s.label}</p>
           </div>
         ))}
       </div>
@@ -486,58 +410,48 @@ function FinalScoreBar({ finalScore, finalTotal }) {
   );
 }
 
-function PrivacyAnalysisSection({ data }) {
-  const { tiers, finalScore, finalTotal } = data;
-  const totalCriteria  = tiers.reduce((a, t) => a + t.criteria.length, 0);
-  const passedCriteria = tiers.reduce((a, t) => a + t.criteria.filter(c => c.status === 'pass').length, 0);
-  const failedCriteria = tiers.reduce((a, t) => a + t.criteria.filter(c => c.status === 'fail').length, 0);
+function PrivacyAnalysisSection({ t }) {
+  const { tiers, finalScore, finalTotal } = PRIVACY_ANALYSIS_DATA;
+  const total   = tiers.reduce((a, t) => a + t.criteria.length, 0);
+  const passed  = tiers.reduce((a, t) => a + t.criteria.filter(c => c.status === 'pass').length, 0);
+  const failed  = tiers.reduce((a, t) => a + t.criteria.filter(c => c.status === 'fail').length, 0);
 
   return (
-    <ReportSection
-      id="privacy-analysis"
-      title="Privacy Policy Analysis"
-      subtitle="Compliance criteria evaluation with detailed explanations"
-      icon={<FileText className="h-5 w-5" />}
-    >
-      {/* Quick stats — 3 columns */}
+    <ReportSection id="privacy-analysis" title={t.analysisTitle} subtitle={t.analysisSubtitle}
+      icon={<FileText className="h-5 w-5" />}>
       <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="rounded-xl px-4 py-3 text-center"
-          style={{ backgroundColor: 'var(--cp-neutral-20)' }}>
-          <p className="text-2xl font-bold" style={{ color: 'var(--cp-neutral-100)' }}>{totalCriteria}</p>
+        <div className="rounded-xl px-4 py-3 text-center" style={{ backgroundColor: 'var(--cp-neutral-20)' }}>
+          <p className="text-2xl font-bold" style={{ color: 'var(--cp-neutral-100)' }}>{total}</p>
           <p className="text-[10px] font-medium uppercase tracking-wider mt-0.5"
-            style={{ color: 'var(--cp-neutral-80)' }}>Общо критерии</p>
+            style={{ color: 'var(--cp-neutral-80)' }}>{t.totalCriteria}</p>
         </div>
-        <div className="rounded-xl px-4 py-3 text-center"
-          style={{ backgroundColor: 'var(--cp-error-light)' }}>
-          <p className="text-2xl font-bold" style={{ color: 'var(--cp-error)' }}>{failedCriteria}</p>
+        <div className="rounded-xl px-4 py-3 text-center" style={{ backgroundColor: 'var(--cp-error-light)' }}>
+          <p className="text-2xl font-bold" style={{ color: 'var(--cp-error)' }}>{failed}</p>
           <p className="text-[10px] font-medium uppercase tracking-wider mt-0.5"
-            style={{ color: 'var(--cp-error)' }}>Несъответствие</p>
+            style={{ color: 'var(--cp-error)' }}>{t.nonCompliant}</p>
         </div>
-        <div className="rounded-xl px-4 py-3 text-center"
-          style={{ backgroundColor: 'var(--cp-success-light)' }}>
-          <p className="text-2xl font-bold" style={{ color: 'var(--cp-success)' }}>{passedCriteria}</p>
+        <div className="rounded-xl px-4 py-3 text-center" style={{ backgroundColor: 'var(--cp-success-light)' }}>
+          <p className="text-2xl font-bold" style={{ color: 'var(--cp-success)' }}>{passed}</p>
           <p className="text-[10px] font-medium uppercase tracking-wider mt-0.5"
-            style={{ color: 'var(--cp-success)' }}>Съответствие</p>
+            style={{ color: 'var(--cp-success)' }}>{t.compliant}</p>
         </div>
       </div>
-
-      {/* Static tier blocks */}
-      <div className="space-y-4">
-        {tiers.map(tier => <TierBlock key={tier.id} tier={tier} />)}
+      {/* Single-row tier blocks */}
+      <div className="space-y-3">
+        {tiers.map(tier => <TierBlock key={tier.id} tier={tier} t={t} />)}
       </div>
-
-      {/* Compact final score with verbal scale */}
-      <FinalScoreBar finalScore={finalScore} finalTotal={finalTotal} />
+      {/* Compact final score */}
+      <FinalScoreBar finalScore={finalScore} finalTotal={finalTotal} t={t} />
     </ReportSection>
   );
 }
 
 // ── 5. Recommendations ────────────────────────────────────────────────────────
-function PriorityCard({ criterion }) {
+function PriorityCard({ criterion, t }) {
   const critical = criterion.tier === 1;
   return (
     <div className="rounded-xl p-5" style={{
-      border:          `1px solid ${critical ? 'var(--cp-blue-150)' : 'var(--cp-blue-40)'}`,
+      border: `1px solid ${critical ? 'var(--cp-blue-150)' : 'var(--cp-blue-40)'}`,
       borderLeftWidth: '5px',
       borderLeftColor: critical ? 'var(--cp-blue-150)' : 'var(--cp-blue-40)',
       backgroundColor: critical ? 'var(--cp-blue-15)' : 'var(--cp-neutral-20)',
@@ -550,7 +464,7 @@ function PriorityCard({ criterion }) {
             <div>
               <p className="text-[11px] font-bold uppercase tracking-widest mb-1"
                 style={{ color: critical ? 'var(--cp-blue-150)' : 'var(--cp-neutral-80)' }}>
-                {critical ? '⚠ Критичен риск' : 'Препоръчано подобрение'} · Ниво {criterion.tier}
+                {critical ? t.recCritical : t.recSuggested} · {t.recLevel} {criterion.tier}
               </p>
               <p className="text-base font-bold" style={{ color: 'var(--cp-neutral-100)' }}>
                 {criterion.name}
@@ -563,11 +477,11 @@ function PriorityCard({ criterion }) {
           </p>
           <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--cp-blue-15)' }}>
             <p className="text-xs font-bold mb-1" style={{ color: 'var(--cp-neutral-100)' }}>
-              Препоръчано действие:
+              {t.recAction}
             </p>
             <p className="text-sm" style={{ color: 'var(--cp-neutral-80)' }}>
-              <strong>Спешно:</strong> Актуализирайте документа, за да включва конкретна информация
-              относно <em>{criterion.name.toLowerCase()}</em> съгласно чл. 13 GDPR.
+              <strong>{t.recUrgent}</strong>{' '}
+              <em>{criterion.name.toLowerCase()}</em> {t.recGdpr}
             </p>
           </div>
         </div>
@@ -576,22 +490,16 @@ function PriorityCard({ criterion }) {
   );
 }
 
-function RecommendationsSection({ criteria }) {
+function RecommendationsSection({ t }) {
   const issues = criteria
     .filter(c => !c.skipped && c.score !== null && c.score <= 3)
     .sort((a, b) => a.tier - b.tier || a.score - b.score);
-
-  if (issues.length === 0) return null;
-
+  if (!issues.length) return null;
   return (
-    <ReportSection
-      id="recommendations"
-      title="Приоритетни препоръки"
-      subtitle="Критични проблеми, изискващи незабавно внимание"
-      icon={<AlertTriangle className="h-5 w-5" />}
-    >
+    <ReportSection id="recommendations" title={t.recTitle} subtitle={t.recSubtitle}
+      icon={<AlertTriangle className="h-5 w-5" />}>
       <div className="space-y-4">
-        {issues.map(c => <PriorityCard key={c.id} criterion={c} />)}
+        {issues.map(c => <PriorityCard key={c.id} criterion={c} t={t} />)}
       </div>
     </ReportSection>
   );
@@ -599,28 +507,28 @@ function RecommendationsSection({ criteria }) {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function TestReportPage() {
+  const searchParams = useSearchParams();
+  const lang = searchParams.get('lang') === 'en' ? 'en' : 'bg';
+  const t    = { ...reportI18n[lang], lang };
+
   return (
     <div className="space-y-10 pb-16" style={{ color: 'var(--cp-neutral-100)' }}>
-
       {/* TEST MODE banner */}
       <div className="flex items-center justify-between gap-3 rounded-lg px-4 py-2.5 text-sm"
         style={{ backgroundColor: 'var(--cp-blue-15)', border: '1px solid var(--cp-blue-40)', color: 'var(--cp-blue-150)' }}>
-        <span>
-          <strong>TEST MODE</strong> — симулиран одит · няма реални API извиквания
-        </span>
-        <a href={META.targetUrl} target="_blank" rel="noopener noreferrer"
+        <span><strong>TEST MODE</strong> — {lang === 'en' ? 'simulated audit · no API calls · no tokens consumed' : 'симулиран одит · няма реални API извиквания'}</span>
+        <a href={TEST_AUDIT_META.site_url} target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-xs hover:underline shrink-0"
           style={{ color: 'var(--cp-blue-100)' }}>
-          {META.targetUrl} <ExternalLink className="h-3 w-3" />
+          {TEST_AUDIT_META.site_url} <ExternalLink className="h-3 w-3" />
         </a>
       </div>
 
-      <CoverSection meta={META} />
-      <ScopeSection scope={SCOPE} />
-      <AuditTableSection criteria={criteria} tierScores={tier_scores} />
-      <PrivacyAnalysisSection data={PRIVACY_ANALYSIS} />
-      <RecommendationsSection criteria={criteria} />
-
+      <CoverSection t={t} />
+      <ScopeSection t={t} lang={lang} />
+      <AuditTableSection t={t} />
+      <PrivacyAnalysisSection t={t} />
+      <RecommendationsSection t={t} />
     </div>
   );
 }
