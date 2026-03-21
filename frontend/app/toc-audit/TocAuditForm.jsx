@@ -124,11 +124,17 @@ export function TocAuditForm() {
 
   useAuditPolling(auditUid, handleComplete, handlePollError);
 
+  // ── Test-mode detection ──────────────────────────────────────────────────────
+  // ⚠️ TEMPORARY — remove together with lib/test-audit-fixture.js and app/toc-report/test/
+  const isTestMode =
+    clientName.trim() === 'CP_TEST' &&
+    siteUrl.trim()    === 'https://craftpolicy.com/';
+
   // ── Form validation ──────────────────────────────────────────────────────────
   function validate() {
     if (!clientName.trim()) return 'Въведи ime на клиента.';
     if (!siteUrl.trim())    return 'Въведи URL на сайта.';
-    if (!privacyFile && !tocFile) return 'Качи поне един документ (Privacy Policy или T&C).';
+    if (!isTestMode && !privacyFile && !tocFile) return 'Качи поне един документ (Privacy Policy или T&C).';
     return null;
   }
 
@@ -139,6 +145,12 @@ export function TocAuditForm() {
 
     const err = validate();
     if (err) { setFormError(err); return; }
+
+    // ⚠️ TEST MODE — bypass API, redirect to static fixture report
+    if (isTestMode) {
+      router.push('/toc-report/test');
+      return;
+    }
 
     setSubmitting(true);
     setElapsed(0);
