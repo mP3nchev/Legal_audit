@@ -2,6 +2,7 @@
 // ⚠️ TEST ONLY — delete together with lib/test-audit-fixture.js when done.
 // Route: /toc-report/test  |  Trigger: client_name=CP_TEST + site=https://craftpolicy.com/
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   Globe, Calendar, User, Building2,
@@ -505,8 +506,8 @@ function RecommendationsSection({ t }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-export default function TestReportPage() {
+// ── Inner page (needs Suspense because of useSearchParams) ───────────────────
+function TestReportInner() {
   const searchParams = useSearchParams();
   const lang = searchParams.get('lang') === 'en' ? 'en' : 'bg';
   const t    = { ...reportI18n[lang], lang };
@@ -530,5 +531,14 @@ export default function TestReportPage() {
       <PrivacyAnalysisSection t={t} />
       <RecommendationsSection t={t} />
     </div>
+  );
+}
+
+// ── Page export — wraps inner in Suspense (required by Next.js for useSearchParams) ─
+export default function TestReportPage() {
+  return (
+    <Suspense fallback={<div className="py-20 text-center text-sm" style={{ color: 'var(--cp-neutral-80)' }}>Зареждане...</div>}>
+      <TestReportInner />
+    </Suspense>
   );
 }
