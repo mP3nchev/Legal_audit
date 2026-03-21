@@ -9,6 +9,26 @@
     --border:     220 13% 91%;
     --ring:       220 90% 50%;
     --radius:     0.5rem;
+
+    /* CraftPolicy brand tokens */
+    --cp-white:         #ffffff;
+    --cp-neutral-20:    #edf0f4;
+    --cp-neutral-40:    #d8dbde;
+    --cp-neutral-80:    #4d4d4d;
+    --cp-neutral-90:    #3a3a3a;
+    --cp-neutral-100:   #1c1c1c;
+    --cp-blue-5:        #f0f7ff;
+    --cp-blue-15:       #D6E9FF;
+    --cp-blue-40:       #449AFF;
+    --cp-blue-100:      #0175ff;
+    --cp-blue-150:      #0155B9;
+    --cp-blue-200:      #003f99;
+    --cp-success:       #22c55e;
+    --cp-success-light: #f0fdf4;
+    --cp-error:         #ef4444;
+    --cp-error-light:   #fef2f2;
+    --cp-warning:       #f59e0b;
+    --cp-warning-light: #fffbeb;
   }
 
   * {
