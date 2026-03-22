@@ -137,7 +137,6 @@ export const reportI18n = {
       'Международни трансфери — най-високорисковата зона след решението Schrems II; SCCs, TIA и допълнителни мерки',
       'Получатели на данни — пълна прозрачност, категоризация и правно основание за всяко споделяне',
       'Бисквитки и технологии за проследяване — съответствие с ePrivacy и практиката на надзорните органи',
-      'Уведомяване при нарушения — процедурна готовност по чл. 33–34 GDPR и 72-часовото задължение',
     ],
     methodCards: [
       {
@@ -151,6 +150,10 @@ export const reportI18n = {
       {
         heading: 'Правна оценка и план за защита',
         body: 'Одитът приключва с недвусмислена правна оценка и приоритизиран план за отстраняване с няколко препоръки. Всяка препоръка е обвързана с конкретен правен риск и член от GDPR. Това не е доклад за архив. Това е работен инструмент и отправна точка за надграждане на документацията Ви.',
+      },
+      {
+        heading: 'Защо сега, а не след проверка',
+        body: 'През 2025 г. европейските надзорни органи наложиха санкции по GDPR за над 1.2 милиарда евро. Броят на уведомленията за нарушения нараства с 22% само за последната година. Одитът идентифицира уязвимостите, докато отстраняването им е въпрос на избор, не на задължение.',
       },
     ],
     limitationsLabel: 'Прозрачност относно одита:',
@@ -228,7 +231,6 @@ export const reportI18n = {
       'International transfers — the highest-risk area following the Schrems II ruling; SCCs, TIAs, and supplementary measures',
       'Data recipients — full transparency, categorisation, and legal basis for every sharing',
       'Cookies and tracking technologies — compliance with ePrivacy and supervisory authority practice',
-      'Breach notification — procedural readiness under Arts. 33–34 GDPR and the 72-hour obligation',
     ],
     methodCards: [
       {
@@ -242,6 +244,10 @@ export const reportI18n = {
       {
         heading: 'Legal Assessment and Protection Plan',
         body: 'The audit concludes with an unambiguous legal assessment and a prioritised remediation plan with actionable recommendations. Each recommendation is tied to a specific legal risk and a GDPR article. This is not a report for the archive. It is a working tool and a starting point for upgrading your documentation.',
+      },
+      {
+        heading: 'Why Now, Not After an Investigation',
+        body: 'In 2025, European supervisory authorities imposed GDPR fines exceeding €1.2 billion. The number of breach notifications grew by 22% in the past year alone. The audit identifies vulnerabilities while remediation is still a matter of choice, not obligation.',
       },
     ],
     limitationsLabel: 'Transparency about the audit:',

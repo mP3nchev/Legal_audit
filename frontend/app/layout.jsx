@@ -10,7 +10,7 @@ export default function RootLayout({ children }) {
     <html lang="bg">
       <body className="min-h-screen bg-gray-50">
         <header className="border-b border-gray-200 bg-white">
-          <div className="mx-auto max-w-5xl px-4 py-3 flex items-center gap-3">
+          <div className="mx-auto max-w-[80rem] px-4 py-3 flex items-center gap-3">
             <span className="text-lg font-bold text-blue-700 tracking-tight">CraftPolicy</span>
             <span className="text-gray-300">|</span>
             <span className="text-sm text-gray-500">Legal Document Audit</span>
@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
             </nav>
           </div>
         </header>
-        <main className="mx-auto max-w-5xl px-4 py-8">
+        <main className="mx-auto max-w-[80rem] px-4 py-8">
           {children}
         </main>
       </body>
