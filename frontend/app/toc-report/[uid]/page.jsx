@@ -109,73 +109,8 @@ function CoverSection({ audit, t }) {
   );
 }
 
-// ── Scope & Methodology (dynamic based on uploaded documents) ─────────────────
-function buildScopeData(privacy_result, toc_result, lang) {
-  const hasPrivacy = !!privacy_result;
-  const hasToc     = !!toc_result;
-
-  const whatWeTested = [];
-  if (hasPrivacy) {
-    whatWeTested.push(
-      'Наличие и достъпност на Privacy Policy документа',
-      'Идентификация на администратора на лични данни',
-      'Правно основание за обработка съгласно чл. 6 GDPR',
-      'Права на субектите на данни (достъп, коригиране, изтриване)',
-      'Срокове за съхранение на лични данни',
-      'Политика за бисквитки и технологии за проследяване',
-    );
-  }
-  if (hasToc) {
-    whatWeTested.push(
-      'Страни по договора и предмет на услугата',
-      'Условия за плащане, отказ и възстановяване на суми',
-      'Ограничения на отговорността и приложимо право',
-      'Интелектуална собственост и права на ползване',
-    );
-  }
-
-  const privCount  = hasPrivacy ? (privacy_result.criteria ?? []).filter(c => !c.skipped).length : 0;
-  const tocCount   = hasToc     ? (toc_result.criteria   ?? []).filter(c => !c.skipped).length : 0;
-  const totalCount = privCount + tocCount;
-
-  const howWeTested = [
-    {
-      method_bg: 'Автоматичен текстов анализ',
-      method_en: 'Automated Text Analysis',
-      desc_bg: `Claude AI прочита и анализира съдържанието на документите спрямо ${totalCount} активни критерия, разпределени в 4 нива с различна тежест.`,
-      desc_en: `Claude AI reads and evaluates the document content against ${totalCount} active criteria distributed across 4 weighted tiers.`,
-    },
-    {
-      method_bg: 'Претеглена оценка (×множител)',
-      method_en: 'Weighted Scoring (×multiplier)',
-      desc_bg: 'Всяко ниво носи различна тежест: Ниво 1 ×5, Ниво 2 ×4, Ниво 3 ×3, Ниво 4 ×2.',
-      desc_en: 'Each level carries a different weight: Level 1 ×5, Level 2 ×4, Level 3 ×3, Level 4 ×2.',
-    },
-    {
-      method_bg: 'Verbal scale класификация',
-      method_en: 'Verbal Scale Classification',
-      desc_bg: 'Крайният процент се преобразува в 6-степенна скала от „Критичен риск" до „Пълно съответствие".',
-      desc_en: 'The final percentage maps to a 6-level scale from "Critical Risk" to "Full Compliance".',
-    },
-  ];
-
-  const limitations_bg = [
-    'Анализът е базиран единствено на текстовото съдържание на предоставените документи.',
-    'Техническото изпълнение (cookie banner, consent management) не се проверява в тази версия.',
-    'Резултатите са индикативни и не заместват юридическа консултация.',
-  ];
-  const limitations_en = [
-    'Analysis is based solely on the textual content of the submitted documents.',
-    'Technical implementation (cookie banner, consent management) is not verified in this version.',
-    'Results are indicative and do not substitute legal advice.',
-  ];
-
-  return { whatWeTested, howWeTested, limitations_bg, limitations_en };
-}
-
-function ScopeSection({ privacy_result, toc_result, t, lang }) {
-  const scopeData = buildScopeData(privacy_result, toc_result, lang);
-
+// ── Scope & Methodology (static — content lives in reportI18n) ───────────────
+function ScopeSection({ t }) {
   return (
     <section id="scope" className="scroll-mt-24">
       <div className="mb-4 flex items-center gap-3">
@@ -190,14 +125,17 @@ function ScopeSection({ privacy_result, toc_result, t, lang }) {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Left: audit bullets */}
         <div className="rounded-xl border p-5"
           style={{ borderColor: 'var(--cp-neutral-40)', backgroundColor: 'var(--cp-neutral-20)' }}>
           <div className="flex items-center gap-2 mb-4">
             <CheckCircle2 className="h-4 w-4" style={{ color: 'var(--cp-success)' }} />
-            <h3 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>{t.whatTested}</h3>
+            <h3 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>
+              {t.whatTestedLabel}
+            </h3>
           </div>
           <ul className="space-y-2">
-            {scopeData.whatWeTested.map(item => (
+            {t.whatTested.map(item => (
               <li key={item} className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
                   style={{ backgroundColor: 'var(--cp-blue-100)' }} />
@@ -207,32 +145,36 @@ function ScopeSection({ privacy_result, toc_result, t, lang }) {
           </ul>
         </div>
 
+        {/* Right: method cards */}
         <div className="space-y-3">
-          {scopeData.howWeTested.map((m, i) => (
+          {t.methodCards.map((m, i) => (
             <div key={i} className="rounded-xl border p-4"
               style={{ borderColor: 'var(--cp-neutral-40)', backgroundColor: 'var(--cp-white)' }}>
               <div className="flex items-center gap-2 mb-1.5">
                 <FlaskConical className="h-3.5 w-3.5" style={{ color: 'var(--cp-blue-100)' }} />
                 <h4 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>
-                  {lang === 'en' ? m.method_en : m.method_bg}
+                  {m.heading}
                 </h4>
               </div>
               <p className="text-xs leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
-                {lang === 'en' ? m.desc_en : m.desc_bg}
+                {m.body}
               </p>
             </div>
           ))}
         </div>
       </div>
 
+      {/* Bottom: transparency notice */}
       <div className="mt-6 rounded-xl border p-4"
         style={{ borderColor: 'var(--cp-blue-40)', backgroundColor: 'var(--cp-blue-5)' }}>
         <div className="flex items-center gap-2 mb-2">
           <AlertCircle className="h-4 w-4" style={{ color: 'var(--cp-blue-150)' }} />
-          <h3 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>{t.limitations}</h3>
+          <h3 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>
+            {t.limitationsLabel}
+          </h3>
         </div>
         <ul className="space-y-1.5">
-          {(lang === 'en' ? scopeData.limitations_en : scopeData.limitations_bg).map(item => (
+          {t.limitations.map(item => (
             <li key={item} className="flex items-start gap-2">
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
                 style={{ backgroundColor: 'var(--cp-blue-150)' }} />
@@ -288,7 +230,7 @@ export default async function TocReportPage({ params, searchParams }) {
       <CoverSection audit={audit} t={t} />
 
       {/* Scope & Methodology */}
-      <ScopeSection privacy_result={privacy_result} toc_result={toc_result} t={t} lang={lang} />
+      <ScopeSection t={t} />
 
       {/* Interactive audit sections (Privacy + T&C) */}
       <EditModeClient
