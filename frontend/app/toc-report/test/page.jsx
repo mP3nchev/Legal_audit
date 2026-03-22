@@ -350,7 +350,6 @@ function TierBlock({ tier, t }) {
         <h3 className="text-sm font-semibold truncate" style={{ color: 'var(--cp-neutral-100)' }}>
           {t.lang === 'en' ? tier.name_en : tier.name_bg}
         </h3>
-        <SeverityBadge severity={tier.severity} label={`${t.verbal[tier.name_bg.replace(/^Ниво \d — /, '')] ?? tier.percentage + '%'}`} />
       </div>
       {/* Issue 1: percentage replaces earnedPoints/maxPoints, slightly bigger */}
       <span className="text-xl font-extrabold tabular-nums shrink-0 ml-4"
