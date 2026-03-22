@@ -254,27 +254,46 @@ function AuditTableSection({ t }) {
                   {pct}% {t.complianceWord}
                 </span>
               </div>
-              <div className="grid text-[11px] font-bold uppercase tracking-wide px-4 py-2"
+              {/* Column headers — desktop only */}
+              <div className="hidden md:grid text-[11px] font-bold uppercase tracking-wide px-4 py-2"
                 style={{ gridTemplateColumns: '44px 1fr 150px 1fr', gap: '16px',
                   backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
                 <div>{t.colNum}</div><div>{t.colCriterion}</div>
                 <div>{t.colScore}</div><div>{t.colFindings}</div>
               </div>
               {items.map((c, idx) => (
-                <div key={c.id} className="grid px-4 py-4 items-start"
-                  style={{ gridTemplateColumns: '44px 1fr 150px 1fr', gap: '16px',
-                    borderTop: '1px solid var(--cp-neutral-40)',
+                <div key={c.id} className="px-4 py-4"
+                  style={{ borderTop: '1px solid var(--cp-neutral-40)',
                     backgroundColor: idx % 2 === 0 ? 'white' : 'var(--cp-neutral-20)' }}>
-                  <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold"
-                    style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
-                    {c.id - 100}
+                  {/* Mobile card */}
+                  <div className="flex flex-col gap-2 md:hidden">
+                    <div className="flex items-start gap-2.5">
+                      <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold shrink-0"
+                        style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
+                        {c.id - 100}
+                      </div>
+                      <p className="text-sm font-semibold leading-snug pt-0.5"
+                        style={{ color: 'var(--cp-neutral-100)' }}>{c.name}</p>
+                    </div>
+                    <div className="pl-9"><ScoreDots score={c.score} /></div>
+                    <p className="pl-9 text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
+                      {c.explanation}
+                    </p>
                   </div>
-                  <p className="text-sm font-semibold leading-snug pt-0.5"
-                    style={{ color: 'var(--cp-neutral-100)' }}>{c.name}</p>
-                  <div className="pt-0.5"><ScoreDots score={c.score} /></div>
-                  <p className="text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
-                    {c.explanation}
-                  </p>
+                  {/* Desktop grid */}
+                  <div className="hidden md:grid items-start"
+                    style={{ gridTemplateColumns: '44px 1fr 150px 1fr', gap: '16px' }}>
+                    <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold"
+                      style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
+                      {c.id - 100}
+                    </div>
+                    <p className="text-sm font-semibold leading-snug pt-0.5"
+                      style={{ color: 'var(--cp-neutral-100)' }}>{c.name}</p>
+                    <div className="pt-0.5"><ScoreDots score={c.score} /></div>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
+                      {c.explanation}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
