@@ -111,12 +111,12 @@ You must include ALL of the following components in your output, without excepti
 Final Score Summary (Score %, Rating)  
 Make recommendations actionable (e.g., "Add explicit legal basis for X")  
 Provide 3-5 specific, detailed recommendations  
-Complete Score Table with all 37 criteria (ID, Name, Score, Explanation, Tier, Weight, Weighted Score)  
-MANDATORY: All components must be included. The score table must contain all 37 criteria without omission.
+Complete Score Table with all active criteria (ID, Name, Score, Explanation, Tier, Weight, Weighted Score)
+MANDATORY: All components must be included. The score table must contain all active criteria (those not excluded in STEP 0) without omission.
 
 **5\. STRICT PROHIBITIONS**  
 You ABSOLUTELY MUST NOT:  
-Skip or summarize any criteria, even if they seem less relevant.  
+Skip or summarize any active criteria (criteria excluded in STEP 0 are the only permitted omissions).
 Use keyword matching as proxy for understanding (perform actual analysis).  
 Add new criteria or legal interpretations not contained in the instruction set.  
 Include summaries in place of the full 37-score table.  
@@ -129,7 +129,7 @@ Bad explanation: Score 3: Mentions data, seems okay.
 
 **7\. BINDING COMMITMENT**
 
-I understand I must evaluate the privacy policy using EXACTLY & ALL the criteria and embedded in this instruction set. I commit to returning a complete scoring table with all 37 criteria, specific recommendations, and the final score. I will follow every step defined in this AI INSTRUCTION SET with 100% adherence and precision.
+I understand I must evaluate the privacy policy using EXACTLY ALL active criteria (those not excluded in STEP 0) embedded in this instruction set. I commit to returning a complete scoring table with all active criteria, specific recommendations, and the final score. I will follow every step defined in this AI INSTRUCTION SET with 100% adherence and precision.
 
 CRITERIA DETAILS (ALL 37 CRITERIA)
 Tier 1 Criteria (Critical) - Multiplier: 5
