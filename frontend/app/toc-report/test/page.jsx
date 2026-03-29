@@ -109,7 +109,7 @@ function CoverSection({ t }) {
     targetUrl:   TEST_AUDIT_META.site_url,
     scanDate:    new Date(TEST_AUDIT_META.created_at).toLocaleDateString('en-GB'),
     preparedFor: TEST_AUDIT_META.client_name,
-    preparedBy:  'CraftPolicy Audit Engine v1',
+    preparedBy:  'CraftPolicy Audit team',
   };
   return (
     <section id="cover" className="scroll-mt-24">
