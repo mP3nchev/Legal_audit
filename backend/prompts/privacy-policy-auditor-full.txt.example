@@ -1,0 +1,22 @@
+PLACEHOLDER — replace this file with your actual prompt.
+
+To use:
+1. Convert your 40-page DOCX prompt to plain text (UTF-8).
+2. Save it as: backend/prompts/privacy-policy-auditor-full.txt
+3. Upload via Render → Files → Secret Files (path: /app/prompts/privacy-policy-auditor-full.txt)
+   OR commit directly to the repo if the content is not sensitive.
+
+The file is loaded by: backend/src/integrations/claude-api.js → loadPrivacyPolicyPrompt()
+It is used as the system prompt (with prompt caching) for analyzePrivacyPolicy().
+
+Expected output format from Claude:
+{
+  "criteria": [
+    { "id": 1, "score": 4, "explanation": "..." },
+    ...37 total items...
+  ],
+  "total_score": 120,
+  "max_score": 185,
+  "percentage": 64.9,
+  "category": "MODERATE"
+}
