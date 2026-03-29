@@ -93,7 +93,7 @@ function CoverSection({ audit, t }) {
           <DetailCell icon={<Globe     className="h-4 w-4" />} label={t.website}     value={audit.site_url || '—'} />
           <DetailCell icon={<Calendar  className="h-4 w-4" />} label={t.scanDate}    value={scanDate} />
           <DetailCell icon={<User      className="h-4 w-4" />} label={t.preparedFor} value={audit.client_name} />
-          <DetailCell icon={<Building2 className="h-4 w-4" />} label={t.preparedBy}  value="CraftPolicy Audit Engine v1" />
+          <DetailCell icon={<Building2 className="h-4 w-4" />} label={t.preparedBy}  value="CraftPolicy Audit team" />
         </div>
         <div className="border-t px-8 py-4"
           style={{ borderColor: 'var(--cp-neutral-40)', backgroundColor: 'var(--cp-blue-5)' }}>
