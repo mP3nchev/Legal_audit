@@ -116,10 +116,9 @@ function CoverSection({ t }) {
       <div className="rounded-2xl overflow-hidden"
         style={{ border: '1px solid var(--cp-neutral-40)', backgroundColor: 'var(--cp-white)' }}>
         <div className="px-8 py-10" style={{ background: 'linear-gradient(-133deg, #accef7, #e7edf5)' }}>
-          <div className="flex items-center gap-2 mb-6">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg font-black text-white text-sm"
-              style={{ backgroundColor: 'var(--cp-blue-100)' }}>CP</div>
-            <span className="text-xl font-bold tracking-tight" style={{ color: 'var(--cp-blue-100)' }}>CraftPolicy</span>
+          <div className="mb-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/craftpolicy-logo.svg" alt="CraftPolicy" className="h-8" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight leading-tight lg:text-4xl"
             style={{ color: 'var(--cp-blue-100)', whiteSpace: 'pre-line' }}>

@@ -11,7 +11,8 @@ export default function RootLayout({ children }) {
       <body className="min-h-screen bg-gray-50">
         <header className="border-b border-gray-200 bg-white">
           <div className="mx-auto max-w-[80rem] px-4 py-3 flex items-center gap-3">
-            <span className="text-lg font-bold text-blue-700 tracking-tight">CraftPolicy</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/craftpolicy-logo.svg" alt="CraftPolicy" className="h-6" />
             <span className="text-gray-300">|</span>
             <span className="text-sm text-gray-500">Legal Document Audit</span>
             <nav className="ml-auto flex gap-4">
