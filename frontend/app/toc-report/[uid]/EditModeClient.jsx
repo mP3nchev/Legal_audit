@@ -369,12 +369,20 @@ function PriorityCard({ c, readOnly, onExplanationChange, onRecommendationChange
 }
 
 function RecommendationsSection({ id, criteria, readOnly, onExplanationChange, onRecommendationChange }) {
-  const issues = criteria
-    .filter(c => !c.skipped && c.score !== null && c.score <= 3)
+  const lowScoring = criteria
+    .filter(c => !c.skipped && c.score !== null && c.score <= 2)
     .sort((a, b) => a.tier - b.tier || a.score - b.score);
 
+  // Mirror backend: if <3 at score ≤2, fall back to lowest-scoring overall (up to 5)
+  const issues = lowScoring.length >= 3
+    ? lowScoring.slice(0, 7)
+    : criteria
+        .filter(c => !c.skipped && c.score !== null)
+        .sort((a, b) => a.tier - b.tier || a.score - b.score)
+        .slice(0, 5);
+
   const subtitle = issues.length === 0
-    ? 'Няма критерии с оценка ≤ 3'
+    ? 'Няма критерии с оценка ≤ 2'
     : `${issues.length} ${issues.length === 1 ? 'критичен проблем' : 'критични проблема'}, изискващи незабавно внимание`;
 
   return (
