@@ -11,7 +11,7 @@ const { createLogger } = require('../utils/logger');
 
 const logger = createLogger('claude-api');
 const claudeBreaker = new CircuitBreaker({ name: 'claude-api', failureThreshold: 3, resetTimeout: 120000 });
-const CLAUDE_TIMEOUT_MS = 90000;
+const CLAUDE_TIMEOUT_MS = 300000; // 300s — matches toc-analyzer.js (40-page prompts need time)
 
 /**
  * Budget Tracker with SQLite Persistence
@@ -288,7 +288,7 @@ async function analyzePrivacyPolicy(policyText, options = {}) {
     // Prepare the request
     const requestBody = {
       model: constants.CLAUDE_MODEL,
-      max_tokens: constants.CLAUDE_MAX_TOKENS,
+      max_tokens: constants.CLAUDE_MAX_TOKENS_PRIVACY,
       system: [
         {
           type: 'text',

@@ -18,6 +18,7 @@ const { CircuitBreaker }    = require('../utils/circuit-breaker');
 const { createLogger }      = require('../utils/logger');
 const { extractTextFromBuffer, cleanText } = require('../utils/text-extractor');
 const { getDatabase }       = require('../database/db');
+const constants             = require('../config/constants');
 const {
   calculateTotal,
   getVerbalScale,
@@ -27,7 +28,7 @@ const {
 const logger  = createLogger('toc-analyzer');
 const breaker = new CircuitBreaker({ name: 'toc-claude', failureThreshold: 3, resetTimeout: 120_000 });
 
-const CLAUDE_MODEL   = process.env.CLAUDE_MODEL || 'claude-sonnet-4-6';
+const CLAUDE_MODEL   = constants.CLAUDE_MODEL;
 const CLAUDE_TIMEOUT = 300_000; // 300 seconds per document — plan requirement
 
 // ── Config loaders ────────────────────────────────────────────────────────────
@@ -165,7 +166,7 @@ async function callClaude(systemPrompt, userPrompt, auditUid, docType, attempt) 
   const response = await breaker.call(() =>
     client.messages.create({
       model:      CLAUDE_MODEL,
-      max_tokens: 8192,
+      max_tokens: constants.CLAUDE_MAX_TOKENS,
       system:     systemPrompt,
       messages:   [{ role: 'user', content: userPrompt }],
     })

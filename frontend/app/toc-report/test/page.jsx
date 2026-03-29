@@ -22,48 +22,6 @@ const TIER_LABELS = {
 
 const { criteria, tier_scores, total_score, total_max_score } = TEST_PRIVACY_RESULT;
 
-const SCOPE_DATA = {
-  whatWeTested: [
-    'Наличие и достъпност на Privacy Policy документа',
-    'Идентификация на администратора на лични данни',
-    'Правно основание за обработка съгласно чл. 6 GDPR',
-    'Права на субектите на данни (достъп, коригиране, изтриване)',
-    'Срокове за съхранение на лични данни',
-    'Политика за бисквитки и технологии за проследяване',
-    'Трансфер на данни извън ЕС/ЕИП',
-    'Информация за надзорни органи и DPO контакти',
-  ],
-  howWeTested: [
-    {
-      method_bg: 'Автоматичен текстов анализ',
-      method_en: 'Automated Text Analysis',
-      desc_bg: 'Claude AI прочита и анализира съдържанието на документа спрямо 8 критерия, разпределени в 4 нива с различна тежест.',
-      desc_en: 'Claude AI reads and evaluates the document content against 8 criteria distributed across 4 weighted tiers.',
-    },
-    {
-      method_bg: 'Претеглена оценка (×множител)',
-      method_en: 'Weighted Scoring (×multiplier)',
-      desc_bg: 'Всяко ниво носи различна тежест: Ниво 1 ×3, Ниво 2 ×2, Ниво 3 ×1.5, Ниво 4 ×1.',
-      desc_en: 'Each level carries a different weight: Level 1 ×3, Level 2 ×2, Level 3 ×1.5, Level 4 ×1.',
-    },
-    {
-      method_bg: 'Verbal scale класификация',
-      method_en: 'Verbal Scale Classification',
-      desc_bg: 'Крайният процент се преобразува в 6-степенна скала от „Критичен риск" до „Пълно съответствие".',
-      desc_en: 'The final percentage maps to a 6-level scale from "Critical Risk" to "Full Compliance".',
-    },
-  ],
-  limitations_bg: [
-    'Анализът е базиран единствено на текстовото съдържание на предоставения документ.',
-    'Техническото изпълнение (cookie banner, consent management) не се проверява в тази версия.',
-    'Резултатите са индикативни и не заместват юридическа консултация.',
-  ],
-  limitations_en: [
-    'Analysis is based solely on the textual content of the submitted document.',
-    'Technical implementation (cookie banner, consent management) is not verified in this version.',
-    'Results are indicative and do not substitute legal advice.',
-  ],
-};
 
 const PRIVACY_ANALYSIS_DATA = {
   tiers: [1, 2, 3, 4].map(t => {
@@ -189,19 +147,22 @@ function CoverSection({ t }) {
 }
 
 // ── 2. Scope & Methodology ────────────────────────────────────────────────────
-function ScopeSection({ t, lang }) {
+function ScopeSection({ t }) {
   return (
     <ReportSection id="scope" title={t.scopeTitle} subtitle={t.scopeSubtitle}
       icon={<Microscope className="h-5 w-5" />}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Left: audit bullets */}
         <div className="rounded-xl border p-5"
           style={{ borderColor: 'var(--cp-neutral-40)', backgroundColor: 'var(--cp-neutral-20)' }}>
           <div className="flex items-center gap-2 mb-4">
             <CheckCircle2 className="h-4 w-4" style={{ color: 'var(--cp-success)' }} />
-            <h3 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>{t.whatTested}</h3>
+            <h3 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>
+              {t.whatTestedLabel}
+            </h3>
           </div>
           <ul className="space-y-2">
-            {SCOPE_DATA.whatWeTested.map(item => (
+            {t.whatTested.map(item => (
               <li key={item} className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
                   style={{ backgroundColor: 'var(--cp-blue-100)' }} />
@@ -210,31 +171,35 @@ function ScopeSection({ t, lang }) {
             ))}
           </ul>
         </div>
+        {/* Right: method cards */}
         <div className="space-y-3">
-          {SCOPE_DATA.howWeTested.map((m, i) => (
+          {t.methodCards.map((m, i) => (
             <div key={i} className="rounded-xl border p-4"
               style={{ borderColor: 'var(--cp-neutral-40)', backgroundColor: 'var(--cp-white)' }}>
               <div className="flex items-center gap-2 mb-1.5">
                 <FlaskConical className="h-3.5 w-3.5" style={{ color: 'var(--cp-blue-100)' }} />
                 <h4 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>
-                  {lang === 'en' ? m.method_en : m.method_bg}
+                  {m.heading}
                 </h4>
               </div>
               <p className="text-xs leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
-                {lang === 'en' ? m.desc_en : m.desc_bg}
+                {m.body}
               </p>
             </div>
           ))}
         </div>
       </div>
+      {/* Bottom: transparency notice */}
       <div className="mt-6 rounded-xl border p-4"
         style={{ borderColor: 'var(--cp-blue-40)', backgroundColor: 'var(--cp-blue-5)' }}>
         <div className="flex items-center gap-2 mb-2">
           <AlertCircle className="h-4 w-4" style={{ color: 'var(--cp-blue-150)' }} />
-          <h3 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>{t.limitations}</h3>
+          <h3 className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>
+            {t.limitationsLabel}
+          </h3>
         </div>
         <ul className="space-y-1.5">
-          {(lang === 'en' ? SCOPE_DATA.limitations_en : SCOPE_DATA.limitations_bg).map(item => (
+          {t.limitations.map(item => (
             <li key={item} className="flex items-start gap-2">
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
                 style={{ backgroundColor: 'var(--cp-blue-150)' }} />
@@ -289,27 +254,46 @@ function AuditTableSection({ t }) {
                   {pct}% {t.complianceWord}
                 </span>
               </div>
-              <div className="grid text-[11px] font-bold uppercase tracking-wide px-4 py-2"
+              {/* Column headers — desktop only */}
+              <div className="hidden md:grid text-[11px] font-bold uppercase tracking-wide px-4 py-2"
                 style={{ gridTemplateColumns: '44px 1fr 150px 1fr', gap: '16px',
                   backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
                 <div>{t.colNum}</div><div>{t.colCriterion}</div>
                 <div>{t.colScore}</div><div>{t.colFindings}</div>
               </div>
               {items.map((c, idx) => (
-                <div key={c.id} className="grid px-4 py-4 items-start"
-                  style={{ gridTemplateColumns: '44px 1fr 150px 1fr', gap: '16px',
-                    borderTop: '1px solid var(--cp-neutral-40)',
+                <div key={c.id} className="px-4 py-4"
+                  style={{ borderTop: '1px solid var(--cp-neutral-40)',
                     backgroundColor: idx % 2 === 0 ? 'white' : 'var(--cp-neutral-20)' }}>
-                  <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold"
-                    style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
-                    {c.id - 100}
+                  {/* Mobile card */}
+                  <div className="flex flex-col gap-2 md:hidden">
+                    <div className="flex items-start gap-2.5">
+                      <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold shrink-0"
+                        style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
+                        {c.id - 100}
+                      </div>
+                      <p className="text-sm font-semibold leading-snug pt-0.5"
+                        style={{ color: 'var(--cp-neutral-100)' }}>{c.name}</p>
+                    </div>
+                    <div className="pl-9"><ScoreDots score={c.score} /></div>
+                    <p className="pl-9 text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
+                      {c.explanation}
+                    </p>
                   </div>
-                  <p className="text-sm font-semibold leading-snug pt-0.5"
-                    style={{ color: 'var(--cp-neutral-100)' }}>{c.name}</p>
-                  <div className="pt-0.5"><ScoreDots score={c.score} /></div>
-                  <p className="text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
-                    {c.explanation}
-                  </p>
+                  {/* Desktop grid */}
+                  <div className="hidden md:grid items-start"
+                    style={{ gridTemplateColumns: '44px 1fr 150px 1fr', gap: '16px' }}>
+                    <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold"
+                      style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
+                      {c.id - 100}
+                    </div>
+                    <p className="text-sm font-semibold leading-snug pt-0.5"
+                      style={{ color: 'var(--cp-neutral-100)' }}>{c.name}</p>
+                    <div className="pt-0.5"><ScoreDots score={c.score} /></div>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
+                      {c.explanation}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -524,7 +508,7 @@ function TestReportInner() {
       </div>
 
       <CoverSection t={t} />
-      <ScopeSection t={t} lang={lang} />
+      <ScopeSection t={t} />
       <AuditTableSection t={t} />
       <PrivacyAnalysisSection t={t} />
       <RecommendationsSection t={t} />

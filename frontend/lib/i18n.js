@@ -126,9 +126,42 @@ export const reportI18n = {
     // Scope
     scopeTitle:       'Обхват & Методология',
     scopeSubtitle:    'Какво и как тествахме',
-    whatTested:       'Тествано',
-    howTested:        'Метод на анализ',
-    limitations:      'Ограничения',
+    whatTestedLabel:  'Подложено на правен одит:',
+    whatTested: [
+      'Правна идентичност на администратора — основа за всяка регулаторна проверка',
+      'Законови основания за обработка — липсата им е водещата причина за санкции по чл. 6 GDPR',
+      'Легитимен интерес — аргументиран балансиращ тест и защитима правна обосновка по чл. 13(1)(d)',
+      'Механизми за съгласие — валидност, гранулираност и реална свобода на избор съгласно чл. 7 GDPR',
+      'Права на субектите — декларирани права без работещ механизъм носят същата регулаторна отговорност като пълното им отсъствие',
+      'Срокове за съхранение — неопределените срокове нарушават принципа за ограничение по чл. 5(1)(е)',
+      'Международни трансфери — най-високорисковата зона след решението Schrems II; SCCs, TIA и допълнителни мерки',
+      'Получатели на данни — пълна прозрачност, категоризация и правно основание за всяко споделяне',
+      'Бисквитки и технологии за проследяване — съответствие с ePrivacy и практиката на надзорните органи',
+    ],
+    methodCards: [
+      {
+        heading: 'Методология от 37 правни критерия',
+        body: 'Над 80% от одитираните от CraftPolicy политики съдържат поне едно критично нарушение, невидимо без структурирана правна рамка. Методологията е разработена в съответствие с насоките на EDPB и оценява всеки документ в четири нива на правна критичност. Целта е единствена: да открие това, което регулаторът ще намери преди вас.',
+      },
+      {
+        heading: 'Претеглена оценка на регулаторната ви експозиция',
+        body: 'Не всички нарушения носят еднакъв риск. Критичните експозиции носят до 5× по-висока тежест, защото именно те са обект на регулаторен интерес и основание за санкции. Резултатът е точна карта на правната ви уязвимост.',
+      },
+      {
+        heading: 'Правна оценка и план за защита',
+        body: 'Одитът приключва с недвусмислена правна оценка и приоритизиран план за отстраняване с няколко препоръки. Всяка препоръка е обвързана с конкретен правен риск и член от GDPR. Това не е доклад за архив. Това е работен инструмент и отправна точка за надграждане на документацията Ви.',
+      },
+      {
+        heading: 'Защо сега, а не след проверка',
+        body: 'През 2025 г. европейските надзорни органи наложиха санкции по GDPR за над 1.2 милиарда евро. Броят на уведомленията за нарушения нараства с 22% само за последната година. Одитът идентифицира уязвимостите, докато отстраняването им е въпрос на избор, не на задължение.',
+      },
+    ],
+    limitationsLabel: 'Прозрачност относно одита:',
+    limitations: [
+      'Одитът обхваща изцяло текстовото съдържание на предоставения документ — всеки раздел, клауза и формулировка се оценяват индивидуално спрямо приложимите GDPR изисквания.',
+      'Техническото изпълнение на consent механизми (банери, CMP платформи) представлява самостоятелна дисциплина и се препоръчва като допълнителен технически преглед.',
+      'Одитът установява регулаторната позиция на документа към датата на оценката. Имплементацията на препоръките и изготвянето на нова политика са достъпни като допълнителни услуги, предоставяни от екипа на CraftPolicy.',
+    ],
 
     // Audit table
     tableTitle:       'Детайлна одитна таблица',
@@ -187,9 +220,42 @@ export const reportI18n = {
 
     scopeTitle:       'Scope & Methodology',
     scopeSubtitle:    'What we tested and how we tested it',
-    whatTested:       'What We Tested',
-    howTested:        'How We Tested',
-    limitations:      'Limitations',
+    whatTestedLabel:  'Subjected to Legal Audit:',
+    whatTested: [
+      'Legal identity of the controller — the foundation for every regulatory review',
+      'Legal bases for processing — their absence is the leading cause of sanctions under Art. 6 GDPR',
+      'Legitimate interest — an argued balancing test and defensible legal justification under Art. 13(1)(d)',
+      'Consent mechanisms — validity, granularity, and genuine freedom of choice under Art. 7 GDPR',
+      'Data subject rights — declared rights without a working mechanism carry the same regulatory liability as their complete absence',
+      'Retention periods — undefined periods violate the storage limitation principle under Art. 5(1)(e)',
+      'International transfers — the highest-risk area following the Schrems II ruling; SCCs, TIAs, and supplementary measures',
+      'Data recipients — full transparency, categorisation, and legal basis for every sharing',
+      'Cookies and tracking technologies — compliance with ePrivacy and supervisory authority practice',
+    ],
+    methodCards: [
+      {
+        heading: 'Methodology of 37 Legal Criteria',
+        body: 'Over 80% of the privacy policies audited by CraftPolicy contain at least one critical violation invisible without a structured legal framework. The methodology is developed in accordance with EDPB guidelines and assesses each document across four levels of legal criticality. The objective is singular: to uncover what the regulator will find before you do.',
+      },
+      {
+        heading: 'Weighted Assessment of Your Regulatory Exposure',
+        body: 'Not all violations carry equal risk. Critical exposures carry up to 5× greater weight because they are precisely what regulators target and the basis for sanctions. The result is an accurate map of your legal vulnerability.',
+      },
+      {
+        heading: 'Legal Assessment and Protection Plan',
+        body: 'The audit concludes with an unambiguous legal assessment and a prioritised remediation plan with actionable recommendations. Each recommendation is tied to a specific legal risk and a GDPR article. This is not a report for the archive. It is a working tool and a starting point for upgrading your documentation.',
+      },
+      {
+        heading: 'Why Now, Not After an Investigation',
+        body: 'In 2025, European supervisory authorities imposed GDPR fines exceeding €1.2 billion. The number of breach notifications grew by 22% in the past year alone. The audit identifies vulnerabilities while remediation is still a matter of choice, not obligation.',
+      },
+    ],
+    limitationsLabel: 'Transparency about the audit:',
+    limitations: [
+      'The audit covers the full textual content of the submitted document — every section, clause and formulation is assessed individually against the applicable GDPR requirements.',
+      'Technical implementation of consent mechanisms (banners, CMP platforms) is a separate discipline and is recommended as an additional technical review.',
+      'The audit establishes the regulatory position of the document as at the date of assessment. Implementation of recommendations and drafting of a new policy are available as additional services provided by the CraftPolicy team.',
+    ],
 
     tableTitle:       'Detailed Audit Table',
     colNum:           '#',

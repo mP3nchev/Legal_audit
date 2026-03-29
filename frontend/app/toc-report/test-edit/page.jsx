@@ -157,53 +157,70 @@ function AuditTableEdit({ criteria, score, onScoreChange, onExplanationChange })
                   {pct}% съответствие
                 </span>
               </div>
-              {/* Column headers */}
-              <div className="grid text-[11px] font-bold uppercase tracking-wide px-4 py-2"
+              {/* Column headers — desktop only */}
+              <div className="hidden md:grid text-[11px] font-bold uppercase tracking-wide px-4 py-2"
                 style={{
-                  gridTemplateColumns: '44px 1fr 160px 1fr',
-                  gap: '16px',
-                  backgroundColor: 'var(--cp-blue-15)',
-                  color: 'var(--cp-blue-150)',
+                  gridTemplateColumns: '44px 1fr 160px 1fr', gap: '16px',
+                  backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)',
                 }}>
                 <div>#</div><div>Критерий</div><div>Оценка</div><div>Констатации & обяснение</div>
               </div>
               {/* Rows */}
               {items.map((c, idx) => (
-                <div key={c.id} className="grid px-4 py-4 items-start"
+                <div key={c.id} className="px-4 py-4"
                   style={{
-                    gridTemplateColumns: '44px 1fr 160px 1fr',
-                    gap: '16px',
                     borderTop: '1px solid var(--cp-neutral-40)',
                     backgroundColor: idx % 2 === 0 ? 'white' : 'var(--cp-neutral-20)',
                   }}>
-                  {/* № */}
-                  <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold"
-                    style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
-                    {c.id - 100}
-                  </div>
-                  {/* Criterion name */}
-                  <p className="text-sm font-semibold leading-snug pt-1"
-                    style={{ color: 'var(--cp-neutral-100)' }}>{c.name}</p>
-                  {/* Editable score dots */}
-                  <div className="pt-1">
-                    <EditableScoreDots
-                      score={c.score}
-                      onChange={val => onScoreChange(c.id, val)}
+                  {/* Mobile card */}
+                  <div className="flex flex-col gap-2.5 md:hidden">
+                    <div className="flex items-start gap-2.5">
+                      <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold shrink-0"
+                        style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
+                        {c.id - 100}
+                      </div>
+                      <p className="text-sm font-semibold leading-snug pt-0.5"
+                        style={{ color: 'var(--cp-neutral-100)' }}>{c.name}</p>
+                    </div>
+                    <div className="pl-9">
+                      <EditableScoreDots score={c.score} onChange={val => onScoreChange(c.id, val)} />
+                    </div>
+                    <AutoTextarea
+                      value={c.explanation}
+                      onChange={val => onExplanationChange(c.id, val)}
+                      placeholder="Констатации & обяснение..."
+                      className="w-full rounded-lg border px-3 py-2 text-sm leading-relaxed outline-none transition"
+                      style={{
+                        color: 'var(--cp-neutral-80)', borderColor: 'var(--cp-neutral-40)',
+                        backgroundColor: idx % 2 === 0 ? 'white' : 'var(--cp-neutral-20)',
+                        minHeight: '2.5rem',
+                      }}
                     />
                   </div>
-                  {/* Editable explanation */}
-                  <AutoTextarea
-                    value={c.explanation}
-                    onChange={val => onExplanationChange(c.id, val)}
-                    placeholder="Констатации & обяснение..."
-                    className="w-full rounded-lg border px-3 py-2 text-sm leading-relaxed outline-none transition"
-                    style={{
-                      color: 'var(--cp-neutral-80)',
-                      borderColor: 'var(--cp-neutral-40)',
-                      backgroundColor: idx % 2 === 0 ? 'white' : 'var(--cp-neutral-20)',
-                      minHeight: '2.5rem',
-                    }}
-                  />
+                  {/* Desktop grid */}
+                  <div className="hidden md:grid items-start"
+                    style={{ gridTemplateColumns: '44px 1fr 160px 1fr', gap: '16px' }}>
+                    <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold"
+                      style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
+                      {c.id - 100}
+                    </div>
+                    <p className="text-sm font-semibold leading-snug pt-1"
+                      style={{ color: 'var(--cp-neutral-100)' }}>{c.name}</p>
+                    <div className="pt-1">
+                      <EditableScoreDots score={c.score} onChange={val => onScoreChange(c.id, val)} />
+                    </div>
+                    <AutoTextarea
+                      value={c.explanation}
+                      onChange={val => onExplanationChange(c.id, val)}
+                      placeholder="Констатации & обяснение..."
+                      className="w-full rounded-lg border px-3 py-2 text-sm leading-relaxed outline-none transition"
+                      style={{
+                        color: 'var(--cp-neutral-80)', borderColor: 'var(--cp-neutral-40)',
+                        backgroundColor: idx % 2 === 0 ? 'white' : 'var(--cp-neutral-20)',
+                        minHeight: '2.5rem',
+                      }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
