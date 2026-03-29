@@ -288,7 +288,7 @@ async function analyzePrivacyPolicy(policyText, options = {}) {
     // Prepare the request
     const requestBody = {
       model: constants.CLAUDE_MODEL,
-      max_tokens: constants.CLAUDE_MAX_TOKENS,
+      max_tokens: constants.CLAUDE_MAX_TOKENS_PRIVACY,
       system: [
         {
           type: 'text',
