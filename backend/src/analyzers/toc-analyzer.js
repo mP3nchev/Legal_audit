@@ -181,9 +181,11 @@ async function callClaude(systemPrompt, userPrompt, auditUid, docType, attempt) 
 
   const client = new Anthropic({ apiKey, timeout: CLAUDE_TIMEOUT });
 
-  // Privacy and T&C audits use the higher 30k limit; generic calls use 22k
+  // Audit calls use BURST limit (38k) directly — Anthropic charges for actual
+  // tokens generated, not for max_tokens, so there is no cost penalty.
+  // Generic calls use the standard 22k limit.
   const maxTokens = (docType === 'privacy' || docType === 'toc')
-    ? constants.CLAUDE_MAX_TOKENS_PRIVACY
+    ? constants.CLAUDE_MAX_TOKENS_BURST
     : constants.CLAUDE_MAX_TOKENS;
 
   logger.info('claude-call-start', { auditUid, docType, attempt, model: CLAUDE_MODEL, maxTokens });
@@ -199,30 +201,12 @@ async function callClaude(systemPrompt, userPrompt, auditUid, docType, attempt) 
 
   const outputTokens = response.usage?.output_tokens ?? 0;
 
-  // Burst mode: response was truncated near the 30k ceiling → retry at 38k
-  if (response.stop_reason === 'max_tokens' && outputTokens >= 28000) {
-    logger.warn('claude-burst-triggered', {
-      auditUid, docType, attempt, outputTokens,
-      burstLimit: constants.CLAUDE_MAX_TOKENS_BURST,
+  // Warn if response still hit the ceiling (indicates an unusually large document)
+  if (response.stop_reason === 'max_tokens') {
+    logger.warn('claude-output-truncated', {
+      auditUid, docType, attempt, outputTokens, maxTokens,
+      hint: 'Response was cut off. Consider raising CLAUDE_MAX_TOKENS_BURST.',
     });
-
-    const burstResponse = await breaker.call(() =>
-      client.messages.create({
-        model:      CLAUDE_MODEL,
-        max_tokens: constants.CLAUDE_MAX_TOKENS_BURST,
-        system:     systemPrompt,
-        messages:   [{ role: 'user', content: userPrompt }],
-      })
-    );
-
-    const raw = burstResponse.content?.[0]?.text ?? '';
-    logger.info('claude-burst-done', {
-      auditUid, docType, attempt,
-      inputTokens:  burstResponse.usage?.input_tokens,
-      outputTokens: burstResponse.usage?.output_tokens,
-      stopReason:   burstResponse.stop_reason,
-    });
-    return { raw };
   }
 
   const raw = response.content?.[0]?.text ?? '';
