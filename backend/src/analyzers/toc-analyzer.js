@@ -58,13 +58,17 @@ function buildActiveCriteria(docType, questionsAnswers, criteriaConfig) {
   const allCriteria = Object.values(criteriaConfig.tiers).flat();
 
   // Collect ids to skip based on false answers
+  // skip_criteria_if_false supports both legacy array and new per-docType object: { privacy: [], toc: [] }
   const skipIds = new Set();
   for (const [key, answer] of Object.entries(questionsAnswers || {})) {
     if (!answer && questions[key]) {
       const q = questions[key];
       const appliesToDoc = q.applies_to === 'both' || q.applies_to === docType;
-      if (appliesToDoc && Array.isArray(q.skip_criteria_if_false)) {
-        q.skip_criteria_if_false.forEach(id => skipIds.add(id));
+      if (appliesToDoc && q.skip_criteria_if_false) {
+        const skipList = Array.isArray(q.skip_criteria_if_false)
+          ? q.skip_criteria_if_false                      // legacy format
+          : (q.skip_criteria_if_false[docType] || []);    // per-docType format
+        skipList.forEach(id => skipIds.add(id));
       }
     }
   }
@@ -92,10 +96,18 @@ function buildActiveCriteria(docType, questionsAnswers, criteriaConfig) {
 
 function buildSystemPrompt(docType) {
   if (docType === 'privacy') {
+    const promptPath = path.join(
+      __dirname,
+      '../../prompts/ONLY INSTRUCTION SET \u2014 PRIVACY POLICY AUDITOR_March 2026.md'
+    );
+    if (fs.existsSync(promptPath)) {
+      return fs.readFileSync(promptPath, 'utf8');
+    }
+    logger.warn('privacy-prompt-file-missing', { path: promptPath });
+    // Fallback — minimal prompt when file is absent
     return (
       'You are a senior GDPR legal expert specializing in Privacy Policy compliance. ' +
-      'You evaluate privacy policies against specific criteria and return structured JSON scores. ' +
-      'You are precise, consistent, and strictly follow the exact output format requested. ' +
+      'Evaluate the privacy policy against the listed criteria and return structured JSON scores. ' +
       'Return ONLY a valid JSON array — no explanatory text before or after.'
     );
   }
@@ -110,11 +122,19 @@ function buildSystemPrompt(docType) {
 function buildUserPrompt(docType, activeCriteria, businessContext, documentText) {
   const docLabel    = docType === 'privacy' ? 'Privacy Policy' : 'Terms & Conditions';
   const activeList  = activeCriteria.filter(c => !c.skipped);
+  const skippedList = activeCriteria.filter(c =>  c.skipped);
   const criteriaStr = activeList
     .map(c => `${c.id}. [Tier ${c.tier}, weight ×${c.multiplier}] ${c.name}`)
     .join('\n');
 
-  return `You are auditing a ${docLabel} for the following business:
+  const excludedSection = skippedList.length > 0
+    ? `EXCLUDED CRITERIA — NOT APPLICABLE (set score=0, applicable=false, skip evaluation and all related interdependency rules):
+${skippedList.map(c => `${c.id}. ${c.name}`).join('\n')}
+
+`
+    : '';
+
+  return `${excludedSection}You are auditing a ${docLabel} for the following business:
 Business type: ${businessContext.businessType}
 Site URL: ${businessContext.siteUrl}
 Client: ${businessContext.clientName}
@@ -136,7 +156,7 @@ CRITICAL OUTPUT RULES:
 1. Return ONLY a valid JSON array. No text before or after.
 2. First character MUST be [
 3. Last character MUST be ]
-4. Array MUST contain EXACTLY ${activeList.length} objects — one per criterion above.
+4. Array MUST contain EXACTLY ${activeList.length} objects — one per ACTIVE criterion above (excluded criteria are NOT in the array).
 5. Each object: { "id": <number>, "score": <1-5>, "explanation": "<2-3 sentences>" }
 
 OUTPUT (JSON array only, starting with [):`;
@@ -161,22 +181,39 @@ async function callClaude(systemPrompt, userPrompt, auditUid, docType, attempt) 
 
   const client = new Anthropic({ apiKey, timeout: CLAUDE_TIMEOUT });
 
-  logger.info('claude-call-start', { auditUid, docType, attempt, model: CLAUDE_MODEL });
+  // Audit calls use BURST limit (38k) directly — Anthropic charges for actual
+  // tokens generated, not for max_tokens, so there is no cost penalty.
+  // Generic calls use the standard 22k limit.
+  const maxTokens = (docType === 'privacy' || docType === 'toc')
+    ? constants.CLAUDE_MAX_TOKENS_BURST
+    : constants.CLAUDE_MAX_TOKENS;
+
+  logger.info('claude-call-start', { auditUid, docType, attempt, model: CLAUDE_MODEL, maxTokens });
 
   const response = await breaker.call(() =>
     client.messages.create({
       model:      CLAUDE_MODEL,
-      max_tokens: constants.CLAUDE_MAX_TOKENS,
+      max_tokens: maxTokens,
       system:     systemPrompt,
       messages:   [{ role: 'user', content: userPrompt }],
     })
   );
 
+  const outputTokens = response.usage?.output_tokens ?? 0;
+
+  // Warn if response still hit the ceiling (indicates an unusually large document)
+  if (response.stop_reason === 'max_tokens') {
+    logger.warn('claude-output-truncated', {
+      auditUid, docType, attempt, outputTokens, maxTokens,
+      hint: 'Response was cut off. Consider raising CLAUDE_MAX_TOKENS_BURST.',
+    });
+  }
+
   const raw = response.content?.[0]?.text ?? '';
   logger.info('claude-call-done', {
     auditUid, docType, attempt,
     inputTokens:  response.usage?.input_tokens,
-    outputTokens: response.usage?.output_tokens,
+    outputTokens, stopReason: response.stop_reason,
     previewLen:   raw.length,
   });
 

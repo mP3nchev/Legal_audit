@@ -3,30 +3,82 @@
     "question": "Има ли опция за регистрация / потребителски акаунт?",
     "type": "boolean",
     "applies_to": "toc",
-    "skip_criteria_if_false": [12, 13, 14]
+    "skip_criteria_if_false": {
+      "toc": [12, 13, 14]
+    }
   },
   "processes_payments": {
     "question": "Обработва ли сайтът плащания или съхранява платежни данни?",
     "type": "boolean",
     "applies_to": "both",
-    "skip_criteria_if_false": [8, 9, 15, 16]
+    "skip_criteria_if_false": {
+      "privacy": [],
+      "toc": [8, 15, 16]
+    }
   },
   "has_newsletter": {
     "question": "Има ли абонамент за бюлетин / маркетингови имейли?",
     "type": "boolean",
     "applies_to": "privacy",
-    "skip_criteria_if_false": [11, 12]
+    "skip_criteria_if_false": {
+      "privacy": []
+    }
   },
   "uses_cookies_analytics": {
     "question": "Използва ли сайтът бисквитки за аналитика или реклама?",
     "type": "boolean",
     "applies_to": "privacy",
-    "skip_criteria_if_false": [13, 14]
+    "skip_criteria_if_false": {
+      "privacy": []
+    }
   },
   "serves_minors": {
     "question": "Насочен ли е сайтът към деца или непълнолетни (под 16 г.)?",
     "type": "boolean",
     "applies_to": "both",
-    "skip_criteria_if_false": [17, 18]
+    "skip_criteria_if_false": {
+      "privacy": [15],
+      "toc": [17, 18]
+    }
+  },
+  "transfers_outside_eu": {
+    "question": "Прехвърлят ли се лични данни извън ЕС/ЕИП?",
+    "type": "boolean",
+    "applies_to": "privacy",
+    "skip_criteria_if_false": {
+      "privacy": [9, 12]
+    }
+  },
+  "processes_special_categories": {
+    "question": "Обработват ли се специални категории данни (здраве, биометрия, религия, расов произход и др.)?",
+    "type": "boolean",
+    "applies_to": "privacy",
+    "skip_criteria_if_false": {
+      "privacy": [7, 13]
+    }
+  },
+  "uses_legitimate_interest": {
+    "question": "Използва ли се легитимен интерес (чл. 6(1)(ж) GDPR) като правно основание за обработка?",
+    "type": "boolean",
+    "applies_to": "privacy",
+    "skip_criteria_if_false": {
+      "privacy": [5]
+    }
+  },
+  "uses_automated_profiling": {
+    "question": "Извършва ли се автоматизирано вземане на решения или профилиране на потребителите?",
+    "type": "boolean",
+    "applies_to": "privacy",
+    "skip_criteria_if_false": {
+      "privacy": [29]
+    }
+  },
+  "has_joint_controllers": {
+    "question": "Има ли съвместни администратори на лични данни (joint controllers)?",
+    "type": "boolean",
+    "applies_to": "privacy",
+    "skip_criteria_if_false": {
+      "privacy": [36]
+    }
   }
 }
