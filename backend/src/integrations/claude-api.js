@@ -1,5 +1,3 @@
-const fs = require('fs');
-const path = require('path');
 const constants = require('../config/constants');
 const { CircuitBreaker } = require('../utils/circuit-breaker');
 const { createLogger } = require('../utils/logger');
@@ -161,29 +159,6 @@ async function fetchWithTimeout(url, options, timeoutMs) {
 }
 
 /**
- * Load the privacy policy auditor prompt
- * @returns {string} Full prompt text
- */
-function loadPrivacyPolicyPrompt() {
-  try {
-    const promptPath = path.join(__dirname, '../../prompts/privacy-policy-auditor-full.txt');
-
-    if (!fs.existsSync(promptPath)) {
-      logger.error('prompt-not-found', { path: promptPath });
-      throw new Error('Privacy policy prompt file not found. See backend/prompts/README.md');
-    }
-
-    const prompt = fs.readFileSync(promptPath, 'utf8');
-    logger.info('prompt-loaded', { sizeKB: (prompt.length / 1024).toFixed(2) });
-
-    return prompt;
-  } catch (error) {
-    logger.error('prompt-load-failed', { error: error.message });
-    throw error;
-  }
-}
-
-/**
  * Generic Claude API call — used by solution-generator, cookie-policy-comparator, etc.
  *
  * @param {string} prompt - User prompt text
@@ -260,155 +235,6 @@ async function analyzeWithClaude(prompt, options = {}) {
       model: constants.CLAUDE_MODEL
     }
   };
-}
-
-/**
- * Analyze privacy policy using Claude API
- * @param {string} policyText - Privacy policy text to analyze
- * @param {Object} options - Analysis options
- * @returns {Promise<Object>} Analysis results
- */
-async function analyzePrivacyPolicy(policyText, options = {}) {
-  const startTime = Date.now();
-
-  try {
-    logger.info('analysis-start', {
-      model: constants.CLAUDE_MODEL,
-      policySizeKB: (policyText.length / 1024).toFixed(2)
-    });
-
-    // Validate API key
-    if (!constants.CLAUDE_API_KEY || constants.CLAUDE_API_KEY === 'sk-ant-api03-placeholder') {
-      throw new Error('Claude API key not configured. Please set CLAUDE_API_KEY in .env');
-    }
-
-    // Load the full prompt
-    const fullPrompt = loadPrivacyPolicyPrompt();
-
-    // Prepare the request
-    const requestBody = {
-      model: constants.CLAUDE_MODEL,
-      max_tokens: constants.CLAUDE_MAX_TOKENS_PRIVACY,
-      system: [
-        {
-          type: 'text',
-          text: fullPrompt,
-          cache_control: { type: 'ephemeral' } // ENABLE PROMPT CACHING
-        }
-      ],
-      messages: [
-        {
-          role: 'user',
-          content: `Analyze the following privacy policy and return a JSON response with all 37 criteria scored:\n\n${policyText}`
-        }
-      ]
-    };
-
-    logger.info('api-request-sent', {
-      promptSizeKB: (fullPrompt.length / 1024).toFixed(2),
-      policySizeKB: (policyText.length / 1024).toFixed(2)
-    });
-
-    // Make API request with circuit breaker + AbortController timeout
-    const response = await claudeBreaker.call(() =>
-      fetchWithTimeout(constants.CLAUDE_API_URL, {
-        method: 'POST',
-        headers: {
-          'x-api-key': constants.CLAUDE_API_KEY,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
-      }, CLAUDE_TIMEOUT_MS)
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      logger.error('api-request-failed', { status: response.status, error: errorText.substring(0, 200) });
-      throw new Error(`Claude API error: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
-
-    // Log usage and cost
-    const usage = data.usage || {};
-    const cost = calculateCost(usage);
-
-    logger.info('api-usage', {
-      inputTokens: usage.input_tokens || 0,
-      outputTokens: usage.output_tokens || 0,
-      cachedTokens: usage.cache_read_input_tokens || 0,
-      cacheCreationTokens: usage.cache_creation_input_tokens || 0,
-      cost: cost.toFixed(4),
-      cached: !!usage.cache_read_input_tokens
-    });
-
-    // Track spending for budget control
-    trackSpending(cost);
-
-    // Extract response text
-    const responseText = data.content?.[0]?.text;
-
-    if (!responseText) {
-      throw new Error('No response text from Claude API');
-    }
-
-    // Parse JSON response
-    let analysis;
-    try {
-      // Extract JSON from markdown code blocks if present
-      const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) ||
-                       responseText.match(/```\n([\s\S]*?)\n```/);
-
-      const jsonText = jsonMatch ? jsonMatch[1] : responseText;
-      analysis = JSON.parse(jsonText);
-    } catch (parseError) {
-      logger.error('json-parse-failed', { responsePreview: responseText.substring(0, 200) });
-      throw new Error('Failed to parse Claude response as JSON');
-    }
-
-    // Validate response structure
-    if (!analysis.criteria || !Array.isArray(analysis.criteria)) {
-      throw new Error('Invalid analysis format: missing criteria array');
-    }
-
-    if (analysis.criteria.length !== 37) {
-      logger.warn('criteria-count-mismatch', { expected: 37, actual: analysis.criteria.length });
-    }
-
-    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-
-    logger.info('analysis-complete', {
-      criteriaCount: analysis.criteria.length,
-      totalScore: analysis.total_score,
-      maxScore: analysis.max_score,
-      percentage: analysis.percentage?.toFixed(1),
-      category: analysis.category,
-      durationSeconds: duration
-    });
-
-    return {
-      analysis,
-      usage: {
-        input_tokens: usage.input_tokens || 0,
-        output_tokens: usage.output_tokens || 0,
-        cached_tokens: usage.cache_read_input_tokens || 0,
-        cache_creation_tokens: usage.cache_creation_input_tokens || 0,
-        cost_usd: cost,
-        model: constants.CLAUDE_MODEL
-      },
-      duration: parseFloat(duration)
-    };
-
-  } catch (error) {
-    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-    logger.error('analysis-failed', {
-      error: error.message,
-      code: error.code,
-      durationSeconds: duration
-    });
-    throw error;
-  }
 }
 
 /**
@@ -501,7 +327,6 @@ function buildFallbackAnalysis() {
 
 module.exports = {
   analyzeWithClaude,
-  analyzePrivacyPolicy,
   testClaudeConnection,
   calculateCost,
   buildFallbackAnalysis,

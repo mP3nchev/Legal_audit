@@ -28,13 +28,9 @@ Read the criterion name, explanation, and scoring rubric (Score 0–5).
 Compare the provided policy text to rubric requirements.  
 Assign exactly one score from 0 to 5\.  
 Explain the rationale in 2–3 sentences.  
-If the policy omits the required info, assign Score 0 and explicitly state that.  
-Output: Generate a complete table with columns:  
-Criteria ID  
-Criterion Name  
-Score (0–5)  
-Explanation  
-MANDATORY: You must output all 37 rows. Do not skip any criterion or summarize the results. Each criterion must be individually evaluated and scored.
+If the policy omits the required info, assign Score 0 and explicitly state that.
+MANDATORY: Every active criterion (not excluded in STEP 0) must be individually evaluated and scored. Do not skip any active criterion or summarize results.
+Output format: Return structured JSON as specified in the user message.
 
 **STEP 2: Apply all 10 interdependency rules below sequentially (R1 → R10).**
 
