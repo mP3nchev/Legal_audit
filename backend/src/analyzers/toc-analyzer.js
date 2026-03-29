@@ -165,7 +165,7 @@ async function callClaude(systemPrompt, userPrompt, auditUid, docType, attempt) 
   const response = await breaker.call(() =>
     client.messages.create({
       model:      CLAUDE_MODEL,
-      max_tokens: 8192,
+      max_tokens: parseInt(process.env.CLAUDE_MAX_TOKENS || '16000', 10),
       system:     systemPrompt,
       messages:   [{ role: 'user', content: userPrompt }],
     })
