@@ -84,7 +84,12 @@ async function handleStart(req, res) {
 
   logger.info('audit-started', { uid, has_privacy: !!privacyFile, has_toc: !!tocFile });
 
-  const businessContext = { clientName: client_name, siteUrl: site_url, businessType: business_type };
+  const businessContext = {
+    clientName:   client_name,
+    siteUrl:      site_url,
+    businessType: business_type,
+    language:     req.body.language || 'bg',
+  };
 
   // Fire-and-forget — do NOT await
   runFullAnalysis(privacyFile, tocFile, questionsAnswers, businessContext, uid).catch(err => {

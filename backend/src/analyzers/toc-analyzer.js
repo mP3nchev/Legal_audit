@@ -127,6 +127,9 @@ function buildUserPrompt(docType, activeCriteria, businessContext, documentText)
     .map(c => `${c.id}. [Tier ${c.tier}, weight ×${c.multiplier}] ${c.name}`)
     .join('\n');
 
+  const lang     = businessContext.language === 'bg' ? 'Bulgarian' : 'English';
+  const langNote = `LANGUAGE INSTRUCTION: Write ALL "explanation" and "recommendation" field values ENTIRELY in ${lang}. This is mandatory — do not use any other language regardless of the document's language or this prompt's language.`;
+
   const excludedSection = skippedList.length > 0
     ? `EXCLUDED CRITERIA — NOT APPLICABLE (set score=0, applicable=false, skip evaluation and all related interdependency rules):
 ${skippedList.map(c => `${c.id}. ${c.name}`).join('\n')}
@@ -134,7 +137,9 @@ ${skippedList.map(c => `${c.id}. ${c.name}`).join('\n')}
 `
     : '';
 
-  return `${excludedSection}You are auditing a ${docLabel} for the following business:
+  return `${langNote}
+
+${excludedSection}You are auditing a ${docLabel} for the following business:
 Business type: ${businessContext.businessType}
 Site URL: ${businessContext.siteUrl}
 Client: ${businessContext.clientName}
@@ -157,7 +162,7 @@ CRITICAL OUTPUT RULES:
 2. First character MUST be [
 3. Last character MUST be ]
 4. Array MUST contain EXACTLY ${activeList.length} objects — one per ACTIVE criterion above (excluded criteria are NOT in the array).
-5. Each object: { "id": <number>, "score": <1-5>, "explanation": "<2-3 sentences>" }
+5. Each object: { "id": <number>, "score": <1-5>, "explanation": "<2-3 sentences of findings in ${lang}>", "recommendation": "<2-3 sentences of actionable guidance on what specifically to add or fix, written in ${lang} — provide ONLY for criteria scoring ≤ 2, empty string for all others>" }
 
 OUTPUT (JSON array only, starting with [):`;
 }
@@ -309,8 +314,9 @@ function mergeWithConfig(claudeResponse, activeCriteria) {
     const r = responseMap.get(criterion.id);
     return {
       ...criterion,
-      score:       r?.score       ?? 1,
-      explanation: r?.explanation ?? '',
+      score:          r?.score          ?? 1,
+      explanation:    r?.explanation    ?? '',
+      recommendation: r?.recommendation ?? '',
     };
   });
 }
@@ -325,15 +331,24 @@ function saveTocResult(auditUid, docType, fullCriteria, expectedCount) {
   const low_score_count = countLowScores(fullCriteria);
   const evaluated_count = fullCriteria.filter(c => !c.skipped).length;
 
-  // Top 4 recommendations — lowest-scoring non-skipped criteria
-  const recommendations = fullCriteria
-    .filter(c => !c.skipped && c.score !== null)
-    .sort((a, b) => (a.score ?? 5) - (b.score ?? 5))
-    .slice(0, 4)
-    .map(c => ({
-      title: c.name,
-      text:  c.explanation || `Подобри: ${c.name}`,
-    }));
+  // Priority recommendations: Tier 1 first, then Tier 2 etc.; score ≤ 2 only; max 7
+  const lowScoring = fullCriteria
+    .filter(c => !c.skipped && c.score !== null && c.score <= 2)
+    .sort((a, b) => a.tier - b.tier || a.score - b.score);
+
+  // Fallback: if fewer than 3 found at ≤2, take lowest-scoring overall (up to 5)
+  const recSource = lowScoring.length >= 3
+    ? lowScoring.slice(0, 7)
+    : fullCriteria
+        .filter(c => !c.skipped && c.score !== null)
+        .sort((a, b) => a.tier - b.tier || a.score - b.score)
+        .slice(0, 5);
+
+  const recommendations = recSource.map(c => ({
+    title:          c.name,
+    text:           c.explanation    || '',
+    recommendation: c.recommendation || '',
+  }));
 
   const business_summary =
     `Одитът обхваща ${evaluated_count} критерия. ` +
