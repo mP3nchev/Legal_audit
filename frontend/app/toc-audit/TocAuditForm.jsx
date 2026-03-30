@@ -113,6 +113,7 @@ export function TocAuditForm() {
   const [tocFile,       setTocFile]       = useState(null);
   const [answers,       setAnswers]       = useState({});
   const [questions,     setQuestions]     = useState(null);
+  const [questionsErr,  setQuestionsErr]  = useState(null);
 
   // Submission state
   const [submitting,    setSubmitting]    = useState(false);
@@ -132,17 +133,24 @@ export function TocAuditForm() {
   // ── Load questions when business type changes ────────────────────────────────
   useEffect(() => {
     let cancelled = false;
-    fetch(proxyUrl(`/api/toc/questions?business_type=${businessType}`))
+    setQuestionsErr(null);
+    const url = proxyUrl(`/api/toc/questions?business_type=${businessType}`);
+    fetch(url)
       .then(r => r.json())
       .then(data => {
-        if (!cancelled && data.questions) {
+        if (cancelled) return;
+        if (data.questions) {
           setQuestions(data.questions);
           const defaults = {};
           Object.keys(data.questions).forEach(k => { defaults[k] = true; });
           setAnswers(defaults);
+        } else {
+          setQuestionsErr(`Backend error: ${JSON.stringify(data)}`);
         }
       })
-      .catch(() => {});
+      .catch(err => {
+        if (!cancelled) setQuestionsErr(`Fetch failed: ${err.message} (url: ${url})`);
+      });
     return () => { cancelled = true; };
   }, [businessType]);
 
@@ -320,6 +328,11 @@ export function TocAuditForm() {
       </Section>
 
       {/* Section 4 — Contextual questions */}
+      {questionsErr && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700 font-mono break-all">
+          ⚠ Questions load error: {questionsErr}
+        </div>
+      )}
       {questions && Object.keys(questions).length > 0 && (
         <Section num="4" title={t.s4Title}>
           <p className="mb-3 text-xs text-gray-500">{t.questionsHint}</p>
