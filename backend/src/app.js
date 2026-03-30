@@ -21,6 +21,12 @@ app.use(addRequestId);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ── Request logger ────────────────────────────────────────────────────────────
+app.use((req, _res, next) => {
+  logger.info('request', { method: req.method, path: req.path, ip: req.ip });
+  next();
+});
+
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/toc', tocRoutes);
 
@@ -31,6 +37,7 @@ app.get('/health', (req, res) => {
 
 // ── 404 fallback ──────────────────────────────────────────────────────────────
 app.use((req, res) => {
+  logger.warn('route-not-found', { method: req.method, path: req.path });
   res.status(404).json({ error: 'Not found', code: 'E404', path: req.path });
 });
 
