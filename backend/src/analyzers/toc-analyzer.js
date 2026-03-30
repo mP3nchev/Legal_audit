@@ -128,7 +128,8 @@ function buildUserPrompt(docType, activeCriteria, businessContext, documentText)
     .join('\n');
 
   const lang     = businessContext.language === 'bg' ? 'Bulgarian' : 'English';
-  const langNote = `LANGUAGE INSTRUCTION: Write ALL "explanation" and "recommendation" field values ENTIRELY in ${lang}. This is mandatory — do not use any other language regardless of the document's language or this prompt's language.`;
+  const langNote = `LANGUAGE INSTRUCTION: Write ALL "explanation" and "recommendation" field values ENTIRELY in ${lang}. This is mandatory - do not use any other language regardless of the document's language or this prompt's language.
+FORMATTING RULES: Use only straight double quotes " for quotations. Use only hyphen - for dashes. Do NOT use curly/smart quotes (\u2018\u2019\u201C\u201D) or em dashes (\u2014) or en dashes (\u2013).`;
 
   const excludedSection = skippedList.length > 0
     ? `EXCLUDED CRITERIA — NOT APPLICABLE (set score=0, applicable=false, skip evaluation and all related interdependency rules):
@@ -255,11 +256,13 @@ async function analyzePrivacyPolicy(text, activeCriteria, businessContext, audit
     }
   }
 
-  // Critical post-parse validation
+  // Post-parse validation — warn but do not fail if Claude returns slightly fewer criteria.
+  // mergeWithConfig fills any missing criterion with score=1 as a safe default.
   if (parsed.length !== expectedCount) {
-    throw new Error(
-      `RESPONSE_CRITERIA_MISMATCH: expected ${expectedCount} criteria, got ${parsed.length}`
-    );
+    logger.warn('analyze-privacy-count-mismatch', {
+      auditUid, expectedCount, got: parsed.length,
+      hint: 'mergeWithConfig will fill missing criteria with score=1',
+    });
   }
 
   return mergeWithConfig(parsed, activeCriteria);
@@ -294,15 +297,24 @@ async function analyzeToc(text, activeCriteria, businessContext, auditUid) {
   }
 
   if (parsed.length !== expectedCount) {
-    throw new Error(
-      `RESPONSE_CRITERIA_MISMATCH: expected ${expectedCount} criteria, got ${parsed.length}`
-    );
+    logger.warn('analyze-toc-count-mismatch', {
+      auditUid, expectedCount, got: parsed.length,
+      hint: 'mergeWithConfig will fill missing criteria with score=1',
+    });
   }
 
   return mergeWithConfig(parsed, activeCriteria);
 }
 
 // ── Merge Claude response with criteria config ────────────────────────────────
+
+function sanitizeText(text) {
+  if (!text) return text;
+  return text
+    .replace(/[\u2018\u2019\u201A\u201B]/g, '"')  // curly single quotes -> double quote
+    .replace(/[\u201C\u201D]/g, '"')               // curly double quotes -> double quote
+    .replace(/[\u2014\u2013]/g, '-');              // em dash, en dash -> hyphen
+}
 
 function mergeWithConfig(claudeResponse, activeCriteria) {
   const responseMap = new Map(claudeResponse.map(r => [r.id, r]));
@@ -315,8 +327,8 @@ function mergeWithConfig(claudeResponse, activeCriteria) {
     return {
       ...criterion,
       score:          r?.score          ?? 1,
-      explanation:    r?.explanation    ?? '',
-      recommendation: r?.recommendation ?? '',
+      explanation:    sanitizeText(r?.explanation    ?? ''),
+      recommendation: sanitizeText(r?.recommendation ?? ''),
     };
   });
 }
