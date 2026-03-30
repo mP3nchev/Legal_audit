@@ -324,11 +324,16 @@ function mergeWithConfig(claudeResponse, activeCriteria) {
       return { ...criterion, score: null, explanation: null };
     }
     const r = responseMap.get(criterion.id);
+    // If Claude did not return this criterion, treat it as skipped so it does
+    // not distort the max score or percentage with a fabricated score.
+    if (!r) {
+      return { ...criterion, skipped: true, score: null, explanation: null };
+    }
     return {
       ...criterion,
-      score:          r?.score          ?? 1,
-      explanation:    sanitizeText(r?.explanation    ?? ''),
-      recommendation: sanitizeText(r?.recommendation ?? ''),
+      score:          r.score,
+      explanation:    sanitizeText(r.explanation    ?? ''),
+      recommendation: sanitizeText(r.recommendation ?? ''),
     };
   });
 }
@@ -414,7 +419,8 @@ async function runFullAnalysis(privacyFile, tocFile, questionsAnswers, businessC
       const rawText        = await extractTextFromBuffer(privacyFile.buffer, privacyFile.originalname);
       const cleanedText    = cleanText(rawText);
       const fullCriteria   = await analyzePrivacyPolicy(cleanedText, activeCriteria, businessContext, auditUid);
-      saveTocResult(auditUid, 'privacy', fullCriteria, privacyConfig.expected_count);
+      const activeCount    = activeCriteria.filter(c => !c.skipped).length;
+      saveTocResult(auditUid, 'privacy', fullCriteria, activeCount);
     } catch (err) {
       logger.error('privacy-analysis-failed', { auditUid, error: err.message });
       db.prepare("UPDATE toc_audits SET status='failed', error_details=? WHERE uid=?")
@@ -437,7 +443,8 @@ async function runFullAnalysis(privacyFile, tocFile, questionsAnswers, businessC
       const rawText        = await extractTextFromBuffer(tocFile.buffer, tocFile.originalname);
       const cleanedText    = cleanText(rawText);
       const fullCriteria   = await analyzeToc(cleanedText, activeCriteria, businessContext, auditUid);
-      saveTocResult(auditUid, 'toc', fullCriteria, tocConfig.expected_count);
+      const activeCount    = activeCriteria.filter(c => !c.skipped).length;
+      saveTocResult(auditUid, 'toc', fullCriteria, activeCount);
     } catch (err) {
       logger.error('toc-analysis-failed', { auditUid, error: err.message });
       // Privacy result is already saved — mark as partial, not failed
