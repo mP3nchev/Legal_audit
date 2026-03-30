@@ -234,8 +234,14 @@ function handlePublish(req, res) {
   const db       = getDatabase();
 
   const audit = db.prepare('SELECT * FROM toc_audits WHERE uid = ?').get(uid);
-  if (!audit) return res.status(404).json({ error: 'Not found', code: 'E404' });
-  if (audit.share_uid) return res.status(409).json({ error: 'Already published', code: 'E409' });
+  if (!audit) {
+    logger.warn('publish-not-found', { uid });
+    return res.status(404).json({ error: 'Not found', code: 'E404' });
+  }
+  if (audit.share_uid) {
+    logger.warn('publish-already-published', { uid, share_uid: audit.share_uid });
+    return res.status(409).json({ error: 'Already published', code: 'E409' });
+  }
 
   const privacyRow = db.prepare(
     "SELECT * FROM toc_results WHERE audit_uid = ? AND doc_type = 'privacy'"

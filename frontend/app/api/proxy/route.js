@@ -49,6 +49,7 @@ async function proxyRequest(request, method) {
     }
 
     const response = await fetch(url, { method, headers, body });
+    console.log(`[proxy] ${method} ${url} → ${response.status}`);
     const data     = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (err) {
