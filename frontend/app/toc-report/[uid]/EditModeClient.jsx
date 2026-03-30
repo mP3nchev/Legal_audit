@@ -133,7 +133,7 @@ function ScoreSummaryBar({ score, docType }) {
       <div className="flex items-center justify-between px-6 py-4" style={{ backgroundColor: '#d2e2f5' }}>
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#0155b9' }}>
-            Краен резултат — {docLabel}
+            Краен резултат - {docLabel}
           </p>
           <p className="text-xs mt-0.5" style={{ color: '#0155b9', opacity: 0.7 }}>
             {total_score}/{total_max_score} точки
@@ -197,7 +197,7 @@ function AuditTableSection({ criteria, score, docType, readOnly, onScoreChange, 
               {/* Tier header */}
               <div className="flex items-center justify-between px-4 py-3"
                 style={{ backgroundColor: '#0175ff', color: 'white' }}>
-                <span className="text-sm font-bold">Ниво {num} — {label}</span>
+                <span className="text-sm font-bold">Ниво {num} - {label}</span>
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full"
                   style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
                   {pct}% съответствие
@@ -438,13 +438,13 @@ function NotUploadedPlaceholder({ label }) {
   return (
     <div className="rounded-xl px-8 py-6 text-center text-sm"
       style={{ border: '1px dashed var(--cp-neutral-40)', color: 'var(--cp-neutral-60)' }}>
-      {label} — не е качен / не е анализиран
+      {label} - не е качен / не е анализиран
     </div>
   );
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export function EditModeClient({ audit, privacy_result, toc_result, isPublished, shareUid }) {
+export function EditModeClient({ audit, privacy_result, toc_result, isPublished, shareUid, isSharePage = false }) {
   const [privCriteria, setPrivCriteria] = useState(
     () => (privacy_result?.criteria ?? []).map(c => ({ ...c, recommendation: c.recommendation ?? null }))
   );
@@ -546,8 +546,8 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
   return (
     <div className="space-y-10">
 
-      {/* ── Sticky action bar ── */}
-      <div className="sticky top-4 z-10 flex items-center justify-between gap-4 rounded-xl border px-5 py-3 shadow-md"
+      {/* ── Sticky action bar (hidden on public share page) ── */}
+      {!isSharePage && <div className="sticky top-4 z-10 flex items-center justify-between gap-4 rounded-xl border px-5 py-3 shadow-md"
         style={{ borderColor: 'var(--cp-neutral-40)', backgroundColor: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(8px)' }}>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -625,14 +625,14 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
             </span>
           )}
         </div>
-      </div>
+      </div>}
 
       {/* Visual preview notice */}
-      {(privScore || tocScore) && (
+      {!isSharePage && (privScore || tocScore) && (
         <div className="rounded-lg border px-4 py-2 text-xs flex items-center gap-2"
           style={{ borderColor: 'var(--cp-blue-40)', backgroundColor: 'var(--cp-blue-5)', color: 'var(--cp-blue-150)' }}>
           <span className="font-semibold">Визуален преглед</span>
-          — Backend ще изчисли окончателния резултат при запис.
+          - Backend ще изчисли окончателния резултат при запис.
         </div>
       )}
 
