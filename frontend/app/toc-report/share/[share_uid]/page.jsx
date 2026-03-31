@@ -1,21 +1,22 @@
 /**
  * /toc-report/share/[share_uid] — Public read-only report
  *
- * Uses the same layout as the edit view (EditModeClient with isPublished=true).
- * Server component: no auth required.
- * Data comes from the immutable published_json snapshot stored at publish time.
+ * Uses the same Cover + Scope + EditModeClient layout as the edit view.
+ * No navigation header (NavHeader hides itself on this path).
+ * No auth required — public link.
  */
 
-import { notFound }        from 'next/navigation';
-import { ExternalLink }    from 'lucide-react';
-import { EditModeClient }  from '@/app/toc-report/[uid]/EditModeClient';
+import { notFound }                    from 'next/navigation';
+import { CoverSection, ScopeSection }  from '@/app/toc-report/_sections';
+import { EditModeClient }              from '@/app/toc-report/[uid]/EditModeClient';
+import { reportI18n }                  from '@/lib/i18n';
 
 const BACKEND_URL = process.env.BACKEND_API_URL || 'http://localhost:3001';
 
 async function fetchShare(shareUid) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/toc/share/${shareUid}`, {
-      next: { revalidate: 3600 }, // revalidate hourly; immutable but allows cache busting on redeploy
+      next: { revalidate: 3600 },
     });
     if (res.status === 404) return null;
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -40,57 +41,19 @@ export default async function SharePage({ params }) {
 
   const { audit, privacy_result, toc_result } = data;
 
-  const publishedDate = audit?.published_at
-    ? new Date(audit.published_at).toLocaleDateString('bg-BG', {
-        day: 'numeric', month: 'long', year: 'numeric',
-      })
-    : '-';
+  const lang = audit?.language === 'en' ? 'en' : 'bg';
+  const t    = { ...reportI18n[lang], lang };
 
   return (
     <div className="space-y-10 pb-16" style={{ color: 'var(--cp-neutral-100)' }}>
 
-      {/* ── Public header ── */}
-      <div className="rounded-2xl overflow-hidden"
-        style={{ border: '1px solid var(--cp-neutral-40)', backgroundColor: 'var(--cp-white)' }}>
-        <div className="px-8 py-10"
-          style={{ background: 'linear-gradient(-133deg, #accef7, #e7edf5)' }}>
-          <div className="mb-5">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/craftpolicy-logo.svg" alt="CraftPolicy" className="h-8" />
-          </div>
-          <span className="inline-block rounded-full px-3 py-0.5 text-xs font-semibold mb-3"
-            style={{ backgroundColor: 'rgba(1,85,185,0.15)', color: '#0155b9' }}>
-            Публичен правен одит
-          </span>
-          <h1 className="text-3xl font-bold tracking-tight leading-tight lg:text-4xl"
-            style={{ color: 'var(--cp-blue-100)' }}>
-            {audit?.client_name ?? '-'}
-          </h1>
-          {audit?.site_url && (
-            <a href={audit.site_url} target="_blank" rel="noopener noreferrer"
-              className="mt-2 inline-flex items-center gap-1 text-sm hover:underline transition"
-              style={{ color: '#4a5568' }}>
-              {audit.site_url} <ExternalLink className="h-3 w-3" />
-            </a>
-          )}
-        </div>
-        <div className="px-8 py-3 flex flex-wrap items-center gap-6 text-xs"
-          style={{
-            borderTop: '1px solid var(--cp-neutral-40)',
-            backgroundColor: 'var(--cp-blue-5)',
-            color: 'var(--cp-neutral-80)',
-          }}>
-          <span>Публикувано: <span className="font-medium">{publishedDate}</span></span>
-          {audit?.business_type && (
-            <span>
-              Тип бизнес:{' '}
-              <span className="capitalize font-medium">{audit.business_type}</span>
-            </span>
-          )}
-        </div>
-      </div>
+      {/* Cover section */}
+      <CoverSection audit={audit ?? {}} t={t} />
 
-      {/* ── Audit content — identical layout to edit view, fully read-only ── */}
+      {/* Scope & Methodology */}
+      <ScopeSection t={t} />
+
+      {/* Audit content — identical layout to edit view, fully read-only */}
       <EditModeClient
         audit={audit ?? {}}
         privacy_result={privacy_result}

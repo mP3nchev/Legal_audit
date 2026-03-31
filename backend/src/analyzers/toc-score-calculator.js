@@ -80,7 +80,7 @@ function getVerbalScale(pct) {
  * @returns {number}
  */
 function countLowScores(criteria) {
-  return criteria.filter(c => !c.skipped && c.score <= 3).length;
+  return criteria.filter(c => !c.skipped && c.score <= 2).length;
 }
 
 /**

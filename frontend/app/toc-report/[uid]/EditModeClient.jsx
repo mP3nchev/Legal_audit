@@ -54,6 +54,15 @@ const TIER_LABELS = {
   },
 };
 
+// ── Text sanitizer (fixes curly quotes + em dashes from AI-generated content) ─
+function sanitize(text) {
+  if (!text) return text;
+  return text
+    .replace(/[\u2018\u2019\u201A\u201B]/g, '"')
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2014\u2013]/g, '-');
+}
+
 // ── Auto-growing textarea ─────────────────────────────────────────────────────
 function AutoTextarea({ value, onChange, placeholder, className, style }) {
   const ref = useRef(null);
@@ -122,11 +131,17 @@ function ReportSection({ id, title, subtitle, icon, children }) {
 }
 
 // ── Score summary bar ─────────────────────────────────────────────────────────
-function ScoreSummaryBar({ score, docType }) {
+function ScoreSummaryBar({ score, docType, criteria }) {
   const pct       = Math.round(score?.total_pct ?? 0);
   const activeIdx = VERBAL_SEGS.findIndex(s => pct >= s.min && pct <= s.max);
   const docLabel  = docType === 'toc' ? 'Terms & Conditions' : 'Privacy Policy';
-  const { total_score, total_max_score, verbal_scale, low_score_count } = score ?? {};
+  const { total_score, total_max_score, verbal_scale } = score ?? {};
+
+  // Recompute from live criteria at threshold ≤2 (overrides stale stored value)
+  const lowCount = criteria
+    ? criteria.filter(c => !c.skipped && c.score !== null && c.score <= 2).length
+    : (score?.low_score_count ?? 0);
+  const lowLabel = lowCount === 1 ? 'ниска оценка' : 'ниски оценки';
 
   return (
     <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--cp-neutral-40)' }}>
@@ -137,9 +152,9 @@ function ScoreSummaryBar({ score, docType }) {
           </p>
           <p className="text-xs mt-0.5" style={{ color: '#0155b9', opacity: 0.7 }}>
             {total_score}/{total_max_score} точки
-            {low_score_count > 0 && (
+            {lowCount > 0 && (
               <span className="ml-3 font-semibold" style={{ color: '#c2410c' }}>
-                ⚠ {low_score_count} ниска оценка
+                {lowCount} {lowLabel}
               </span>
             )}
           </p>
@@ -234,7 +249,7 @@ function AuditTableSection({ criteria, score, docType, readOnly, onScoreChange, 
                     </div>
                     {readOnly ? (
                       <p className="pl-9 text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
-                        {c.explanation}
+                        {sanitize(c.explanation)}
                       </p>
                     ) : (
                       <AutoTextarea
@@ -265,7 +280,7 @@ function AuditTableSection({ criteria, score, docType, readOnly, onScoreChange, 
                     </div>
                     {readOnly ? (
                       <p className="text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
-                        {c.explanation}
+                        {sanitize(c.explanation)}
                       </p>
                     ) : (
                       <AutoTextarea
@@ -309,7 +324,7 @@ function PriorityCard({ c, readOnly, onExplanationChange, onRecommendationChange
             <div>
               <p className="text-[11px] font-bold uppercase tracking-widest mb-1"
                 style={{ color: critical ? 'var(--cp-blue-150)' : 'var(--cp-neutral-80)' }}>
-                {critical ? '⚠ Критичен риск' : 'Препоръчано подобрение'} · Ниво {c.tier}
+                {critical ? 'Критичен риск' : 'Препоръчано подобрение'} · Ниво {c.tier}
               </p>
               <p className="text-base font-bold" style={{ color: 'var(--cp-neutral-100)' }}>
                 {c.name}
@@ -321,7 +336,7 @@ function PriorityCard({ c, readOnly, onExplanationChange, onRecommendationChange
           {/* Explanation */}
           {readOnly ? (
             <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
-              {c.explanation}
+              {sanitize(c.explanation)}
             </p>
           ) : (
             <AutoTextarea
@@ -345,7 +360,7 @@ function PriorityCard({ c, readOnly, onExplanationChange, onRecommendationChange
             </p>
             {readOnly ? (
               <p className="text-sm" style={{ color: 'var(--cp-neutral-80)' }}>
-                {c.recommendation || `Спешно: Актуализирайте документа, за да включва конкретна информация относно ${c.name.toLowerCase()}.`}
+                {sanitize(c.recommendation) || `Спешно: Актуализирайте документа, за да включва конкретна информация относно ${c.name.toLowerCase()}.`}
               </p>
             ) : (
               <AutoTextarea
@@ -640,7 +655,7 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
       {hasPrivacy ? (
         <div className="space-y-8">
           <DocDivider docType="privacy" />
-          <ScoreSummaryBar score={displayPrivScore} docType="privacy" />
+          <ScoreSummaryBar score={displayPrivScore} docType="privacy" criteria={privCriteria} />
           <AuditTableSection
             criteria={privCriteria}
             score={displayPrivScore}
@@ -665,7 +680,7 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
       {hasToc ? (
         <div className="space-y-8">
           <DocDivider docType="toc" />
-          <ScoreSummaryBar score={displayTocScore} docType="toc" />
+          <ScoreSummaryBar score={displayTocScore} docType="toc" criteria={tocCriteria} />
           <AuditTableSection
             criteria={tocCriteria}
             score={displayTocScore}
