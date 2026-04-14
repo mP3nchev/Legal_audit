@@ -338,6 +338,36 @@ function handleDashboard(req, res) {
   }
 }
 
+// ── PATCH /api/toc/:uid/set-date — Admin: update created_at ──────────────────
+// Protected by authMiddleware (x-api-key). One-off or admin use.
+
+function handleSetDate(req, res) {
+  try {
+    const { uid }  = req.params;
+    const { date } = req.body; // ISO string e.g. "2026-04-14"
+
+    if (!date) return res.status(400).json({ error: 'Missing date field', code: 'E400' });
+
+    const parsed = new Date(date);
+    if (isNaN(parsed.getTime())) {
+      return res.status(400).json({ error: 'Invalid date format', code: 'E400' });
+    }
+
+    const db     = getDatabase();
+    const audit  = db.prepare('SELECT uid FROM toc_audits WHERE uid = ?').get(uid);
+    if (!audit) return res.status(404).json({ error: 'Not found', code: 'E404' });
+
+    const isoDate = parsed.toISOString();
+    db.prepare('UPDATE toc_audits SET created_at = ? WHERE uid = ?').run(isoDate, uid);
+
+    logger.info('admin-set-date', { uid, date: isoDate });
+    return res.json({ ok: true, uid, created_at: isoDate });
+  } catch (err) {
+    logger.error('admin-set-date-failed', { error: err.message });
+    return res.status(500).json({ error: 'Internal error', code: 'E500' });
+  }
+}
+
 // ── Route registration ────────────────────────────────────────────────────────
 // Static segments BEFORE :uid params
 
@@ -350,5 +380,6 @@ router.get('/:uid/status',      handleStatus);                    // public (uid
 router.get('/:uid',             authMiddleware, handleGetAudit);
 router.post('/:uid/save',       authMiddleware, handleSave);
 router.post('/:uid/publish',    authMiddleware, handlePublish);
+router.patch('/:uid/set-date',  authMiddleware, handleSetDate);
 
 module.exports = router;
