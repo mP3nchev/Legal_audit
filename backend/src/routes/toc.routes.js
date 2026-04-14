@@ -344,7 +344,7 @@ function handleDashboard(req, res) {
 function handleSetDate(req, res) {
   try {
     const { uid }  = req.params;
-    const { date } = req.body; // ISO string e.g. "2026-04-14"
+    const { date } = req.body;
 
     if (!date) return res.status(400).json({ error: 'Missing date field', code: 'E400' });
 
@@ -353,12 +353,26 @@ function handleSetDate(req, res) {
       return res.status(400).json({ error: 'Invalid date format', code: 'E400' });
     }
 
-    const db     = getDatabase();
-    const audit  = db.prepare('SELECT uid FROM toc_audits WHERE uid = ?').get(uid);
+    const db    = getDatabase();
+    const audit = db.prepare('SELECT uid, published_json FROM toc_audits WHERE uid = ?').get(uid);
     if (!audit) return res.status(404).json({ error: 'Not found', code: 'E404' });
 
     const isoDate = parsed.toISOString();
+
+    // Update live record
     db.prepare('UPDATE toc_audits SET created_at = ? WHERE uid = ?').run(isoDate, uid);
+
+    // Also patch created_at inside the published_json snapshot so the share page reflects the change
+    if (audit.published_json) {
+      try {
+        const snapshot      = JSON.parse(audit.published_json);
+        if (snapshot.audit) snapshot.audit.created_at = isoDate;
+        db.prepare('UPDATE toc_audits SET published_json = ? WHERE uid = ?')
+          .run(JSON.stringify(snapshot), uid);
+      } catch {
+        logger.warn('admin-set-date-snapshot-parse-failed', { uid });
+      }
+    }
 
     logger.info('admin-set-date', { uid, date: isoDate });
     return res.json({ ok: true, uid, created_at: isoDate });
