@@ -16,7 +16,7 @@ const BACKEND_URL = process.env.BACKEND_API_URL || 'http://localhost:3001';
 async function fetchShare(shareUid) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/toc/share/${shareUid}`, {
-      next: { revalidate: 3600 },
+      cache: 'no-store',
     });
     if (res.status === 404) return null;
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
