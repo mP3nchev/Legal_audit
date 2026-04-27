@@ -55,6 +55,13 @@ function initDatabase() {
     // Run toc tables migration (idempotent — IF NOT EXISTS guards)
     require('./migrate-add-toc').run(db);
 
+    // Log audit count so we can verify DB persistence on startup
+    try {
+      const row = db.prepare('SELECT COUNT(*) AS cnt FROM toc_audits').get();
+      log({ level: 'info', event: 'db_audit_count', count: row.cnt, path: dbPath,
+            persistent: !!process.env.DATABASE_URL });
+    } catch { /* table may not exist yet on very first boot */ }
+
     return db;
   } catch (error) {
     log({ level: 'error', event: 'db_init_failed', error: error.message });

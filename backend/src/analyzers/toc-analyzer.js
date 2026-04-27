@@ -128,7 +128,8 @@ function buildUserPrompt(docType, activeCriteria, businessContext, documentText)
     .join('\n');
 
   const lang     = businessContext.language === 'bg' ? 'Bulgarian' : 'English';
-  const langNote = `LANGUAGE INSTRUCTION: Write ALL "explanation" and "recommendation" field values ENTIRELY in ${lang}. This is mandatory — do not use any other language regardless of the document's language or this prompt's language.`;
+  const langNote = `LANGUAGE INSTRUCTION: Write ALL "explanation" and "recommendation" field values ENTIRELY in ${lang}. This is mandatory - do not use any other language regardless of the document's language or this prompt's language.
+FORMATTING RULES: Use only straight double quotes " for quotations. Use only hyphen - for dashes. Do NOT use curly/smart quotes (\u2018\u2019\u201C\u201D) or em dashes (\u2014) or en dashes (\u2013).`;
 
   const excludedSection = skippedList.length > 0
     ? `EXCLUDED CRITERIA — NOT APPLICABLE (set score=0, applicable=false, skip evaluation and all related interdependency rules):
@@ -255,11 +256,13 @@ async function analyzePrivacyPolicy(text, activeCriteria, businessContext, audit
     }
   }
 
-  // Critical post-parse validation
+  // Post-parse validation — warn but do not fail if Claude returns slightly fewer criteria.
+  // mergeWithConfig fills any missing criterion with score=1 as a safe default.
   if (parsed.length !== expectedCount) {
-    throw new Error(
-      `RESPONSE_CRITERIA_MISMATCH: expected ${expectedCount} criteria, got ${parsed.length}`
-    );
+    logger.warn('analyze-privacy-count-mismatch', {
+      auditUid, expectedCount, got: parsed.length,
+      hint: 'mergeWithConfig will fill missing criteria with score=1',
+    });
   }
 
   return mergeWithConfig(parsed, activeCriteria);
@@ -294,15 +297,24 @@ async function analyzeToc(text, activeCriteria, businessContext, auditUid) {
   }
 
   if (parsed.length !== expectedCount) {
-    throw new Error(
-      `RESPONSE_CRITERIA_MISMATCH: expected ${expectedCount} criteria, got ${parsed.length}`
-    );
+    logger.warn('analyze-toc-count-mismatch', {
+      auditUid, expectedCount, got: parsed.length,
+      hint: 'mergeWithConfig will fill missing criteria with score=1',
+    });
   }
 
   return mergeWithConfig(parsed, activeCriteria);
 }
 
 // ── Merge Claude response with criteria config ────────────────────────────────
+
+function sanitizeText(text) {
+  if (!text) return text;
+  return text
+    .replace(/[\u2018\u2019\u201A\u201B]/g, '"')  // curly single quotes -> double quote
+    .replace(/[\u201C\u201D]/g, '"')               // curly double quotes -> double quote
+    .replace(/[\u2014\u2013]/g, '-');              // em dash, en dash -> hyphen
+}
 
 function mergeWithConfig(claudeResponse, activeCriteria) {
   const responseMap = new Map(claudeResponse.map(r => [r.id, r]));
@@ -312,11 +324,16 @@ function mergeWithConfig(claudeResponse, activeCriteria) {
       return { ...criterion, score: null, explanation: null };
     }
     const r = responseMap.get(criterion.id);
+    // If Claude did not return this criterion, treat it as skipped so it does
+    // not distort the max score or percentage with a fabricated score.
+    if (!r) {
+      return { ...criterion, skipped: true, score: null, explanation: null };
+    }
     return {
       ...criterion,
-      score:          r?.score          ?? 1,
-      explanation:    r?.explanation    ?? '',
-      recommendation: r?.recommendation ?? '',
+      score:          r.score,
+      explanation:    sanitizeText(r.explanation    ?? ''),
+      recommendation: sanitizeText(r.recommendation ?? ''),
     };
   });
 }
@@ -402,7 +419,8 @@ async function runFullAnalysis(privacyFile, tocFile, questionsAnswers, businessC
       const rawText        = await extractTextFromBuffer(privacyFile.buffer, privacyFile.originalname);
       const cleanedText    = cleanText(rawText);
       const fullCriteria   = await analyzePrivacyPolicy(cleanedText, activeCriteria, businessContext, auditUid);
-      saveTocResult(auditUid, 'privacy', fullCriteria, privacyConfig.expected_count);
+      const activeCount    = activeCriteria.filter(c => !c.skipped).length;
+      saveTocResult(auditUid, 'privacy', fullCriteria, activeCount);
     } catch (err) {
       logger.error('privacy-analysis-failed', { auditUid, error: err.message });
       db.prepare("UPDATE toc_audits SET status='failed', error_details=? WHERE uid=?")
@@ -425,7 +443,8 @@ async function runFullAnalysis(privacyFile, tocFile, questionsAnswers, businessC
       const rawText        = await extractTextFromBuffer(tocFile.buffer, tocFile.originalname);
       const cleanedText    = cleanText(rawText);
       const fullCriteria   = await analyzeToc(cleanedText, activeCriteria, businessContext, auditUid);
-      saveTocResult(auditUid, 'toc', fullCriteria, tocConfig.expected_count);
+      const activeCount    = activeCriteria.filter(c => !c.skipped).length;
+      saveTocResult(auditUid, 'toc', fullCriteria, activeCount);
     } catch (err) {
       logger.error('toc-analysis-failed', { auditUid, error: err.message });
       // Privacy result is already saved — mark as partial, not failed

@@ -220,8 +220,14 @@ function handlePublish(req, res) {
   const db       = getDatabase();
 
   const audit = db.prepare('SELECT * FROM toc_audits WHERE uid = ?').get(uid);
-  if (!audit) return res.status(404).json({ error: 'Not found', code: 'E404' });
-  if (audit.share_uid) return res.status(409).json({ error: 'Already published', code: 'E409' });
+  if (!audit) {
+    logger.warn('publish-not-found', { uid });
+    return res.status(404).json({ error: 'Not found', code: 'E404' });
+  }
+  if (audit.share_uid) {
+    logger.warn('publish-already-published', { uid, share_uid: audit.share_uid });
+    return res.status(409).json({ error: 'Already published', code: 'E409' });
+  }
 
   const privacyRow = db.prepare(
     "SELECT * FROM toc_results WHERE audit_uid = ? AND doc_type = 'privacy'"
@@ -318,6 +324,50 @@ function handleDashboard(req, res) {
   }
 }
 
+// ── PATCH /api/toc/:uid/set-date — Admin: update created_at ──────────────────
+// Protected by authMiddleware (x-api-key). One-off or admin use.
+
+function handleSetDate(req, res) {
+  try {
+    const { uid }  = req.params;
+    const { date } = req.body;
+
+    if (!date) return res.status(400).json({ error: 'Missing date field', code: 'E400' });
+
+    const parsed = new Date(date);
+    if (isNaN(parsed.getTime())) {
+      return res.status(400).json({ error: 'Invalid date format', code: 'E400' });
+    }
+
+    const db    = getDatabase();
+    const audit = db.prepare('SELECT uid, published_json FROM toc_audits WHERE uid = ?').get(uid);
+    if (!audit) return res.status(404).json({ error: 'Not found', code: 'E404' });
+
+    const isoDate = parsed.toISOString();
+
+    // Update live record
+    db.prepare('UPDATE toc_audits SET created_at = ? WHERE uid = ?').run(isoDate, uid);
+
+    // Also patch created_at inside the published_json snapshot so the share page reflects the change
+    if (audit.published_json) {
+      try {
+        const snapshot      = JSON.parse(audit.published_json);
+        if (snapshot.audit) snapshot.audit.created_at = isoDate;
+        db.prepare('UPDATE toc_audits SET published_json = ? WHERE uid = ?')
+          .run(JSON.stringify(snapshot), uid);
+      } catch {
+        logger.warn('admin-set-date-snapshot-parse-failed', { uid });
+      }
+    }
+
+    logger.info('admin-set-date', { uid, date: isoDate });
+    return res.json({ ok: true, uid, created_at: isoDate });
+  } catch (err) {
+    logger.error('admin-set-date-failed', { error: err.message });
+    return res.status(500).json({ error: 'Internal error', code: 'E500' });
+  }
+}
+
 // ── Route registration ────────────────────────────────────────────────────────
 // Static segments BEFORE :uid params
 
@@ -330,5 +380,6 @@ router.get('/:uid/status',      handleStatus);                    // public (uid
 router.get('/:uid',             authMiddleware, handleGetAudit);
 router.post('/:uid/save',       authMiddleware, handleSave);
 router.post('/:uid/publish',    authMiddleware, handlePublish);
+router.patch('/:uid/set-date',  authMiddleware, handleSetDate);
 
 module.exports = router;

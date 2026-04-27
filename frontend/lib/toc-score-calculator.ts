@@ -81,7 +81,7 @@ export function getVerbalScale(pct: number): string {
 }
 
 export function countLowScores(criteria: Criterion[]): number {
-  return criteria.filter(c => !c.skipped && c.score !== null && c.score <= 3).length;
+  return criteria.filter(c => !c.skipped && c.score !== null && c.score <= 2).length;
 }
 
 export function recalculateFromEditor(criteria: Criterion[]): ScoringResult {

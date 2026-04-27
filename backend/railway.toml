@@ -1,0 +1,13 @@
+# Railway deployment configuration — CraftPolicy Backend
+# In Railway dashboard → Service → Settings → Root Directory → set to: backend
+
+[build]
+builder      = "nixpacks"
+buildCommand = "npm install --omit=dev"
+
+[deploy]
+startCommand            = "npm start"
+restartPolicyType       = "on_failure"
+restartPolicyMaxRetries = 3
+healthcheckPath         = "/health"
+healthcheckTimeout      = 30

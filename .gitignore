@@ -21,6 +21,7 @@ frontend/node_modules/
 frontend/.next/
 frontend/*.local
 frontend/tsconfig.tsbuildinfo
+frontend/next-env.d.ts
 
 # OS / editors
 .DS_Store
