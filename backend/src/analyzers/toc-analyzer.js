@@ -111,6 +111,18 @@ function buildSystemPrompt(docType) {
       'Return ONLY a valid JSON array — no explanatory text before or after.'
     );
   }
+  if (docType === 'toc') {
+    const promptPath = path.join(
+      __dirname,
+      '../../prompts/TC_LEGAL_AUDITOR_INSTRUCTION_SET.md'
+    );
+    if (fs.existsSync(promptPath)) {
+      return fs.readFileSync(promptPath, 'utf8');
+    }
+    logger.warn('toc-prompt-file-missing', { path: promptPath });
+  }
+
+  // Minimal fallback for both toc and any unknown docType
   return (
     'You are a senior contract lawyer specializing in Terms & Conditions compliance. ' +
     'You evaluate terms and conditions documents against specific criteria and return structured JSON scores. ' +

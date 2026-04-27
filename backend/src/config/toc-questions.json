@@ -4,7 +4,7 @@
     "type": "boolean",
     "applies_to": "toc",
     "skip_criteria_if_false": {
-      "toc": [12, 13, 14]
+      "toc": [16]
     }
   },
   "processes_payments": {
@@ -13,7 +13,7 @@
     "applies_to": "both",
     "skip_criteria_if_false": {
       "privacy": [],
-      "toc": [8, 15, 16]
+      "toc": [23]
     }
   },
   "has_newsletter": {
@@ -38,7 +38,7 @@
     "applies_to": "both",
     "skip_criteria_if_false": {
       "privacy": [15],
-      "toc": [17, 18]
+      "toc": []
     }
   },
   "transfers_outside_eu": {
