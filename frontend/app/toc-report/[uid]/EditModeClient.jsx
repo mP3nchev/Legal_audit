@@ -17,7 +17,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   Save, Share2, Loader2, CheckCircle2, AlertCircle,
-  ExternalLink, FileText, AlertTriangle, Lock,
+  ExternalLink, FileText, AlertTriangle, Lock, EyeOff, Eye,
 } from 'lucide-react';
 import { proxyUrl }              from '@/lib/utils';
 import { recalculateFromEditor } from '@/lib/toc-score-calculator';
@@ -169,23 +169,27 @@ function ScoreSummaryBar({ score, docType }) {
 }
 
 // ── Audit table ───────────────────────────────────────────────────────────────
-function AuditTableSection({ criteria, score, docType, readOnly, onScoreChange, onExplanationChange }) {
+function AuditTableSection({ criteria, score, docType, readOnly, onScoreChange, onExplanationChange, onSkipChange }) {
   const tierLabels   = TIER_LABELS[docType] ?? TIER_LABELS.privacy;
   const docLabel     = docType === 'toc' ? 'Terms & Conditions' : 'Privacy Policy';
   const activeCriteria = criteria.filter(c => !c.skipped);
+  const skippedCount   = criteria.length - activeCriteria.length;
 
   const tiers = [1, 2, 3, 4].map(n => ({
     num:   n,
     label: tierLabels[n],
     ts:    score?.tier_scores?.[`tier${n}`] ?? { pct: 0 },
-    items: criteria.filter(c => c.tier === n && !c.skipped),
+    // in edit mode show all (including skipped); in read-only show only active
+    items: readOnly
+      ? criteria.filter(c => c.tier === n && !c.skipped)
+      : criteria.filter(c => c.tier === n),
   })).filter(t => t.items.length > 0);
 
   return (
     <ReportSection
       id={`audit-table-${docType}`}
       title="Детайлна одитна таблица"
-      subtitle={`${docLabel} · ${activeCriteria.length} критерия · ${tiers.length} нива`}
+      subtitle={`${docLabel} · ${activeCriteria.length} активни${skippedCount > 0 ? ` · ${skippedCount} изключени` : ''} · ${tiers.length} нива`}
       icon={<FileText className="h-5 w-5" />}
     >
       <div className="space-y-5">
@@ -212,77 +216,119 @@ function AuditTableSection({ criteria, score, docType, readOnly, onScoreChange, 
                 <div>#</div><div>Критерий</div><div>Оценка</div><div>Констатации & обяснение</div>
               </div>
               {/* Rows */}
-              {items.map((c, idx) => (
-                <div key={c.id} className="px-4 py-4"
-                  style={{
-                    borderTop: '1px solid var(--cp-neutral-40)',
-                    backgroundColor: idx % 2 === 0 ? 'white' : 'var(--cp-neutral-20)',
-                  }}>
-                  {/* Mobile card */}
-                  <div className="flex flex-col gap-2.5 md:hidden">
-                    <div className="flex items-start gap-2.5">
-                      <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold shrink-0"
-                        style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
+              {items.map((c, idx) => {
+                const rowBg = c.skipped
+                  ? 'var(--cp-neutral-20)'
+                  : idx % 2 === 0 ? 'white' : 'var(--cp-neutral-20)';
+                const textOpacity = c.skipped ? 0.35 : 1;
+                return (
+                  <div key={c.id} className="px-4 py-4"
+                    style={{ borderTop: '1px solid var(--cp-neutral-40)', backgroundColor: rowBg }}>
+                    {/* Mobile card */}
+                    <div className="flex flex-col gap-2.5 md:hidden">
+                      <div className="flex items-start gap-2.5">
+                        <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold shrink-0"
+                          style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)', opacity: textOpacity }}>
+                          {idx + 1}
+                        </div>
+                        <p className="text-sm font-semibold leading-snug pt-0.5 flex-1"
+                          style={{ color: 'var(--cp-neutral-100)', opacity: textOpacity,
+                            textDecoration: c.skipped ? 'line-through' : 'none' }}>
+                          {c.name}
+                        </p>
+                        {!readOnly && (
+                          <button
+                            type="button"
+                            onClick={() => onSkipChange?.(c.id, !c.skipped)}
+                            title={c.skipped ? 'Включи критерия' : 'Изключи критерия'}
+                            className="shrink-0 p-1 rounded transition hover:opacity-70"
+                            style={{ color: c.skipped ? 'var(--cp-blue-100)' : 'var(--cp-neutral-60)' }}>
+                            {c.skipped ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                          </button>
+                        )}
+                      </div>
+                      {c.skipped ? (
+                        <p className="pl-9 text-xs italic" style={{ color: 'var(--cp-neutral-60)' }}>
+                          Изключен — не участва в оценката
+                        </p>
+                      ) : (
+                        <>
+                          <div className="pl-9">
+                            <ScoreDots score={c.score ?? 0} readOnly={readOnly}
+                              onChange={val => onScoreChange?.(c.id, val)} />
+                          </div>
+                          {readOnly ? (
+                            <p className="pl-9 text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
+                              {c.explanation}
+                            </p>
+                          ) : (
+                            <AutoTextarea
+                              value={c.explanation}
+                              onChange={val => onExplanationChange?.(c.id, val)}
+                              placeholder="Констатации & обяснение..."
+                              className="w-full rounded-lg border px-3 py-2 text-sm leading-relaxed outline-none transition"
+                              style={{
+                                color: 'var(--cp-neutral-80)', borderColor: 'var(--cp-neutral-40)',
+                                backgroundColor: rowBg, minHeight: '2.5rem',
+                              }}
+                            />
+                          )}
+                        </>
+                      )}
+                    </div>
+                    {/* Desktop grid */}
+                    <div className="hidden md:grid items-start"
+                      style={{ gridTemplateColumns: '44px 1fr 160px 1fr 36px', gap: '16px' }}>
+                      <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold"
+                        style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)', opacity: textOpacity }}>
                         {idx + 1}
                       </div>
-                      <p className="text-sm font-semibold leading-snug pt-0.5"
-                        style={{ color: 'var(--cp-neutral-100)' }}>{c.name}</p>
-                    </div>
-                    <div className="pl-9">
-                      <ScoreDots score={c.score ?? 0} readOnly={readOnly}
-                        onChange={val => onScoreChange?.(c.id, val)} />
-                    </div>
-                    {readOnly ? (
-                      <p className="pl-9 text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
-                        {c.explanation}
+                      <p className="text-sm font-semibold leading-snug pt-1"
+                        style={{ color: 'var(--cp-neutral-100)', opacity: textOpacity,
+                          textDecoration: c.skipped ? 'line-through' : 'none' }}>
+                        {c.name}
                       </p>
-                    ) : (
-                      <AutoTextarea
-                        value={c.explanation}
-                        onChange={val => onExplanationChange?.(c.id, val)}
-                        placeholder="Констатации & обяснение..."
-                        className="w-full rounded-lg border px-3 py-2 text-sm leading-relaxed outline-none transition"
-                        style={{
-                          color: 'var(--cp-neutral-80)', borderColor: 'var(--cp-neutral-40)',
-                          backgroundColor: idx % 2 === 0 ? 'white' : 'var(--cp-neutral-20)',
-                          minHeight: '2.5rem',
-                        }}
-                      />
-                    )}
-                  </div>
-                  {/* Desktop grid */}
-                  <div className="hidden md:grid items-start"
-                    style={{ gridTemplateColumns: '44px 1fr 160px 1fr', gap: '16px' }}>
-                    <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold"
-                      style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
-                      {idx + 1}
+                      <div className="pt-1" style={{ opacity: textOpacity }}>
+                        {!c.skipped && (
+                          <ScoreDots score={c.score ?? 0} readOnly={readOnly}
+                            onChange={val => onScoreChange?.(c.id, val)} />
+                        )}
+                      </div>
+                      {c.skipped ? (
+                        <p className="text-xs italic" style={{ color: 'var(--cp-neutral-60)' }}>
+                          Изключен — не участва в оценката
+                        </p>
+                      ) : readOnly ? (
+                        <p className="text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
+                          {c.explanation}
+                        </p>
+                      ) : (
+                        <AutoTextarea
+                          value={c.explanation}
+                          onChange={val => onExplanationChange?.(c.id, val)}
+                          placeholder="Констатации & обяснение..."
+                          className="w-full rounded-lg border px-3 py-2 text-sm leading-relaxed outline-none transition"
+                          style={{
+                            color: 'var(--cp-neutral-80)', borderColor: 'var(--cp-neutral-40)',
+                            backgroundColor: rowBg, minHeight: '2.5rem',
+                          }}
+                        />
+                      )}
+                      {/* Skip toggle — edit mode only */}
+                      {!readOnly ? (
+                        <button
+                          type="button"
+                          onClick={() => onSkipChange?.(c.id, !c.skipped)}
+                          title={c.skipped ? 'Включи критерия' : 'Изключи критерия'}
+                          className="mt-0.5 p-1 rounded transition hover:opacity-70 self-start"
+                          style={{ color: c.skipped ? 'var(--cp-blue-100)' : 'var(--cp-neutral-60)' }}>
+                          {c.skipped ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                        </button>
+                      ) : <div />}
                     </div>
-                    <p className="text-sm font-semibold leading-snug pt-1"
-                      style={{ color: 'var(--cp-neutral-100)' }}>{c.name}</p>
-                    <div className="pt-1">
-                      <ScoreDots score={c.score ?? 0} readOnly={readOnly}
-                        onChange={val => onScoreChange?.(c.id, val)} />
-                    </div>
-                    {readOnly ? (
-                      <p className="text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
-                        {c.explanation}
-                      </p>
-                    ) : (
-                      <AutoTextarea
-                        value={c.explanation}
-                        onChange={val => onExplanationChange?.(c.id, val)}
-                        placeholder="Констатации & обяснение..."
-                        className="w-full rounded-lg border px-3 py-2 text-sm leading-relaxed outline-none transition"
-                        style={{
-                          color: 'var(--cp-neutral-80)', borderColor: 'var(--cp-neutral-40)',
-                          backgroundColor: idx % 2 === 0 ? 'white' : 'var(--cp-neutral-20)',
-                          minHeight: '2.5rem',
-                        }}
-                      />
-                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           );
         })}
@@ -509,9 +555,9 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
     setSaveMsg(null);
     try {
       const res  = await fetch(proxyUrl(`/api/toc/${audit.uid}/save`), {
-        method:  'PUT',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ doc_type: docType, criteria }),
+        body:    JSON.stringify({ doc_type: docType, editor_criteria_json: criteria }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
@@ -648,6 +694,7 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
             readOnly={isPublished}
             onScoreChange={(id, v)       => updateCriterion('privacy', id, 'score', v)}
             onExplanationChange={(id, v) => updateCriterion('privacy', id, 'explanation', v)}
+            onSkipChange={(id, v)        => updateCriterion('privacy', id, 'skipped', v)}
           />
           <RecommendationsSection
             id="recommendations-privacy"
@@ -673,6 +720,7 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
             readOnly={isPublished}
             onScoreChange={(id, v)       => updateCriterion('toc', id, 'score', v)}
             onExplanationChange={(id, v) => updateCriterion('toc', id, 'explanation', v)}
+            onSkipChange={(id, v)        => updateCriterion('toc', id, 'skipped', v)}
           />
           <RecommendationsSection
             id="recommendations-toc"
