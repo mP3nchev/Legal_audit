@@ -3,7 +3,7 @@
 
 [build]
 builder      = "nixpacks"
-buildCommand = "echo Build complete"
+buildCommand = "npm install --omit=dev"
 
 [deploy]
 startCommand            = "npm start"

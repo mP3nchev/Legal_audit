@@ -1,9 +1,8 @@
 # Nixpacks build configuration for Railway
 # Python3, gcc and make are required by node-gyp to compile better-sqlite3 from source
 # when no prebuilt binary is available for the current Node/platform combination.
+# NOTE: Do NOT override [phases.install] — npm is not in PATH until Nixpacks
+# finishes its own Node.js environment setup.
 
 [phases.setup]
 nixPkgs = ["python3", "gcc", "gnumake"]
-
-[phases.install]
-cmds = ["npm install --omit=dev"]
