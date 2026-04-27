@@ -184,20 +184,6 @@ function handleSave(req, res) {
 
   if (!result) return res.status(404).json({ error: 'Result not found', code: 'E404' });
 
-  // Criteria count validation — non-skipped must match expected
-  const received = editor_criteria_json.filter(c => !c.skipped).length;
-  const expected = result.expected_count;
-
-  if (received !== expected) {
-    logger.warn('save-criteria-mismatch', { uid, doc_type, expected, received });
-    return res.status(422).json({
-      error:    'CRITERIA_COUNT_MISMATCH',
-      expected,
-      received,
-      code:     'E422',
-    });
-  }
-
   const scores = recalculateFromEditor(editor_criteria_json);
 
   db.prepare(`
