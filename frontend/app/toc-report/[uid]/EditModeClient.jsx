@@ -291,9 +291,17 @@ function AuditTableSection({ criteria, score, docType, readOnly, onScoreChange, 
                         </>
                       )}
                     </div>
-                    {readOnly ? (
-                      <p className="pl-9 text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
-                        {sanitize(c.explanation)}
+                    {/* Desktop grid */}
+                    <div className="hidden md:grid items-start"
+                      style={{ gridTemplateColumns: '44px 1fr 160px 1fr 36px', gap: '16px' }}>
+                      <div className="flex items-center justify-center h-7 w-7 rounded-full text-sm font-bold"
+                        style={{ backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)', opacity: textOpacity }}>
+                        {idx + 1}
+                      </div>
+                      <p className="text-sm font-semibold leading-snug pt-1"
+                        style={{ color: 'var(--cp-neutral-100)', opacity: textOpacity,
+                          textDecoration: c.skipped ? 'line-through' : 'none' }}>
+                        {c.name}
                       </p>
                       <div className="pt-1" style={{ opacity: textOpacity }}>
                         {!c.skipped && (
@@ -307,7 +315,7 @@ function AuditTableSection({ criteria, score, docType, readOnly, onScoreChange, 
                         </p>
                       ) : readOnly ? (
                         <p className="text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
-                          {c.explanation}
+                          {sanitize(c.explanation)}
                         </p>
                       ) : (
                         <AutoTextarea
@@ -321,7 +329,6 @@ function AuditTableSection({ criteria, score, docType, readOnly, onScoreChange, 
                           }}
                         />
                       )}
-                      {/* Skip toggle — edit mode only */}
                       {!readOnly ? (
                         <button
                           type="button"
@@ -333,23 +340,6 @@ function AuditTableSection({ criteria, score, docType, readOnly, onScoreChange, 
                         </button>
                       ) : <div />}
                     </div>
-                    {readOnly ? (
-                      <p className="text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
-                        {sanitize(c.explanation)}
-                      </p>
-                    ) : (
-                      <AutoTextarea
-                        value={c.explanation}
-                        onChange={val => onExplanationChange?.(c.id, val)}
-                        placeholder="Констатации & обяснение..."
-                        className="w-full rounded-lg border px-3 py-2 text-sm leading-relaxed outline-none transition"
-                        style={{
-                          color: 'var(--cp-neutral-80)', borderColor: 'var(--cp-neutral-40)',
-                          backgroundColor: idx % 2 === 0 ? 'white' : 'var(--cp-neutral-20)',
-                          minHeight: '2.5rem',
-                        }}
-                      />
-                    )}
                   </div>
                 );
               })}
