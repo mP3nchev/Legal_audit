@@ -7,7 +7,6 @@
 
 import { Globe, Calendar, User, Building2 } from 'lucide-react';
 
-const SERIF = { fontFamily: "'DM Serif Display', serif", fontWeight: 400 };
 
 // ── Detail cell ───────────────────────────────────────────────────────────────
 function DetailCell({ icon, label, value }) {
@@ -201,7 +200,7 @@ export function ScopeSection({ t }) {
           </svg>
         </div>
         <div>
-          <h2 className="text-2xl" style={{ ...SERIF, color: 'var(--cp-neutral-100)', letterSpacing: '-0.3px' }}>
+          <h2 className="text-2xl font-semibold" style={{ color: 'var(--cp-neutral-100)', letterSpacing: '-0.3px' }}>
             {t.scopeTitle}
           </h2>
           <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide" style={{ color: TEXT_SUBTLE }}>
@@ -271,13 +270,13 @@ export function ScopeSection({ t }) {
                   </svg>
                   {isEn ? 'Methodology' : 'Методология'}
                 </div>
-                <div className="text-xl leading-snug" style={SERIF}>
+                <div className="text-xl leading-snug">
                   {isEn ? '37 legal criteria\n4 criticality levels' : '37 правни критерия\n4 нива на критичност'}
                 </div>
               </div>
               <div className="shrink-0 rounded-xl px-4 py-3 text-center"
                 style={{ backgroundColor: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)' }}>
-                <div className="text-3xl leading-none" style={SERIF}>37</div>
+                <div className="text-3xl leading-none">37</div>
                 <div className="mt-1 block text-[10px]" style={{ color: 'rgba(255,255,255,0.55)', letterSpacing: '0.3px' }}>
                   {isEn ? 'criteria' : 'критерия'}
                 </div>
@@ -367,7 +366,7 @@ export function ScopeSection({ t }) {
               </svg>
               {isEn ? 'Why Now' : 'Защо сега'}
             </div>
-            <div className="text-lg leading-snug text-white" style={SERIF}>
+            <div className="text-lg leading-snug text-white">
               {isEn ? 'Act before the regulator does' : 'Действайте преди\nрегулаторът да го направи'}
             </div>
           </div>
@@ -379,13 +378,13 @@ export function ScopeSection({ t }) {
           {/* Stats */}
           <div className="flex gap-8 shrink-0">
             <div>
-              <div className="text-3xl leading-none text-white" style={SERIF}>1.2 млрд €</div>
+              <div className="text-3xl leading-none text-white">1.2 млрд €</div>
               <div className="mt-1.5 text-xs leading-snug" style={{ color: 'rgba(255,255,255,0.6)' }}>
                 {isEn ? 'GDPR fines in Europe\nfor 2025' : 'санкции по GDPR\nв Европа за 2025 г.'}
               </div>
             </div>
             <div>
-              <div className="text-3xl leading-none text-white" style={SERIF}>+22%</div>
+              <div className="text-3xl leading-none text-white">+22%</div>
               <div className="mt-1.5 text-xs leading-snug" style={{ color: 'rgba(255,255,255,0.6)' }}>
                 {isEn ? 'growth in breach\nnotifications' : 'ръст на уведомленията\nза нарушения'}
               </div>
