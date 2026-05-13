@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CraftPolicy – Обхват & Методология</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cp-blue-100: #0175ff;
+    --cp-blue-150: #0155b9;
+    --cp-blue-200: #1a5fb4;   /* lightened from #004699 */
+    --cp-blue-card: #1e6bbf;  /* methodology / urgency card bg */
+    --cp-blue-80:  #449aff;
+    --cp-blue-60:  #accef7;
+    --cp-blue-40:  #c6e0ff;
+    --cp-blue-30:  #d2e2f5;
+    --cp-blue-20:  #d6e9ff;
+    --cp-blue-15:  #e7f2ff;
+    --cp-blue-10:  #e2e8f1;
+    --text-primary: #0D1A2E;
+    --text-muted:   #3D5068;
+    --text-subtle:  #7A8FA8;
+    --surface:      #FFFFFF;
+    --surface-alt:  #F4F8FC;
+    --border:       #DDE6F0;
+    --success:      #1a7a52;
+    --success-bg:   #e5f5ee;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface-alt);
+    color: var(--text-primary);
+    padding: 48px 24px 64px;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .sec-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
+  .sec-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--cp-blue-15);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; color: var(--cp-blue-150);
+  }
+  .sec-icon svg { width: 24px; height: 24px; }
+  .sec-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; font-weight: 400; color: var(--text-primary); letter-spacing: -0.3px;
+  }
+  .sec-header p {
+    font-size: 11.5px; font-weight: 600; letter-spacing: 0.5px;
+    text-transform: uppercase; color: var(--text-subtle); margin-top: 3px;
+  }
+
+  /* ── 2-col grid ── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  /* ── Audit card ── */
+  .audit-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .audit-card-hdr {
+    padding: 16px 20px 14px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--success); box-shadow: 0 0 0 3px var(--success-bg); flex-shrink: 0;
+  }
+  .audit-card-hdr span {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.6px;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+
+  .audit-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 20px; border-bottom: 1px solid #EEF3F9; transition: background 0.12s;
+  }
+  .audit-item:last-child { border-bottom: none; }
+  .audit-item:hover { background: var(--surface-alt); }
+
+  .ai-icon {
+    width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px;
+    background: var(--cp-blue-15);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cp-blue-150); margin-top: 1px;
+  }
+  .ai-icon svg { width: 16px; height: 16px; }
+  .ai-body { flex: 1; min-width: 0; }
+  .ai-title { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.35; }
+  .ai-desc { font-size: 11.5px; color: var(--text-subtle); line-height: 1.45; margin-top: 2px; }
+  .ai-tag {
+    flex-shrink: 0; font-size: 10px; font-weight: 700;
+    color: var(--cp-blue-150); background: var(--cp-blue-15);
+    border: 1px solid var(--cp-blue-40); border-radius: 5px;
+    padding: 2px 7px; letter-spacing: 0.2px; white-space: nowrap;
+    align-self: flex-start; margin-top: 2px;
+  }
+
+  /* ── Right stack ── */
+  .right-stack { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── Methodology card ── */
+  .meth-card {
+    background: var(--cp-blue-card);
+    border-radius: 16px; padding: 26px 26px 24px;
+    color: #fff; position: relative; overflow: hidden;
+  }
+  .meth-card::before {
+    content: ''; position: absolute; top: -50px; right: -50px;
+    width: 180px; height: 180px;
+    background: rgba(255,255,255,0.05); border-radius: 50%; pointer-events: none;
+  }
+  .meth-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
+  .meth-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+    text-transform: uppercase; color: rgba(255,255,255,0.55);
+    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+  }
+  .meth-label svg { width: 13px; height: 13px; flex-shrink: 0; }
+  .meth-title { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; color: #fff; line-height: 1.3; }
+  .meth-badge {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 10px; padding: 10px 16px; text-align: center; flex-shrink: 0;
+  }
+  .meth-badge .bn { font-family: 'DM Serif Display', serif; font-size: 30px; color: #fff; line-height: 1; }
+  .meth-badge .bl { font-size: 10px; color: rgba(255,255,255,0.55); letter-spacing: 0.3px; margin-top: 3px; display: block; }
+  .meth-body { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.65; }
+
+  /* ── Feature cards ── */
+  .feat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 20px;
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .feat-icon {
+    width: 40px; height: 40px; border-radius: 11px; background: var(--cp-blue-15);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; color: var(--cp-blue-100);
+  }
+  .feat-icon svg { width: 20px; height: 20px; }
+  .feat-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 5px; line-height: 1.3; }
+  .feat-body { font-size: 13px; color: var(--text-muted); line-height: 1.58; }
+
+  /* ══ URGENCY — full width ══ */
+  .urgency {
+    margin-top: 20px;
+    background: var(--cp-blue-card);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+  }
+  .urgency::after {
+    content: ''; position: absolute; bottom: -60px; right: -60px;
+    width: 220px; height: 220px;
+    background: rgba(255,255,255,0.04); border-radius: 50%; pointer-events: none;
+  }
+
+  /* Desktop: one flex row, label | sep | stats | sep | note */
+  .u-inner {
+    display: flex;
+    align-items: center;
+    padding: 32px 40px;
+    gap: 32px;
+  }
+
+  .u-label-col { flex: 0 0 220px; }
+  .u-eyebrow {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.7px; color: var(--cp-blue-60);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+  }
+  .u-eyebrow svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .u-heading { font-family: 'DM Serif Display', serif; font-size: 19px; font-weight: 400; color: #fff; line-height: 1.35; }
+
+  .u-sep {
+    width: 1px; align-self: stretch; min-height: 56px;
+    background: rgba(255,255,255,0.15); flex-shrink: 0;
+  }
+
+  /* Stats: two numbers side by side, no divider between them */
+  .u-stats-row {
+    display: flex;
+    gap: 32px;
+    flex: 0 0 auto;
+  }
+  .u-stat { text-align: left; }
+  .u-stat-num { font-family: 'DM Serif Display', serif; font-size: 30px; color: #fff; line-height: 1; }
+  .u-stat-lbl { font-size: 11.5px; color: rgba(255,255,255,0.6); margin-top: 6px; line-height: 1.45; }
+
+  .u-note { flex: 1; }
+  .u-note p { font-size: 13px; color: rgba(255,255,255,0.72); line-height: 1.68; }
+
+  .u-disclaimer {
+    padding: 10px 40px 14px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 10.5px; color: rgba(255,255,255,0.42); line-height: 1.5;
+  }
+
+  /* ── Tablet 600–860px ── */
+  @media (max-width: 860px) and (min-width: 601px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .u-inner { flex-wrap: wrap; padding: 28px; gap: 20px; }
+    .u-label-col { flex: 0 0 100%; }
+    .u-sep:first-of-type { display: none; }  /* hide sep after label */
+    .u-stats-row { flex: 0 0 auto; gap: 36px; }
+    .u-note { flex: 1 1 100%; }
+    .u-disclaimer { padding: 10px 28px 14px; }
+  }
+
+  /* ── Mobile < 601px ── */
+  @media (max-width: 600px) {
+    .main-grid { grid-template-columns: 1fr; }
+    body { padding: 32px 16px 48px; }
+    .u-inner { flex-direction: column; align-items: flex-start; padding: 24px 20px; gap: 20px; }
+    .u-label-col { flex: none; width: 100%; }
+    .u-sep { display: none; }
+    .u-stats-row { gap: 28px; width: 100%; }
+    .u-stat-num { font-size: 26px; }
+    .u-note { width: 100%; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 20px; }
+    .u-disclaimer { padding: 10px 20px 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="sec-header">
+    <div class="sec-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <polyline points="9 12 11 14 15 10"/>
+      </svg>
+    </div>
+    <div>
+      <h2>Обхват &amp; Методология</h2>
+      <p>Какво и как тестваме</p>
+    </div>
+  </div>
+
+  <!-- 2-col grid -->
+  <div class="main-grid">
+
+    <!-- LEFT: Audit scope -->
+    <div class="audit-card">
+      <div class="audit-card-hdr">
+        <div class="status-dot"></div>
+        <span>Подложено на правен одит</span>
+      </div>
+
+      <!-- 1 -->
+      <div class="audit-item">
+        <div class="ai-icon">
+          <!-- Building / company -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M3 9h18M9 21V9"/>
+          </svg>
+        </div>
+        <div class="ai-body">
+          <div class="ai-title">Кой обработва данните ви и на какво основание</div>
+          <div class="ai-desc">Пълна идентификация на администратора и обработващите лица</div>
+        </div>
+        <span class="ai-tag">Чл. 4 &amp; 13</span>
+      </div>
+
+      <!-- 2: key / legal ground -->
+      <div class="audit-item">
+        <div class="ai-icon">
+          <!-- Key icon — правно основание -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="7.5" cy="15.5" r="4.5"/>
+            <path d="M10.5 12.5l8-8M18.5 4.5l1.5 1.5M15 8l1.5 1.5"/>
+          </svg>
+        </div>
+        <div class="ai-body">
+          <div class="ai-title">Правно основание за всяка цел на обработка</div>
+          <div class="ai-desc">Съгласие, договор, законово задължение или легитимен интерес</div>
+        </div>
+        <span class="ai-tag">Чл. 6</span>
+      </div>
+
+      <!-- 3 -->
+      <div class="audit-item">
+        <div class="ai-icon">
+          <!-- Checkbox / consent -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <polyline points="7 12 10 15 17 8"/>
+          </svg>
+        </div>
+        <div class="ai-body">
+          <div class="ai-title">Как е получено съгласието и може ли да се оттегли</div>
+          <div class="ai-desc">Яснота, отделност и свобода на избора при всяко искане</div>
+        </div>
+        <span class="ai-tag">Чл. 7</span>
+      </div>
+
+      <!-- 4 -->
+      <div class="audit-item">
+        <div class="ai-icon">
+          <!-- Person rights -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="7" r="4"/>
+            <path d="M5 21v-1a7 7 0 0 1 14 0v1"/>
+            <path d="M16 10l2 2 4-4" stroke-width="1.6"/>
+          </svg>
+        </div>
+        <div class="ai-body">
+          <div class="ai-title">Права на физическите лица</div>
+          <div class="ai-desc">Достъп, коригиране, изтриване, ограничаване и преносимост</div>
+        </div>
+        <span class="ai-tag">Гл. III</span>
+      </div>
+
+      <!-- 5 -->
+      <div class="audit-item">
+        <div class="ai-icon">
+          <!-- Clock -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <polyline points="12 7 12 12 15 15"/>
+          </svg>
+        </div>
+        <div class="ai-body">
+          <div class="ai-title">Колко дълго се съхраняват данните и защо</div>
+          <div class="ai-desc">Конкретни срокове или ясни критерии за тяхното определяне</div>
+        </div>
+        <span class="ai-tag">Чл. 5(1)(e)</span>
+      </div>
+
+      <!-- 6: Globe — transfers outside EU -->
+      <div class="audit-item">
+        <div class="ai-icon">
+          <!-- Globe with meridians -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 3c-2.5 3-4 5.5-4 9s1.5 6 4 9"/>
+            <path d="M12 3c2.5 3 4 5.5 4 9s-1.5 6-4 9"/>
+            <path d="M3.5 9h17M3.5 15h17"/>
+          </svg>
+        </div>
+        <div class="ai-body">
+          <div class="ai-title">Предаване на данни извън ЕС</div>
+          <div class="ai-desc">SCCs, оценка на трансфера и допълнителни защитни мерки</div>
+        </div>
+        <span class="ai-tag">Schrems II</span>
+      </div>
+
+      <!-- 7 -->
+      <div class="audit-item">
+        <div class="ai-icon">
+          <!-- Share / recipients -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6" cy="12" r="2.5"/>
+            <circle cx="19" cy="6" r="2.5"/>
+            <circle cx="19" cy="18" r="2.5"/>
+            <path d="M8.3 11l8.4-3.6M8.3 13l8.4 3.6"/>
+          </svg>
+        </div>
+        <div class="ai-body">
+          <div class="ai-title">С кого се споделят данните и за каква цел</div>
+          <div class="ai-desc">Категории получатели, партньори и обработващи лица</div>
+        </div>
+        <span class="ai-tag">Чл. 13(1)(e)</span>
+      </div>
+
+      <!-- 8: Cookies — fingerprint/tracking icon -->
+      <div class="audit-item">
+        <div class="ai-icon">
+          <!-- Fingerprint — tracking tech -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a7 7 0 0 0-7 7"/>
+            <path d="M5 9c0 3.5 1.5 6.5 4 8.5"/>
+            <path d="M12 9a3 3 0 0 0-3 3c0 2 .8 4 2 6"/>
+            <path d="M12 9a3 3 0 0 1 3 3c0 2.2-1 4.5-2.5 6.5"/>
+            <path d="M19 9a7 7 0 0 1-1.5 4.5"/>
+            <path d="M12 2a7 7 0 0 1 7 7"/>
+            <path d="M9 21c1 .5 2 .8 3 .8"/>
+          </svg>
+        </div>
+        <div class="ai-body">
+          <div class="ai-title">Бисквитки и технологии за проследяване</div>
+          <div class="ai-desc">Видове, цели и съответствие с изискванията на ePrivacy</div>
+        </div>
+        <span class="ai-tag">ePrivacy</span>
+      </div>
+
+    </div><!-- /audit-card -->
+
+    <!-- RIGHT: stack -->
+    <div class="right-stack">
+
+      <div class="meth-card">
+        <div class="meth-top">
+          <div>
+            <div class="meth-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 11 12 14 22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
+              Методология
+            </div>
+            <div class="meth-title">37 правни критерия<br>4 нива на критичност</div>
+          </div>
+          <div class="meth-badge">
+            <div class="bn">37</div>
+            <div class="bl">критерия</div>
+          </div>
+        </div>
+        <div class="meth-body">
+          Над 80% от одитираните политики съдържат поне едно критично нарушение, невидимо без структурирана правна рамка. Методологията е разработена в съответствие с насоките на EDPB. Целта е единствена: да открие това, което регулаторът ще намери преди вас.
+        </div>
+      </div>
+
+      <!-- Weighted risk — Scales of justice -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="3" x2="12" y2="21"/>
+            <path d="M5 21h14"/>
+            <path d="M12 3l-6 6h12l-6-6z" stroke-linejoin="round"/>
+            <path d="M6 9l-3 6h6l-3-6z"/>
+            <path d="M18 9l-3 6h6l-3-6z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="feat-title">Претеглена оценка на регулаторния риск</div>
+          <div class="feat-body">Не всички нарушения носят еднакъв риск. Критичните констатации имат до 5 пъти по-висока тежест — точно там, където надзорните органи търсят най-напред.</div>
+        </div>
+      </div>
+
+      <!-- Prioritised plan — sorted list with flag -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"/>
+            <line x1="8" y1="12" x2="21" y2="12"/>
+            <line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6" stroke-width="2.5"/>
+            <path d="M3 12l1.5-1.5L3 9" stroke-linejoin="round"/>
+            <path d="M3 16v5" stroke-width="1.6"/>
+            <path d="M3 16l3-2-3-2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="feat-title">Приоритизиран план за отстраняване</div>
+          <div class="feat-body">Одитът приключва с конкретни препоръки, наредени по правна тежест. Всяка е обвързана с точен член от GDPR — работен инструмент, не доклад за архив.</div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /main-grid -->
+
+  <!-- ══ URGENCY — full width ══ -->
+  <div class="urgency">
+    <div class="u-inner">
+
+      <div class="u-label-col">
+        <div class="u-eyebrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          Защо сега
+        </div>
+        <div class="u-heading">Действайте преди<br>регулаторът да го направи</div>
+      </div>
+
+      <div class="u-sep"></div>
+
+      <div class="u-stats-row">
+        <div class="u-stat">
+          <div class="u-stat-num">1.2 млрд €</div>
+          <div class="u-stat-lbl">санкции по GDPR<br>в Европа за 2025 г.</div>
+        </div>
+        <div class="u-stat">
+          <div class="u-stat-num">+22%</div>
+          <div class="u-stat-lbl">ръст на уведомленията<br>за нарушения</div>
+        </div>
+      </div>
+
+      <div class="u-sep"></div>
+
+      <div class="u-note">
+        <p>Одитът идентифицира уязвимостите, докато отстраняването им е въпрос на избор, не на задължение. Разходите за превенция са многократно по-ниски от глобата, репутационния риск и принудителното привеждане в съответствие.</p>
+      </div>
+
+    </div>
+    <div class="u-disclaimer">
+      * Данните са по анализа на DLA Piper: GDPR Fines &amp; Data Breach Survey 2025.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
