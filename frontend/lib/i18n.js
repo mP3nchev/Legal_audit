@@ -15,6 +15,7 @@ export const i18n = {
     s2Title:          'Privacy Policy',
     s3Title:          'Terms & Conditions',
     s4Title:          'Контекстни въпроси',
+    s5Title:          'Лого на партньора (незадължително)',
 
     // Fields
     clientLabel:      'Клиент',
@@ -27,6 +28,19 @@ export const i18n = {
     questionsHint:    'Отговорите се използват за прескачане на неприложими критерии.',
     yes:              'Да',
     no:               'Не',
+
+    // Logo upload
+    logoLabel:        'Лого (PNG, JPG, SVG)',
+    logoHint:         'Показва се в горния десен ъгъл на одита до логото на CraftPolicy.',
+    logoSizeError:    'Логото трябва да е до 2 MB.',
+    logoTypeError:    'Разрешени формати: PNG, JPG, JPEG, SVG, WebP.',
+    logoPreviewAlt:   'Преглед на лого',
+    logoRemove:       'Премахни',
+
+    // Report tagline
+    taglineLabel:     'Подзаглавие на одита',
+    taglinePlaceholder: 'Оценка на съответствието на ниво ръководство с приложими препоръки',
+    taglineHint:      'Текстът под заглавието на одита. Ако е оставен празен, се използва стандартното подзаглавие.',
 
     // Upload
     uploadHint:       'Качи поне един от двата документа.',
@@ -71,6 +85,7 @@ export const i18n = {
     s2Title:          'Privacy Policy',
     s3Title:          'Terms & Conditions',
     s4Title:          'Contextual Questions',
+    s5Title:          'Partner Logo (optional)',
 
     clientLabel:      'Client',
     clientPlaceholder:'Acme Ltd.',
@@ -81,6 +96,17 @@ export const i18n = {
     questionsHint:    'Answers are used to skip non-applicable criteria.',
     yes:              'Yes',
     no:               'No',
+
+    logoLabel:        'Logo (PNG, JPG, SVG)',
+    logoHint:         'Displayed in the top-right corner of the audit report next to the CraftPolicy logo.',
+    logoSizeError:    'Logo must be under 2 MB.',
+    logoTypeError:    'Allowed formats: PNG, JPG, JPEG, SVG, WebP.',
+    logoPreviewAlt:   'Logo preview',
+    logoRemove:       'Remove',
+
+    taglineLabel:     'Audit subtitle',
+    taglinePlaceholder: 'Executive-level compliance assessment with actionable recommendations',
+    taglineHint:      'Text below the audit title. Leave empty to use the default subtitle.',
 
     uploadHint:       'Upload at least one of the two documents.',
 

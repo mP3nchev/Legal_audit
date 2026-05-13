@@ -63,6 +63,16 @@ function run(db) {
       WHERE share_uid IS NOT NULL;
   `);
 
+  // ── Additive column migrations (idempotent) ────────────────────────────────
+  // SQLite does not support ADD COLUMN IF NOT EXISTS, so we catch the error.
+  const addColumns = [
+    `ALTER TABLE toc_audits ADD COLUMN partner_logo_data TEXT`,
+    `ALTER TABLE toc_audits ADD COLUMN report_tagline TEXT`,
+  ];
+  for (const sql of addColumns) {
+    try { db.exec(sql); } catch { /* column already exists */ }
+  }
+
   process.stdout.write(JSON.stringify({
     ts: new Date().toISOString(),
     service: 'migrate-add-toc',

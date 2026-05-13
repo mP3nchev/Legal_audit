@@ -17,8 +17,9 @@ if (!fs.existsSync(uploadDir)) {
 const storage = multer.memoryStorage(); // Store in memory for processing
 
 // File filter
+const allowedExtensions = ['.pdf', '.docx', '.html', '.htm', '.png', '.jpg', '.jpeg', '.svg', '.webp', '.gif'];
+
 const fileFilter = (req, file, cb) => {
-  const allowedExtensions = ['.pdf', '.docx', '.html', '.htm'];
   const ext = path.extname(file.originalname).toLowerCase();
 
   if (allowedExtensions.includes(ext)) {
