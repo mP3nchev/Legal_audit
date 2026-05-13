@@ -6,6 +6,7 @@
 
 import Link from 'next/link';
 import { PlusCircle, ExternalLink } from 'lucide-react';
+import { DeleteAuditButton } from './DeleteAuditButton';
 
 const BACKEND_URL  = process.env.BACKEND_API_URL  || 'http://localhost:3001';
 const INTERNAL_KEY = process.env.INTERNAL_API_KEY || '';
@@ -94,6 +95,7 @@ export default async function DashboardPage({ searchParams }) {
                 <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500">T&C %</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Дата</th>
                 <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500">Публ.</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500">Изтрий</th>
               </tr>
             </thead>
             <tbody>
@@ -135,6 +137,9 @@ export default async function DashboardPage({ searchParams }) {
                       ) : (
                         <span className="text-xs text-gray-400">—</span>
                       )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <DeleteAuditButton uid={a.uid} clientName={a.client_name} />
                     </td>
                   </tr>
                 );

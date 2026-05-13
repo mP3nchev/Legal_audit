@@ -29,6 +29,11 @@ export const i18n = {
     yes:              'Да',
     no:               'Не',
 
+    // Report title
+    reportTitleLabel:       'Заглавие на одита',
+    reportTitlePlaceholder: 'GDPR & Privacy Policy\nCompliance Audit',
+    reportTitleHint:        'Голямото заглавие в началото на одита. Ако е празно — използва се стандартното.',
+
     // Logo upload
     logoLabel:        'Лого (PNG, JPG, SVG)',
     logoHint:         'Показва се в горния десен ъгъл на одита до логото на CraftPolicy.',
@@ -96,6 +101,10 @@ export const i18n = {
     questionsHint:    'Answers are used to skip non-applicable criteria.',
     yes:              'Yes',
     no:               'No',
+
+    reportTitleLabel:       'Audit Title',
+    reportTitlePlaceholder: 'GDPR & Privacy Policy\nCompliance Audit',
+    reportTitleHint:        'The large heading at the top of the report. Leave empty to use the default.',
 
     logoLabel:        'Logo (PNG, JPG, SVG)',
     logoHint:         'Displayed in the top-right corner of the audit report next to the CraftPolicy logo.',

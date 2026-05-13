@@ -32,8 +32,9 @@ export function CoverSection({ audit, t }) {
       })
     : '-';
 
-  const tagline        = audit.report_tagline?.trim() || t.tagline;
-  const partnerLogo    = audit.partner_logo_data ?? null;
+  const auditTitle  = audit.report_title?.trim()   || t.auditTitle;
+  const tagline     = audit.report_tagline?.trim() || t.tagline;
+  const partnerLogo = audit.partner_logo_data ?? null;
 
   return (
     <section id="cover" className="scroll-mt-24">
@@ -53,7 +54,7 @@ export function CoverSection({ audit, t }) {
           </div>
           <h1 className="text-3xl font-bold tracking-tight leading-tight lg:text-4xl"
             style={{ color: 'var(--cp-blue-100)', whiteSpace: 'pre-line' }}>
-            {t.auditTitle}
+            {auditTitle}
           </h1>
           <p className="mt-3 text-base" style={{ color: '#4a5568' }}>{tagline}</p>
         </div>
