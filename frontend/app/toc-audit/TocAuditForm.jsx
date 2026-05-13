@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle2, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { UploadSection } from '@/components/toc/UploadSection';
 import { proxyUrl }      from '@/lib/utils';
 import { i18n }          from '@/lib/i18n';
@@ -75,6 +75,87 @@ function useAuditPolling(auditUid, onComplete, onError) {
   }, [auditUid, onComplete, onError]);
 }
 
+// ── Logo upload ───────────────────────────────────────────────────────────────
+const LOGO_ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'];
+const LOGO_MAX_MB = 2;
+
+function LogoUpload({ t, onLogoSelect }) {
+  const [preview,   setPreview]   = useState(null);
+  const [logoError, setLogoError] = useState(null);
+  const inputRef = useRef(null);
+
+  function pickLogo(file) {
+    if (!file) return;
+    if (!LOGO_ACCEPTED_TYPES.includes(file.type) && !file.name.match(/\.(png|jpe?g|svg|webp)$/i)) {
+      setLogoError(t.logoTypeError);
+      return;
+    }
+    if (file.size > LOGO_MAX_MB * 1024 * 1024) {
+      setLogoError(t.logoSizeError);
+      return;
+    }
+    setLogoError(null);
+    onLogoSelect(file);
+    const reader = new FileReader();
+    reader.onload = e => setPreview(e.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  function removeLogo() {
+    setPreview(null);
+    setLogoError(null);
+    onLogoSelect(null);
+    if (inputRef.current) inputRef.current.value = '';
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium text-gray-700">{t.logoLabel}</label>
+      <p className="text-xs text-gray-400">{t.logoHint}</p>
+
+      {!preview ? (
+        <div
+          role="button"
+          tabIndex={0}
+          className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 bg-white px-6 py-6 text-center cursor-pointer hover:border-blue-400 hover:bg-gray-50 transition-colors"
+          onClick={() => inputRef.current?.click()}
+          onKeyDown={e => e.key === 'Enter' && inputRef.current?.click()}
+        >
+          <ImageIcon className="h-7 w-7 text-gray-400" />
+          <p className="text-sm font-medium text-gray-700">
+            <span className="text-blue-600 underline underline-offset-2">Избери лого</span>
+          </p>
+          <p className="text-xs text-gray-400">PNG, JPG, SVG — макс. {LOGO_MAX_MB} MB</p>
+          <input
+            ref={inputRef}
+            type="file"
+            className="sr-only"
+            accept=".png,.jpg,.jpeg,.svg,.webp"
+            onChange={e => pickLogo(e.target.files?.[0])}
+          />
+        </div>
+      ) : (
+        <div className="flex items-center gap-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={preview} alt={t.logoPreviewAlt} className="h-8 w-auto object-contain shrink-0" />
+          <p className="text-xs text-blue-700 flex-1">Лого заредено</p>
+          <button type="button" onClick={removeLogo}
+            className="rounded-md p-1 text-blue-600 hover:bg-blue-100 hover:text-red-600 transition-colors">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {logoError && (
+        <div className="flex items-center gap-1.5 text-xs text-red-600">
+          <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+          <span>{logoError}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Language toggle ───────────────────────────────────────────────────────────
 function LangToggle({ language, onChange }) {
   return (
@@ -111,6 +192,8 @@ export function TocAuditForm() {
   const [businessType,  setBusinessType]  = useState('saas');
   const [privacyFile,   setPrivacyFile]   = useState(null);
   const [tocFile,       setTocFile]       = useState(null);
+  const [logoFile,      setLogoFile]      = useState(null);
+  const [reportTagline, setReportTagline] = useState('');
   const [answers,       setAnswers]       = useState({});
   const [questions,     setQuestions]     = useState(null);
   const [questionsErr,  setQuestionsErr]  = useState(null);
@@ -210,8 +293,10 @@ export function TocAuditForm() {
       fd.append('business_type',        businessType);
       fd.append('language',             language);
       fd.append('questions_answers_json', JSON.stringify(answers));
+      if (reportTagline.trim()) fd.append('report_tagline', reportTagline.trim());
       if (privacyFile) fd.append('privacy', privacyFile);
       if (tocFile)     fd.append('toc',     tocFile);
+      if (logoFile)    fd.append('logo',    logoFile);
 
       const res  = await fetch(proxyUrl('/api/toc/start'), { method: 'POST', body: fd });
       const data = await res.json();
@@ -325,6 +410,21 @@ export function TocAuditForm() {
         {!privacyFile && !tocFile && (
           <p className="mt-2 text-xs text-amber-600">{t.uploadHint}</p>
         )}
+
+        {/* Audit tagline — inside section 3 as requested */}
+        <div className="mt-4 border-t border-gray-100 pt-4">
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            {t.taglineLabel}
+          </label>
+          <textarea
+            value={reportTagline}
+            onChange={e => setReportTagline(e.target.value)}
+            placeholder={t.taglinePlaceholder}
+            rows={2}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition resize-none"
+          />
+          <p className="mt-1 text-xs text-gray-400">{t.taglineHint}</p>
+        </div>
       </Section>
 
       {/* Section 4 — Contextual questions */}
@@ -351,6 +451,11 @@ export function TocAuditForm() {
           </div>
         </Section>
       )}
+
+      {/* Section 5 — Partner logo */}
+      <Section num="5" title={t.s5Title}>
+        <LogoUpload t={t} onLogoSelect={setLogoFile} />
+      </Section>
 
       {/* Submit row */}
       <div className="flex items-center justify-between pt-2">

@@ -32,20 +32,30 @@ export function CoverSection({ audit, t }) {
       })
     : '-';
 
+  const tagline        = audit.report_tagline?.trim() || t.tagline;
+  const partnerLogo    = audit.partner_logo_data ?? null;
+
   return (
     <section id="cover" className="scroll-mt-24">
       <div className="rounded-2xl overflow-hidden"
         style={{ border: '1px solid var(--cp-neutral-40)', backgroundColor: 'var(--cp-white)' }}>
         <div className="px-8 py-10" style={{ background: 'linear-gradient(-133deg, #accef7, #e7edf5)' }}>
-          <div className="mb-6">
+          <div className="mb-6 flex items-center justify-between">
+            {/* CraftPolicy logo — left */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/craftpolicy-logo.svg" alt="CraftPolicy" className="h-8" />
+            <img src="/craftpolicy-logo.svg" alt="CraftPolicy" className="h-8 w-auto" />
+
+            {/* Partner logo — right, same fixed height, only when provided */}
+            {partnerLogo && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={partnerLogo} alt="Partner logo" className="h-8 w-auto object-contain" />
+            )}
           </div>
           <h1 className="text-3xl font-bold tracking-tight leading-tight lg:text-4xl"
             style={{ color: 'var(--cp-blue-100)', whiteSpace: 'pre-line' }}>
             {t.auditTitle}
           </h1>
-          <p className="mt-3 text-base" style={{ color: '#4a5568' }}>{t.tagline}</p>
+          <p className="mt-3 text-base" style={{ color: '#4a5568' }}>{tagline}</p>
         </div>
         <div className="grid grid-cols-2 gap-px" style={{ backgroundColor: 'var(--cp-neutral-40)' }}>
           <DetailCell icon={<Globe     className="h-4 w-4" />} label={t.website}     value={audit.site_url || '-'} />

@@ -15,10 +15,11 @@ const { runFullAnalysis }       = require('../analyzers/toc-analyzer');
 
 const logger = createLogger('toc');
 
-// Multer — two optional fields
+// Multer — document fields + optional partner logo
 const tocUpload = uploadMultipleFiles([
   { name: 'privacy', maxCount: 1 },
   { name: 'toc',     maxCount: 1 },
+  { name: 'logo',    maxCount: 1 },
 ]);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -42,7 +43,7 @@ function parseResultRow(row) {
 // Accepts multipart/form-data. Returns {audit_uid} immediately — fire-and-forget.
 
 async function handleStart(req, res) {
-  const { client_name, site_url, business_type, questions_answers_json } = req.body;
+  const { client_name, site_url, business_type, questions_answers_json, report_tagline } = req.body;
 
   if (!client_name || !site_url || !business_type) {
     return res.status(400).json({
@@ -53,6 +54,7 @@ async function handleStart(req, res) {
 
   const privacyFile = req.files?.privacy?.[0] ?? null;
   const tocFile     = req.files?.toc?.[0]     ?? null;
+  const logoFile    = req.files?.logo?.[0]    ?? null;
 
   if (!privacyFile && !tocFile) {
     return res.status(400).json({
@@ -70,14 +72,22 @@ async function handleStart(req, res) {
     }
   }
 
+  // Convert logo to base64 data URL if provided (max 2 MB enforced by multer)
+  let partnerLogoData = null;
+  if (logoFile) {
+    const mime = logoFile.mimetype || 'image/png';
+    partnerLogoData = `data:${mime};base64,${logoFile.buffer.toString('base64')}`;
+  }
+
   const uid = 'toc_' + crypto.randomBytes(4).toString('hex');
   const db  = getDatabase();
 
   db.prepare(`
-    INSERT INTO toc_audits (uid, client_name, site_url, business_type, has_privacy, has_toc)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO toc_audits (uid, client_name, site_url, business_type, has_privacy, has_toc, partner_logo_data, report_tagline)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).run(uid, client_name, site_url, business_type,
-    privacyFile ? 1 : 0, tocFile ? 1 : 0);
+    privacyFile ? 1 : 0, tocFile ? 1 : 0,
+    partnerLogoData, report_tagline?.trim() || null);
 
   // HTTP 200 immediately — client starts polling
   res.json({ audit_uid: uid });
