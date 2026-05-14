@@ -176,7 +176,6 @@ const AUDIT_ITEMS = [
   },
 ];
 
-const BLUE_CARD = '#1e6bbf';
 const TEXT_MUTED  = '#3D5068';
 const TEXT_SUBTLE = '#7A8FA8';
 const BORDER      = '#DDE6F0';
@@ -253,16 +252,16 @@ export function ScopeSection({ t }) {
         {/* RIGHT — methodology stack */}
         <div className="flex flex-col gap-4">
 
-          {/* Methodology card — dark blue */}
-          <div className="relative overflow-hidden rounded-2xl p-6 text-white"
-            style={{ backgroundColor: BLUE_CARD }}>
+          {/* Methodology card */}
+          <div className="relative overflow-hidden rounded-2xl p-6"
+            style={{ background: 'linear-gradient(-133deg, #accef7, #e7edf5)' }}>
             {/* Decorative circle */}
             <div className="pointer-events-none absolute -top-12 -right-12 h-44 w-44 rounded-full"
-              style={{ backgroundColor: 'rgba(255,255,255,0.05)' }} />
+              style={{ backgroundColor: 'rgba(1,117,255,0.05)' }} />
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
                 <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider"
-                  style={{ color: 'rgba(255,255,255,0.55)', letterSpacing: '0.8px' }}>
+                  style={{ color: '#0175ff', letterSpacing: '0.8px', opacity: 0.7 }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                     strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
                     <polyline points="9 11 12 14 22 4"/>
@@ -270,19 +269,19 @@ export function ScopeSection({ t }) {
                   </svg>
                   {isEn ? 'Methodology' : 'Методология'}
                 </div>
-                <div className="text-xl leading-snug">
+                <div className="text-xl leading-snug font-semibold" style={{ color: '#0175ff' }}>
                   {isEn ? '37 legal criteria\n4 criticality levels' : '37 правни критерия\n4 нива на критичност'}
                 </div>
               </div>
               <div className="shrink-0 rounded-xl px-4 py-3 text-center"
-                style={{ backgroundColor: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)' }}>
-                <div className="text-3xl leading-none">37</div>
-                <div className="mt-1 block text-[10px]" style={{ color: 'rgba(255,255,255,0.55)', letterSpacing: '0.3px' }}>
+                style={{ backgroundColor: 'rgba(1,117,255,0.1)', border: '1px solid rgba(1,117,255,0.2)' }}>
+                <div className="text-3xl leading-none font-bold" style={{ color: '#0175ff' }}>37</div>
+                <div className="mt-1 block text-[10px]" style={{ color: '#4a5568', letterSpacing: '0.3px' }}>
                   {isEn ? 'criteria' : 'критерия'}
                 </div>
               </div>
             </div>
-            <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.75)' }}>
+            <p className="text-sm leading-relaxed" style={{ color: '#4a5568' }}>
               {isEn
                 ? 'Over 80% of audited policies contain at least one critical violation invisible without a structured legal framework. Methodology developed per EDPB guidelines. The goal is singular: uncover what the regulator will find before you do.'
                 : 'Над 80% от одитираните политики съдържат поне едно критично нарушение, невидимо без структурирана правна рамка. Методологията е разработена в съответствие с насоките на EDPB. Целта е единствена: да открие това, което регулаторът ще намери преди вас.'}
@@ -347,17 +346,18 @@ export function ScopeSection({ t }) {
       </div>
 
       {/* ── Urgency — full width ── */}
-      <div className="relative mt-5 overflow-hidden rounded-2xl" style={{ backgroundColor: BLUE_CARD }}>
+      <div className="relative mt-5 overflow-hidden rounded-2xl"
+        style={{ background: 'linear-gradient(-133deg, #accef7, #e7edf5)' }}>
         {/* Decorative circle */}
         <div className="pointer-events-none absolute -bottom-14 -right-14 h-56 w-56 rounded-full"
-          style={{ backgroundColor: 'rgba(255,255,255,0.04)' }} />
+          style={{ backgroundColor: 'rgba(1,117,255,0.05)' }} />
 
         <div className="flex flex-col gap-6 p-6 lg:flex-row lg:items-center lg:gap-8 lg:px-10 lg:py-8">
 
           {/* Label */}
           <div className="lg:w-56 shrink-0">
             <div className="mb-2.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider"
-              style={{ color: 'var(--cp-blue-60)', letterSpacing: '0.7px' }}>
+              style={{ color: '#0175ff', opacity: 0.7, letterSpacing: '0.7px' }}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                 strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
@@ -366,26 +366,26 @@ export function ScopeSection({ t }) {
               </svg>
               {isEn ? 'Why Now' : 'Защо сега'}
             </div>
-            <div className="text-lg leading-snug text-white">
+            <div className="text-lg leading-snug font-semibold" style={{ color: '#0175ff' }}>
               {isEn ? 'Act before the regulator does' : 'Действайте преди\nрегулаторът да го направи'}
             </div>
           </div>
 
           {/* Separator */}
           <div className="hidden lg:block w-px self-stretch min-h-14 shrink-0"
-            style={{ backgroundColor: 'rgba(255,255,255,0.15)' }} />
+            style={{ backgroundColor: 'rgba(1,117,255,0.2)' }} />
 
           {/* Stats */}
           <div className="flex gap-8 shrink-0">
             <div>
-              <div className="text-3xl leading-none text-white">1.2 млрд €</div>
-              <div className="mt-1.5 text-xs leading-snug" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              <div className="text-3xl leading-none font-bold" style={{ color: '#0175ff' }}>1.2 млрд €</div>
+              <div className="mt-1.5 text-xs leading-snug" style={{ color: '#4a5568' }}>
                 {isEn ? 'GDPR fines in Europe\nfor 2025' : 'санкции по GDPR\nв Европа за 2025 г.'}
               </div>
             </div>
             <div>
-              <div className="text-3xl leading-none text-white">+22%</div>
-              <div className="mt-1.5 text-xs leading-snug" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              <div className="text-3xl leading-none font-bold" style={{ color: '#0175ff' }}>+22%</div>
+              <div className="mt-1.5 text-xs leading-snug" style={{ color: '#4a5568' }}>
                 {isEn ? 'growth in breach\nnotifications' : 'ръст на уведомленията\nза нарушения'}
               </div>
             </div>
@@ -393,11 +393,11 @@ export function ScopeSection({ t }) {
 
           {/* Separator */}
           <div className="hidden lg:block w-px self-stretch min-h-14 shrink-0"
-            style={{ backgroundColor: 'rgba(255,255,255,0.15)' }} />
+            style={{ backgroundColor: 'rgba(1,117,255,0.2)' }} />
 
           {/* Note */}
           <div className="flex-1">
-            <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.72)' }}>
+            <p className="text-sm leading-relaxed" style={{ color: '#4a5568' }}>
               {isEn
                 ? 'The audit identifies vulnerabilities while remediation is still a matter of choice, not obligation. Prevention costs are many times lower than fines, reputational risk, and forced compliance.'
                 : 'Одитът идентифицира уязвимостите, докато отстраняването им е въпрос на избор, не на задължение. Разходите за превенция са многократно по-ниски от глобата, репутационния риск и принудителното привеждане в съответствие.'}
@@ -408,7 +408,7 @@ export function ScopeSection({ t }) {
 
         {/* Disclaimer */}
         <div className="px-6 pb-3 pt-2.5 lg:px-10"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: '10.5px', color: 'rgba(255,255,255,0.42)', lineHeight: 1.5 }}>
+          style={{ borderTop: '1px solid rgba(1,117,255,0.15)', fontSize: '10.5px', color: '#4a5568', lineHeight: 1.5 }}>
           * {isEn
             ? 'Data per DLA Piper: GDPR Fines & Data Breach Survey 2025.'
             : 'Данните са по анализа на DLA Piper: GDPR Fines & Data Breach Survey 2025.'}
