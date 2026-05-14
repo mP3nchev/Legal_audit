@@ -68,6 +68,7 @@ function run(db) {
   const addColumns = [
     `ALTER TABLE toc_audits ADD COLUMN partner_logo_data TEXT`,
     `ALTER TABLE toc_audits ADD COLUMN report_tagline TEXT`,
+    `ALTER TABLE toc_audits ADD COLUMN report_title TEXT`,
   ];
   for (const sql of addColumns) {
     try { db.exec(sql); } catch { /* column already exists */ }

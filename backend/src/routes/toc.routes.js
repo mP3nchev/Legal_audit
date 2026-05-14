@@ -43,7 +43,7 @@ function parseResultRow(row) {
 // Accepts multipart/form-data. Returns {audit_uid} immediately — fire-and-forget.
 
 async function handleStart(req, res) {
-  const { client_name, site_url, business_type, questions_answers_json, report_tagline } = req.body;
+  const { client_name, site_url, business_type, questions_answers_json, report_tagline, report_title } = req.body;
 
   if (!client_name || !site_url || !business_type) {
     return res.status(400).json({
@@ -83,11 +83,11 @@ async function handleStart(req, res) {
   const db  = getDatabase();
 
   db.prepare(`
-    INSERT INTO toc_audits (uid, client_name, site_url, business_type, has_privacy, has_toc, partner_logo_data, report_tagline)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO toc_audits (uid, client_name, site_url, business_type, has_privacy, has_toc, partner_logo_data, report_tagline, report_title)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(uid, client_name, site_url, business_type,
     privacyFile ? 1 : 0, tocFile ? 1 : 0,
-    partnerLogoData, report_tagline?.trim() || null);
+    partnerLogoData, report_tagline?.trim() || null, report_title?.trim() || null);
 
   // HTTP 200 immediately — client starts polling
   res.json({ audit_uid: uid });
@@ -378,6 +378,32 @@ function handleSetDate(req, res) {
   }
 }
 
+// ── DELETE /api/toc/:uid ──────────────────────────────────────────────────────
+// Protected — removes audit and all associated results
+
+function handleDelete(req, res) {
+  const { uid } = req.params;
+  const db       = getDatabase();
+
+  const audit = db.prepare('SELECT uid FROM toc_audits WHERE uid = ?').get(uid);
+  if (!audit) return res.status(404).json({ error: 'Not found', code: 'E404' });
+
+  const deleteTx = db.transaction(() => {
+    db.prepare('DELETE FROM toc_results WHERE audit_uid = ?').run(uid);
+    db.prepare('DELETE FROM toc_audits WHERE uid = ?').run(uid);
+  });
+
+  try {
+    deleteTx();
+  } catch (txErr) {
+    logger.error('delete-tx-failed', { uid, error: txErr.message });
+    return res.status(500).json({ error: 'Delete failed', code: 'E500' });
+  }
+
+  logger.info('audit-deleted', { uid });
+  return res.json({ ok: true, uid });
+}
+
 // ── Route registration ────────────────────────────────────────────────────────
 // Static segments BEFORE :uid params
 
@@ -391,5 +417,6 @@ router.get('/:uid',             authMiddleware, handleGetAudit);
 router.post('/:uid/save',       authMiddleware, handleSave);
 router.post('/:uid/publish',    authMiddleware, handlePublish);
 router.patch('/:uid/set-date',  authMiddleware, handleSetDate);
+router.delete('/:uid',          authMiddleware, handleDelete);
 
 module.exports = router;

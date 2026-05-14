@@ -190,6 +190,7 @@ export function TocAuditForm() {
   const [clientName,    setClientName]    = useState('');
   const [siteUrl,       setSiteUrl]       = useState('');
   const [businessType,  setBusinessType]  = useState('saas');
+  const [reportTitle,   setReportTitle]   = useState('');
   const [privacyFile,   setPrivacyFile]   = useState(null);
   const [tocFile,       setTocFile]       = useState(null);
   const [logoFile,      setLogoFile]      = useState(null);
@@ -293,6 +294,7 @@ export function TocAuditForm() {
       fd.append('business_type',        businessType);
       fd.append('language',             language);
       fd.append('questions_answers_json', JSON.stringify(answers));
+      if (reportTitle.trim())   fd.append('report_title',   reportTitle.trim());
       if (reportTagline.trim()) fd.append('report_tagline', reportTagline.trim());
       if (privacyFile) fd.append('privacy', privacyFile);
       if (tocFile)     fd.append('toc',     tocFile);
@@ -379,6 +381,18 @@ export function TocAuditForm() {
             />
           </div>
         </div>
+        <div className="mt-4">
+          <label className="mb-1 block text-sm font-medium text-gray-700">{t.reportTitleLabel}</label>
+          <input
+            type="text"
+            value={reportTitle}
+            onChange={e => setReportTitle(e.target.value)}
+            placeholder={t.reportTitlePlaceholder}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+          />
+          <p className="mt-1 text-xs text-gray-400">{t.reportTitleHint}</p>
+        </div>
+
         <div className="mt-4">
           <label className="mb-1 block text-sm font-medium text-gray-700">{t.bizTypeLabel}</label>
           <div className="flex gap-3">
