@@ -270,7 +270,7 @@ export function ScopeSection({ t }) {
                   {isEn ? 'Methodology' : 'Методология'}
                 </div>
                 <div className="text-xl leading-snug font-semibold" style={{ color: '#0175ff' }}>
-                  {isEn ? '37 legal criteria\n4 criticality levels' : '37 правни критерия\n4 нива на критичност'}
+                  {isEn ? '37 criteria, categorised\nacross 4 risk levels!' : '37 критерия, категоризирани\nв 4 степени на риск!'}
                 </div>
               </div>
               <div className="shrink-0 rounded-xl px-4 py-3 text-center"
