@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birthday</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    body {
+      background-color: #ce3635;
+      overflow-x: hidden;
+      font-family: 'Dancing Script', cursive, serif;
+    }
+
+    /* ── Section 1 ─────────────────────────────────────── */
+    .s1 {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(150deg, #e84545 0%, #8b1f1f 100%);
+    }
+
+    /* ── Horizontal scroll zone ─────────────────────────── */
+    .h-wrapper {
+      position: relative;
+      height: 300vh;
+    }
+
+    .h-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: linear-gradient(150deg, #8b1f1f 0%, #ce3635 50%, #8b1f1f 100%);
+    }
+
+    .h-panel {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      will-change: transform;
+      transform: translateX(100vw);
+    }
+
+    /* ── Section 3 ─────────────────────────────────────── */
+    .s3 {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(150deg, #e84545 0%, #8b1f1f 100%);
+    }
+
+    /* ── Scroll hint ────────────────────────────────────── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      opacity: 0.6;
+      animation: bounce 2s ease-in-out infinite;
+      font-family: sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+    }
+
+    .scroll-hint svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ── Typography ─────────────────────────────────────── */
+    h1 {
+      font-size: clamp(2.8rem, 7vw, 7rem);
+      text-align: center;
+      padding: 2rem;
+      line-height: 1.3;
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .typewrite > .wrap {
+      border-right: 0.08em solid #fff;
+      animation: blink 0.7s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    /* ── Particles ──────────────────────────────────────── */
+    #particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+      animation: rise linear infinite;
+    }
+
+    @keyframes rise {
+      0%   { transform: translateY(110vh) scale(0.5); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.8; }
+      100% { transform: translateY(-10vh) scale(1.1); opacity: 0; }
+    }
+
+    .inner {
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="particles"></div>
+
+  <!-- ── Section 1: Честит рожден ден ─────────────────── -->
+  <section class="s1">
+    <div class="inner">
+      <h1>
+        <a class="typewrite" id="tw1" data-period="99999" data-type='["Честит рожден ден"]'>
+          <span class="wrap"></span>
+        </a>
+      </h1>
+    </div>
+    <div class="scroll-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+      <span>scroll</span>
+    </div>
+  </section>
+
+  <!-- ── Horizontal scroll zone: Ти си прекрасен човек ── -->
+  <div class="h-wrapper" id="hWrapper">
+    <div class="h-sticky">
+      <div class="h-panel" id="hPanel">
+        <div class="inner">
+          <h1>
+            <a class="typewrite" id="tw2" data-period="99999" data-type='["Ти си прекрасен човек"]'>
+              <span class="wrap"></span>
+            </a>
+          </h1>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Section 3: Бъди щастлива ─────────────────────── -->
+  <section class="s3">
+    <div class="inner">
+      <h1>
+        <a class="typewrite" id="tw3" data-period="99999" data-type='["Бъди щастлива"]'>
+          <span class="wrap"></span>
+        </a>
+      </h1>
+    </div>
+  </section>
+
+  <script>
+    // ── Typewriter (type once, keep cursor) ──────────────
+    function TxtType(el, text) {
+      this.el  = el;
+      this.txt = text;
+      this.cur = '';
+      this.done = false;
+      this._tick();
+    }
+
+    TxtType.prototype._tick = function() {
+      if (this.done) return;
+      this.cur = this.txt.substring(0, this.cur.length + 1);
+      this.el.innerHTML = '<span class="wrap">' + this.cur + '</span>';
+      if (this.cur === this.txt) { this.done = true; return; }
+      var that = this;
+      setTimeout(function() { that._tick(); }, 130 + Math.random() * 90);
+    };
+
+    var started = {};
+    function startTW(id) {
+      if (started[id]) return;
+      started[id] = true;
+      var el  = document.getElementById(id);
+      var txt = JSON.parse(el.getAttribute('data-type'))[0];
+      new TxtType(el, txt);
+    }
+
+    // Section 1 types on load
+    window.addEventListener('load', function() {
+      startTW('tw1');
+      createParticles();
+    });
+
+    // ── Horizontal scroll logic ──────────────────────────
+    var hWrapper = document.getElementById('hWrapper');
+    var hPanel   = document.getElementById('hPanel');
+    var tw2Done  = false;
+
+    function onScroll() {
+      var top      = hWrapper.offsetTop;
+      var scrollY  = window.scrollY || window.pageYOffset;
+      var vh       = window.innerHeight;
+      var maxScroll = hWrapper.offsetHeight - vh; // 200vh of travel
+
+      var progress = Math.max(0, Math.min(1, (scrollY - top) / maxScroll));
+      var px = (1 - progress) * window.innerWidth;
+
+      hPanel.style.transform = 'translateX(' + px + 'px)';
+
+      // Start typing when panel is 80% slid in
+      if (progress >= 0.8 && !tw2Done) {
+        tw2Done = true;
+        startTW('tw2');
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // ── Section 3 triggers when in view ─────────────────
+    var obs = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        startTW('tw3');
+        obs.disconnect();
+      }
+    }, { threshold: 0.35 });
+    obs.observe(document.querySelector('.s3'));
+
+    // ── Floating particles ───────────────────────────────
+    function createParticles() {
+      var container = document.getElementById('particles');
+      for (var i = 0; i < 40; i++) {
+        var p    = document.createElement('div');
+        p.className = 'particle';
+        var size = 2 + Math.random() * 5;
+        p.style.cssText =
+          'width:'             + size                           + 'px;' +
+          'height:'            + size                           + 'px;' +
+          'left:'              + (Math.random() * 100)          + '%;'  +
+          'animation-duration:'+ (10 + Math.random() * 14)     + 's;'  +
+          'animation-delay:'   + (Math.random() * 12)           + 's;'  +
+          'opacity:'           + (0.15 + Math.random() * 0.4)  + ';';
+        container.appendChild(p);
+      }
+    }
+  </script>
+
+</body>
+</html>
