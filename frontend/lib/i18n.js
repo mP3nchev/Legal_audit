@@ -23,6 +23,8 @@ export const i18n = {
     urlLabel:         'URL на сайта',
     urlPlaceholder:   'https://acme.com',
     bizTypeLabel:     'Тип бизнес',
+    auditDateLabel:   'Дата на одита',
+    auditDateHint:    'Датата, която ще се показва в заглавната страница на одита.',
 
     // Questions
     questionsHint:    'Отговорите се използват за прескачане на неприложими критерии.',
@@ -97,6 +99,8 @@ export const i18n = {
     urlLabel:         'Site URL',
     urlPlaceholder:   'https://acme.com',
     bizTypeLabel:     'Business Type',
+    auditDateLabel:   'Audit Date',
+    auditDateHint:    'The date shown on the cover page of the report.',
 
     questionsHint:    'Answers are used to skip non-applicable criteria.',
     yes:              'Yes',
