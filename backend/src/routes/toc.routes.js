@@ -43,7 +43,7 @@ function parseResultRow(row) {
 // Accepts multipart/form-data. Returns {audit_uid} immediately — fire-and-forget.
 
 async function handleStart(req, res) {
-  const { client_name, site_url, business_type, questions_answers_json, report_tagline, report_title } = req.body;
+  const { client_name, site_url, business_type, questions_answers_json, report_tagline, report_title, audit_date } = req.body;
 
   if (!client_name || !site_url || !business_type) {
     return res.status(400).json({
@@ -82,12 +82,25 @@ async function handleStart(req, res) {
   const uid = 'toc_' + crypto.randomBytes(4).toString('hex');
   const db  = getDatabase();
 
-  db.prepare(`
-    INSERT INTO toc_audits (uid, client_name, site_url, business_type, has_privacy, has_toc, partner_logo_data, report_tagline, report_title)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(uid, client_name, site_url, business_type,
+  // Use provided audit_date if valid ISO string, otherwise fallback to DB default (now)
+  let createdAt = null;
+  if (audit_date) {
+    const parsed = new Date(audit_date);
+    if (!isNaN(parsed.getTime())) createdAt = parsed.toISOString();
+  }
+
+  const insertSql = createdAt
+    ? `INSERT INTO toc_audits (uid, client_name, site_url, business_type, has_privacy, has_toc, partner_logo_data, report_tagline, report_title, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    : `INSERT INTO toc_audits (uid, client_name, site_url, business_type, has_privacy, has_toc, partner_logo_data, report_tagline, report_title)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  const insertParams = [uid, client_name, site_url, business_type,
     privacyFile ? 1 : 0, tocFile ? 1 : 0,
-    partnerLogoData, report_tagline?.trim() || null, report_title?.trim() || null);
+    partnerLogoData, report_tagline?.trim() || null, report_title?.trim() || null,
+    ...(createdAt ? [createdAt] : [])];
+
+  db.prepare(insertSql).run(...insertParams);
 
   // HTTP 200 immediately — client starts polling
   res.json({ audit_uid: uid });
