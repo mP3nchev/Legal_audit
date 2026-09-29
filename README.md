@@ -86,7 +86,7 @@ npm test                       # runs all tests in test/
    - `INTERNAL_API_KEY` - same value as backend
    - `BACKEND_API_URL` - Railway service URL (no trailing slash)
    - `BLOB_READ_WRITE_TOKEN` - Vercel Blob token
-3. Deploy — Vercel auto-detects Next.js
+3. Deploy - Vercel auto-detects Next.js
 
 ### Smoke Test
 
