@@ -13,6 +13,16 @@ import { reportI18n }                  from '@/lib/i18n';
 
 const BACKEND_URL = process.env.BACKEND_API_URL || 'http://localhost:3001';
 
+// Replace em dashes with ' - ' and en dashes with '-' in all snapshot strings
+function normalizeDashes(value) {
+  if (typeof value === 'string') return value.replace(/\s*\u2014\s*/g, ' - ').replace(/\u2013/g, '-');
+  if (Array.isArray(value))      return value.map(normalizeDashes);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, normalizeDashes(v)]));
+  }
+  return value;
+}
+
 async function fetchShare(shareUid) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/toc/share/${shareUid}`, {
@@ -20,7 +30,7 @@ async function fetchShare(shareUid) {
     });
     if (res.status === 404) return null;
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    return normalizeDashes(await res.json());
   } catch {
     return null;
   }

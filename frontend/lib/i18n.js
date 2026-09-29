@@ -217,7 +217,7 @@ export const reportI18n = {
     totalCriteria:    'Общо критерии',
     nonCompliant:     'Несъответствие',
     compliant:        'Съответствие',
-    finalScoreLabel:  'Краен резултат — Privacy Policy',
+    finalScoreLabel:  'Краен резултат - Privacy Policy',
     pointsWord:       'точки',
 
     // Verbal scale labels (for FinalScoreBar)
@@ -291,7 +291,7 @@ export const reportI18n = {
     ],
     limitationsLabel: 'Transparency about the audit:',
     limitations: [
-      'The audit covers the full textual content of the submitted document — every section, clause and formulation is assessed individually against the applicable GDPR requirements.',
+      'The audit covers the full textual content of the submitted document - every section, clause and formulation is assessed individually against the applicable GDPR requirements.',
       'Technical implementation of consent mechanisms (banners, CMP platforms) is a separate discipline and is recommended as an additional technical review.',
       'The audit establishes the regulatory position of the document as at the date of assessment. Implementation of recommendations and drafting of a new policy are available as additional services provided by the CraftPolicy team.',
     ],
