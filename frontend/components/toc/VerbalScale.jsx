@@ -32,7 +32,7 @@ export function VerbalScale({ pct }) {
             key={s.label}
             className={`${s.color} flex-none transition-all`}
             style={{ width: `${s.max - s.min + 1}%` }}
-            title={`${s.min}–${s.max}% — ${s.label}`}
+            title={`${s.min}-${s.max}% - ${s.label}`}
           />
         ))}
       </div>
@@ -54,7 +54,7 @@ export function VerbalScale({ pct }) {
           <div key={s.label} className={`flex items-center gap-2 rounded px-2 py-1 ${s.label === active.label ? 'bg-gray-100' : ''}`}>
             <div className={`h-2.5 w-2.5 rounded-full shrink-0 ${s.color}`} />
             <span className={`text-xs ${s.label === active.label ? 'font-semibold text-gray-800' : 'text-gray-500'}`}>
-              {s.min}–{s.max}%
+              {s.min}-{s.max}%
             </span>
             <span className={`text-xs flex-1 ${s.label === active.label ? 'font-semibold text-gray-800' : 'text-gray-500'}`}>
               {s.label}
