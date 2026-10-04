@@ -174,7 +174,7 @@ function ScoreSummaryBar({ score, docType, criteria }) {
               outlineOffset:   '-2px',
               borderRight:     i < VERBAL_SEGS.length - 1 ? '1px solid rgba(255,255,255,0.2)' : 'none',
             }}>
-            <p className="text-[10px] font-bold">{s.min}–{s.max}%</p>
+            <p className="text-[10px] font-bold">{s.min}-{s.max}%</p>
             <p className="text-[9px] mt-0.5 opacity-90">{s.label}</p>
           </div>
         ))}
@@ -264,7 +264,7 @@ function AuditTableSection({ criteria, score, docType, readOnly, onScoreChange, 
                       </div>
                       {c.skipped ? (
                         <p className="pl-9 text-xs italic" style={{ color: 'var(--cp-neutral-60)' }}>
-                          Изключен — не участва в оценката
+                          Изключен - не участва в оценката
                         </p>
                       ) : (
                         <>
@@ -311,7 +311,7 @@ function AuditTableSection({ criteria, score, docType, readOnly, onScoreChange, 
                       </div>
                       {c.skipped ? (
                         <p className="text-xs italic" style={{ color: 'var(--cp-neutral-60)' }}>
-                          Изключен — не участва в оценката
+                          Изключен - не участва в оценката
                         </p>
                       ) : readOnly ? (
                         <p className="text-sm leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>
@@ -451,7 +451,7 @@ function RecommendationsSection({ id, criteria, readOnly, onExplanationChange, o
       {issues.length === 0 ? (
         <div className="rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-700 flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 shrink-0" />
-          Всички критерии са с оценка ≥ 4 — няма препоръки.
+          Всички критерии са с оценка ≥ 4 - няма препоръки.
         </div>
       ) : (
         <div className="space-y-4">
@@ -576,7 +576,7 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
       const label = docType === 'privacy' ? 'Privacy Policy' : 'T&C';
-      setSaveMsg({ type: 'ok', text: `${label} — промените са запазени.` });
+      setSaveMsg({ type: 'ok', text: `${label} - промените са запазени.` });
       if (docType === 'privacy') { setPrivScore(null); setPrivDirty(false); }
       else                       { setTocScore(null);  setTocDirty(false);  }
       setTimeout(() => setSaveMsg(null), 4000);
@@ -614,7 +614,7 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
           {isPublished ? (
             <div className="flex items-center gap-2 text-sm" style={{ color: '#15803d' }}>
               <Lock className="h-4 w-4" />
-              <span>Публикувано — само четене</span>
+              <span>Публикувано - само четене</span>
             </div>
           ) : (
             <>

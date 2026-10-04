@@ -38,7 +38,7 @@ export function PriorityTimeline({ criteria = [], docType }) {
     <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="border-b border-gray-100 px-5 py-3">
         <h3 className="text-sm font-semibold text-gray-700">
-          Приоритетни подобрения — {typeLabel}
+          Приоритетни подобрения - {typeLabel}
           <span className="ml-2 rounded-full bg-orange-100 px-2 py-0.5 text-xs text-orange-700 font-medium">{issues.length}</span>
         </h3>
       </div>

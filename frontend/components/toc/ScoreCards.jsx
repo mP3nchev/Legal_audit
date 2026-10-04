@@ -66,7 +66,7 @@ export function ScoreCards({ scoringResult, docType }) {
             if (!ts || ts.max === 0) return (
               <div key={t} className="rounded-lg border border-gray-100 bg-gray-50 p-3 text-center">
                 <p className="text-xs text-gray-400">Tier {t}</p>
-                <p className="mt-1 text-sm text-gray-400">—</p>
+                <p className="mt-1 text-sm text-gray-400">-</p>
               </div>
             );
             const p = Math.round(ts.pct);

@@ -10,10 +10,10 @@
  */
 
 const TIER_LABELS = {
-  1: 'Tier 1 — Задължителни',
-  2: 'Tier 2 — Основни',
-  3: 'Tier 3 — Допълнителни',
-  4: 'Tier 4 — Препоръчителни',
+  1: 'Tier 1 - Задължителни',
+  2: 'Tier 2 - Основни',
+  3: 'Tier 3 - Допълнителни',
+  4: 'Tier 4 - Препоръчителни',
 };
 
 const SCORE_COLORS = {
@@ -112,12 +112,12 @@ export function CriteriaTable({ criteria = [], onCriterionChange, readOnly = fal
                       <span className="inline-block rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-500">N/A</span>
                     ) : readOnly ? (
                       <span className={`text-base font-bold ${SCORE_COLORS[c.score] ?? 'text-gray-600'}`}>
-                        {c.score ?? '—'} / 5
+                        {c.score ?? '-'} / 5
                       </span>
                     ) : (
                       <div className="flex flex-col items-center gap-1 min-w-[80px]">
                         <span className={`text-base font-bold tabular-nums ${SCORE_COLORS[c.score] ?? 'text-gray-400'}`}>
-                          {c.score ?? '—'}
+                          {c.score ?? '-'}
                         </span>
                         <input
                           type="range"
@@ -141,7 +141,7 @@ export function CriteriaTable({ criteria = [], onCriterionChange, readOnly = fal
                     {c.skipped ? (
                       <span className="text-xs text-gray-400 italic">Пропуснат</span>
                     ) : readOnly ? (
-                      <p className="text-xs text-gray-600 leading-relaxed">{c.explanation || '—'}</p>
+                      <p className="text-xs text-gray-600 leading-relaxed">{c.explanation || '-'}</p>
                     ) : (
                       <textarea
                         value={c.explanation ?? ''}

@@ -206,12 +206,13 @@ async function callClaude(systemPrompt, userPrompt, auditUid, docType, attempt) 
     ? constants.CLAUDE_MAX_TOKENS_BURST
     : constants.CLAUDE_MAX_TOKENS;
 
-  logger.info('claude-call-start', { auditUid, docType, attempt, model: CLAUDE_MODEL, maxTokens });
+  logger.info('claude-call-start', { auditUid, docType, attempt, model: CLAUDE_MODEL, effort: constants.CLAUDE_EFFORT, maxTokens });
 
   const response = await breaker.call(() =>
     client.messages.create({
       model:      CLAUDE_MODEL,
       max_tokens: maxTokens,
+      output_config: { effort: constants.CLAUDE_EFFORT },
       system:     systemPrompt,
       messages:   [{ role: 'user', content: userPrompt }],
     })

@@ -308,8 +308,8 @@ export function ScopeSection({ t }) {
               </p>
               <p className="text-sm leading-relaxed" style={{ color: TEXT_MUTED }}>
                 {isEn
-                  ? 'Not all violations carry equal risk. Critical findings carry up to 5× greater weight — precisely where supervisory authorities look first.'
-                  : 'Не всички нарушения носят еднакъв риск. Критичните констатации имат до 5 пъти по-висока тежест — точно там, където надзорните органи търсят най-напред.'}
+                  ? 'Not all violations carry equal risk. Critical findings carry up to 5× greater weight - precisely where supervisory authorities look first.'
+                  : 'Не всички нарушения носят еднакъв риск. Критичните констатации имат до 5 пъти по-висока тежест - точно там, където надзорните органи търсят най-напред.'}
               </p>
             </div>
           </div>
@@ -336,8 +336,8 @@ export function ScopeSection({ t }) {
               </p>
               <p className="text-sm leading-relaxed" style={{ color: TEXT_MUTED }}>
                 {isEn
-                  ? 'The audit concludes with specific recommendations ordered by legal weight. Each is tied to an exact GDPR article — a working tool, not a report for the archive.'
-                  : 'Одитът приключва с конкретни препоръки, наредени по правна тежест. Всяка е обвързана с точен член от GDPR — работен инструмент, не доклад за архив.'}
+                  ? 'The audit concludes with specific recommendations ordered by legal weight. Each is tied to an exact GDPR article - a working tool, not a report for the archive.'
+                  : 'Одитът приключва с конкретни препоръки, наредени по правна тежест. Всяка е обвързана с точен член от GDPR - работен инструмент, не доклад за архив.'}
               </p>
             </div>
           </div>
