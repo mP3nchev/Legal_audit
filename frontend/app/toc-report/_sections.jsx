@@ -51,7 +51,7 @@ export function CoverSection({ audit, t }) {
             style={{ color: 'var(--cp-blue-100)', whiteSpace: 'pre-line' }}>
             {auditTitle}
           </h1>
-          <p className="mt-3 text-base" style={{ color: '#4a5568' }}>{tagline}</p>
+          <p className="mt-3 text-base" style={{ color: '#4a5568', whiteSpace: 'pre-line' }}>{tagline}</p>
         </div>
         <div className="grid grid-cols-2 gap-px" style={{ backgroundColor: 'var(--cp-neutral-40)' }}>
           <DetailCell icon={<Globe     className="h-4 w-4" />} label={t.website}     value={audit.site_url || '-'} />
