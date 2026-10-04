@@ -391,6 +391,47 @@ function handleSetDate(req, res) {
   }
 }
 
+// ── PATCH /api/toc/:uid/set-tagline - Admin: change the cover subtitle ───────
+// :uid may be the audit uid or its share_uid. Updates the live record and,
+// if already published, the immutable snapshot so the public link reflects it.
+
+function handleSetTagline(req, res) {
+  try {
+    const { report_tagline } = req.body;
+
+    if (typeof report_tagline !== 'string') {
+      return res.status(400).json({ error: 'report_tagline (string) is required', code: 'E400' });
+    }
+
+    const db    = getDatabase();
+    const audit = db.prepare(
+      'SELECT uid, published_json FROM toc_audits WHERE uid = ? OR share_uid = ?'
+    ).get(req.params.uid, req.params.uid);
+    if (!audit) return res.status(404).json({ error: 'Not found', code: 'E404' });
+
+    const tagline = report_tagline.trim() || null;
+
+    db.prepare('UPDATE toc_audits SET report_tagline = ? WHERE uid = ?').run(tagline, audit.uid);
+
+    if (audit.published_json) {
+      try {
+        const snapshot = JSON.parse(audit.published_json);
+        if (snapshot.audit) snapshot.audit.report_tagline = tagline;
+        db.prepare('UPDATE toc_audits SET published_json = ? WHERE uid = ?')
+          .run(JSON.stringify(snapshot), audit.uid);
+      } catch {
+        logger.warn('admin-set-tagline-snapshot-parse-failed', { uid: audit.uid });
+      }
+    }
+
+    logger.info('admin-set-tagline', { uid: audit.uid });
+    return res.json({ ok: true, uid: audit.uid, report_tagline: tagline });
+  } catch (err) {
+    logger.error('admin-set-tagline-failed', { error: err.message });
+    return res.status(500).json({ error: 'Internal error', code: 'E500' });
+  }
+}
+
 // ── DELETE /api/toc/:uid ──────────────────────────────────────────────────────
 // Protected — removes audit and all associated results
 
@@ -430,6 +471,7 @@ router.get('/:uid',             authMiddleware, handleGetAudit);
 router.post('/:uid/save',       authMiddleware, handleSave);
 router.post('/:uid/publish',    authMiddleware, handlePublish);
 router.patch('/:uid/set-date',  authMiddleware, handleSetDate);
+router.patch('/:uid/set-tagline', authMiddleware, handleSetTagline);
 router.delete('/:uid',          authMiddleware, handleDelete);
 
 module.exports = router;
