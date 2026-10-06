@@ -4,6 +4,7 @@ import NavHeader from './NavHeader';
 export const metadata = {
   title:       'CraftPolicy - Legal Document Audit',
   description: 'Privacy Policy & Terms and Conditions Analyzer',
+  robots:      { index: false, follow: false, nocache: true },
 };
 
 export default function RootLayout({ children }) {

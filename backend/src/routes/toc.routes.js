@@ -90,14 +90,15 @@ async function handleStart(req, res) {
   }
 
   const insertSql = createdAt
-    ? `INSERT INTO toc_audits (uid, client_name, site_url, business_type, has_privacy, has_toc, partner_logo_data, report_tagline, report_title, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    : `INSERT INTO toc_audits (uid, client_name, site_url, business_type, has_privacy, has_toc, partner_logo_data, report_tagline, report_title)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    ? `INSERT INTO toc_audits (uid, client_name, site_url, business_type, has_privacy, has_toc, partner_logo_data, report_tagline, report_title, language, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    : `INSERT INTO toc_audits (uid, client_name, site_url, business_type, has_privacy, has_toc, partner_logo_data, report_tagline, report_title, language)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   const insertParams = [uid, client_name, site_url, business_type,
     privacyFile ? 1 : 0, tocFile ? 1 : 0,
     partnerLogoData, report_tagline?.trim() || null, report_title?.trim() || null,
+    req.body.language === 'en' ? 'en' : 'bg',
     ...(createdAt ? [createdAt] : [])];
 
   db.prepare(insertSql).run(...insertParams);
@@ -235,45 +236,55 @@ function handleSave(req, res) {
   return res.json(scores);
 }
 
-// ── POST /api/toc/:uid/publish ────────────────────────────────────────────────
-// Protected — SQLite transaction, immutable snapshot
+// ── Snapshot helper ───────────────────────────────────────────────────────────
+// Builds the immutable public snapshot from the live record. published_json is
+// stripped from the audit row so repeated publishes do not nest snapshots.
 
-function handlePublish(req, res) {
-  const { uid } = req.params;
-  const db       = getDatabase();
-
+function buildSnapshot(db, uid, shareUid, publishedAt) {
   const audit = db.prepare('SELECT * FROM toc_audits WHERE uid = ?').get(uid);
-  if (!audit) {
-    logger.warn('publish-not-found', { uid });
-    return res.status(404).json({ error: 'Not found', code: 'E404' });
-  }
-  if (audit.share_uid) {
-    logger.warn('publish-already-published', { uid, share_uid: audit.share_uid });
-    return res.status(409).json({ error: 'Already published', code: 'E409' });
-  }
+  const { published_json: _omit, ...auditRow } = audit;
 
   const privacyRow = db.prepare(
     "SELECT * FROM toc_results WHERE audit_uid = ? AND doc_type = 'privacy'"
   ).get(uid);
-
   const tocRow = db.prepare(
     "SELECT * FROM toc_results WHERE audit_uid = ? AND doc_type = 'toc'"
   ).get(uid);
 
-  const shareUid = crypto.randomBytes(8).toString('hex');
-
-  const snapshot = JSON.stringify({
-    audit,
+  return JSON.stringify({
+    audit: { ...auditRow, share_uid: shareUid, published_at: publishedAt },
     privacy_result: parseResultRow(privacyRow),
     toc_result:     parseResultRow(tocRow),
   });
+}
+
+// ── POST /api/toc/:uid/publish ────────────────────────────────────────────────
+// Protected. First call publishes; later calls refresh the snapshot and keep the
+// same public link. Body {new_link: true} issues a new link (the old one stops working).
+
+function handlePublish(req, res) {
+  const { uid } = req.params;
+  const db      = getDatabase();
+
+  const audit = db.prepare('SELECT uid, share_uid FROM toc_audits WHERE uid = ?').get(uid);
+  if (!audit) {
+    logger.warn('publish-not-found', { uid });
+    return res.status(404).json({ error: 'Not found', code: 'E404' });
+  }
+
+  const isRepublish = !!audit.share_uid;
+  const newLink     = req.body?.new_link === true;
+  const shareUid    = (isRepublish && !newLink)
+    ? audit.share_uid
+    : crypto.randomBytes(8).toString('hex');
+  const publishedAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
   const publishTx = db.transaction(() => {
     db.prepare(`
       UPDATE toc_audits
-      SET share_uid = ?, published_json = ?, published_at = datetime('now')
+      SET share_uid = ?, published_json = ?, published_at = ?
       WHERE uid = ?
-    `).run(shareUid, snapshot, uid);
+    `).run(shareUid, buildSnapshot(db, uid, shareUid, publishedAt), publishedAt, uid);
   });
 
   try {
@@ -284,9 +295,101 @@ function handlePublish(req, res) {
   }
 
   const share_url = `/toc-report/share/${shareUid}`;
-  logger.info('publish-complete', { uid, shareUid, share_url });
+  logger.info('publish-complete', { uid, shareUid, share_url, republished: isRepublish, newLink });
 
-  return res.json({ share_uid: shareUid, share_url });
+  return res.json({ share_uid: shareUid, share_url, republished: isRepublish });
+}
+
+// ── POST /api/toc/:uid/unpublish ──────────────────────────────────────────────
+// Protected - the public link stops working; the audit stays editable.
+
+function handleUnpublish(req, res) {
+  const { uid } = req.params;
+  const db      = getDatabase();
+
+  const audit = db.prepare('SELECT uid FROM toc_audits WHERE uid = ?').get(uid);
+  if (!audit) return res.status(404).json({ error: 'Not found', code: 'E404' });
+
+  db.prepare(
+    'UPDATE toc_audits SET share_uid = NULL, published_json = NULL, published_at = NULL WHERE uid = ?'
+  ).run(uid);
+
+  logger.info('unpublish-complete', { uid });
+  return res.json({ ok: true, uid });
+}
+
+// ── PATCH /api/toc/:uid/cover ─────────────────────────────────────────────────
+// Protected. multipart/form-data; only the fields that are present are changed:
+// client_name, site_url, report_title, report_tagline, language, audit_date,
+// logo (file) or remove_logo=1. Changes affect the live record; the public
+// link shows them after the next publish (refresh).
+
+const LOGO_MAX_BYTES = 2 * 1024 * 1024;
+
+function handleCover(req, res) {
+  try {
+    const { uid } = req.params;
+    const body    = req.body || {};
+    const db      = getDatabase();
+
+    const audit = db.prepare('SELECT uid FROM toc_audits WHERE uid = ?').get(uid);
+    if (!audit) return res.status(404).json({ error: 'Not found', code: 'E404' });
+
+    const sets   = [];
+    const params = [];
+    const has    = k => Object.prototype.hasOwnProperty.call(body, k);
+
+    for (const col of ['client_name', 'site_url']) {
+      if (!has(col)) continue;
+      const v = String(body[col]).trim();
+      if (!v) return res.status(400).json({ error: `${col} cannot be empty`, code: 'E400' });
+      sets.push(`${col} = ?`); params.push(v);
+    }
+
+    for (const col of ['report_title', 'report_tagline']) {
+      if (!has(col)) continue;
+      sets.push(`${col} = ?`); params.push(String(body[col]).trim() || null);
+    }
+
+    if (has('language')) {
+      if (!['bg', 'en'].includes(body.language)) {
+        return res.status(400).json({ error: 'language must be bg or en', code: 'E400' });
+      }
+      sets.push('language = ?'); params.push(body.language);
+    }
+
+    if (has('audit_date') && String(body.audit_date).trim()) {
+      const parsed = new Date(body.audit_date);
+      if (isNaN(parsed.getTime())) {
+        return res.status(400).json({ error: 'Invalid audit_date', code: 'E400' });
+      }
+      sets.push('created_at = ?'); params.push(parsed.toISOString());
+    }
+
+    const logoFile = req.files?.logo?.[0] ?? null;
+    if (logoFile) {
+      if (!String(logoFile.mimetype).startsWith('image/')) {
+        return res.status(400).json({ error: 'Logo must be an image', code: 'E400' });
+      }
+      if (logoFile.size > LOGO_MAX_BYTES) {
+        return res.status(400).json({ error: 'Logo must be under 2 MB', code: 'E400' });
+      }
+      sets.push('partner_logo_data = ?');
+      params.push(`data:${logoFile.mimetype};base64,${logoFile.buffer.toString('base64')}`);
+    } else if (body.remove_logo === '1' || body.remove_logo === 'true') {
+      sets.push('partner_logo_data = NULL');
+    }
+
+    if (!sets.length) return res.status(400).json({ error: 'No changes provided', code: 'E400' });
+
+    db.prepare(`UPDATE toc_audits SET ${sets.join(', ')} WHERE uid = ?`).run(...params, uid);
+
+    logger.info('cover-updated', { uid, fields: sets.length });
+    return res.json({ ok: true, uid });
+  } catch (err) {
+    logger.error('cover-update-failed', { error: err.message });
+    return res.status(500).json({ error: 'Internal error', code: 'E500' });
+  }
 }
 
 // ── GET /api/toc/share/:share_uid ────────────────────────────────────────────
@@ -470,6 +573,8 @@ router.get('/:uid/status',      handleStatus);                    // public (uid
 router.get('/:uid',             authMiddleware, handleGetAudit);
 router.post('/:uid/save',       authMiddleware, handleSave);
 router.post('/:uid/publish',    authMiddleware, handlePublish);
+router.post('/:uid/unpublish',  authMiddleware, handleUnpublish);
+router.patch('/:uid/cover',     authMiddleware, tocUpload, handleCover);
 router.patch('/:uid/set-date',  authMiddleware, handleSetDate);
 router.patch('/:uid/set-tagline', authMiddleware, handleSetTagline);
 router.delete('/:uid',          authMiddleware, handleDelete);
