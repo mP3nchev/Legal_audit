@@ -38,10 +38,11 @@ async function fetchShare(shareUid) {
 
 export async function generateMetadata({ params }) {
   const data = await fetchShare(params.share_uid);
-  if (!data) return { title: 'Споделен одит - CraftPolicy' };
+  if (!data) return { title: 'Споделен одит - CraftPolicy', robots: { index: false, follow: false } };
   return {
     title:       `${data.audit?.client_name ?? 'Одит'} - CraftPolicy`,
     description: `Правен одит на ${data.audit?.site_url ?? ''}`,
+    robots:      { index: false, follow: false, nocache: true },
   };
 }
 

@@ -17,7 +17,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   Save, Share2, Loader2, CheckCircle2, AlertCircle,
-  ExternalLink, FileText, AlertTriangle, Lock, EyeOff, Eye,
+  ExternalLink, FileText, AlertTriangle, EyeOff, Eye, RefreshCw, Link2, XCircle,
 } from 'lucide-react';
 import { proxyUrl }              from '@/lib/utils';
 import { recalculateFromEditor } from '@/lib/toc-score-calculator';
@@ -580,25 +580,57 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
       if (docType === 'privacy') { setPrivScore(null); setPrivDirty(false); }
       else                       { setTocScore(null);  setTocDirty(false);  }
       setTimeout(() => setSaveMsg(null), 4000);
+      return true;
     } catch (e) {
       setSaveMsg({ type: 'err', text: `Грешка: ${e.message}` });
+      return false;
     } finally {
       setSaving(null);
     }
   }
 
-  // ── Publish ──────────────────────────────────────────────────────────────────
-  async function handlePublish() {
-    if (!confirm('Публикуването е необратимо. Продължи?')) return;
+  // ── Publish / refresh / new link / unpublish ─────────────────────────────────
+  async function callPublishApi(path, options = {}) {
+    const res  = await fetch(proxyUrl(`/api/toc/${audit.uid}/${path}`), {
+      method: 'POST',
+      ...(options.body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(options.body) } : {}),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
+  }
+
+  async function handlePublish({ newLink = false } = {}) {
+    const question = newLink
+      ? 'Ще се създаде НОВА публична връзка, а старата ще спре да работи. Продължи?'
+      : isPublished
+        ? 'Публичната версия ще се обнови със запазените промени (линкът остава същият). Продължи?'
+        : 'Ще се създаде публична връзка към одита. Продължи?';
+    if (!confirm(question)) return;
+
     setPublishing(true);
     setSaveMsg(null);
     try {
-      const res  = await fetch(proxyUrl(`/api/toc/${audit.uid}/publish`), { method: 'POST' });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      // Persist unsaved criteria edits first, otherwise they would be left out of the snapshot
+      if (privDirty && !(await handleSave('privacy'))) throw new Error('Privacy промените не бяха запазени');
+      if (tocDirty  && !(await handleSave('toc')))     throw new Error('T&C промените не бяха запазени');
+      await callPublishApi('publish', newLink ? { body: { new_link: true } } : {});
       window.location.reload();
     } catch (e) {
       setSaveMsg({ type: 'err', text: `Грешка при публикуване: ${e.message}` });
+      setPublishing(false);
+    }
+  }
+
+  async function handleUnpublish() {
+    if (!confirm('Публичната връзка ще спре да работи. Одитът остава редактируем и можеш да го публикуваш отново. Продължи?')) return;
+    setPublishing(true);
+    setSaveMsg(null);
+    try {
+      await callPublishApi('unpublish');
+      window.location.reload();
+    } catch (e) {
+      setSaveMsg({ type: 'err', text: `Грешка: ${e.message}` });
       setPublishing(false);
     }
   }
@@ -611,53 +643,63 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
         style={{ borderColor: 'var(--cp-neutral-40)', backgroundColor: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(8px)' }}>
 
         <div className="flex flex-wrap items-center gap-3">
-          {isPublished ? (
-            <div className="flex items-center gap-2 text-sm" style={{ color: '#15803d' }}>
-              <Lock className="h-4 w-4" />
-              <span>Публикувано - само четене</span>
-            </div>
-          ) : (
-            <>
-              {hasPrivacy && (
-                <button
-                  onClick={() => handleSave('privacy')}
-                  disabled={!!saving || !privDirty}
-                  className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: '#0175ff' }}>
-                  {saving === 'privacy'
-                    ? <><Loader2 className="h-4 w-4 animate-spin" /> Записване...</>
-                    : <><Save className="h-4 w-4" /> Запази Privacy</>}
-                </button>
-              )}
-              {hasToc && (
-                <button
-                  onClick={() => handleSave('toc')}
-                  disabled={!!saving || !tocDirty}
-                  className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: '#0175ff' }}>
-                  {saving === 'toc'
-                    ? <><Loader2 className="h-4 w-4 animate-spin" /> Записване...</>
-                    : <><Save className="h-4 w-4" /> Запази T&C</>}
-                </button>
-              )}
-              <button
-                onClick={handlePublish}
-                disabled={publishing}
-                className="flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition hover:opacity-90 disabled:opacity-50"
-                style={{ borderColor: '#86efac', backgroundColor: '#f0fdf4', color: '#15803d' }}>
-                {publishing
-                  ? <><Loader2 className="h-4 w-4 animate-spin" /> Публикуване...</>
-                  : <><Share2 className="h-4 w-4" /> Публикувай</>}
-              </button>
-            </>
+          {hasPrivacy && (
+            <button
+              onClick={() => handleSave('privacy')}
+              disabled={!!saving || publishing || !privDirty}
+              className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ backgroundColor: '#0175ff' }}>
+              {saving === 'privacy'
+                ? <><Loader2 className="h-4 w-4 animate-spin" /> Записване...</>
+                : <><Save className="h-4 w-4" /> Запази Privacy</>}
+            </button>
           )}
+          {hasToc && (
+            <button
+              onClick={() => handleSave('toc')}
+              disabled={!!saving || publishing || !tocDirty}
+              className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ backgroundColor: '#0175ff' }}>
+              {saving === 'toc'
+                ? <><Loader2 className="h-4 w-4 animate-spin" /> Записване...</>
+                : <><Save className="h-4 w-4" /> Запази T&C</>}
+            </button>
+          )}
+          <button
+            onClick={() => handlePublish()}
+            disabled={publishing || !!saving}
+            className="flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition hover:opacity-90 disabled:opacity-50"
+            style={{ borderColor: '#86efac', backgroundColor: '#f0fdf4', color: '#15803d' }}>
+            {publishing
+              ? <><Loader2 className="h-4 w-4 animate-spin" /> Публикуване...</>
+              : isPublished
+                ? <><RefreshCw className="h-4 w-4" /> Обнови публикацията</>
+                : <><Share2 className="h-4 w-4" /> Публикувай</>}
+          </button>
 
           {isPublished && shareUid && (
-            <a href={`/toc-report/share/${shareUid}`} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition hover:opacity-90"
-              style={{ borderColor: 'var(--cp-blue-40)', backgroundColor: 'var(--cp-blue-5)', color: 'var(--cp-blue-100)' }}>
-              <Share2 className="h-4 w-4" /> Публична връзка <ExternalLink className="h-3.5 w-3.5" />
-            </a>
+            <>
+              <a href={`/toc-report/share/${shareUid}`} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition hover:opacity-90"
+                style={{ borderColor: 'var(--cp-blue-40)', backgroundColor: 'var(--cp-blue-5)', color: 'var(--cp-blue-100)' }}>
+                <Share2 className="h-4 w-4" /> Публична връзка <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+              <button
+                onClick={() => handlePublish({ newLink: true })}
+                disabled={publishing || !!saving}
+                title="Създава нов адрес; старият спира да работи"
+                className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition hover:opacity-90 disabled:opacity-50"
+                style={{ borderColor: 'var(--cp-neutral-40)', color: 'var(--cp-neutral-80)' }}>
+                <Link2 className="h-4 w-4" /> Нова връзка
+              </button>
+              <button
+                onClick={handleUnpublish}
+                disabled={publishing || !!saving}
+                className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition hover:opacity-90 disabled:opacity-50"
+                style={{ borderColor: '#fecaca', color: '#b91c1c' }}>
+                <XCircle className="h-4 w-4" /> Свали публикацията
+              </button>
+            </>
           )}
 
           {saveMsg && (
@@ -687,6 +729,13 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
         </div>
       </div>}
 
+      {!isSharePage && isPublished && (
+        <div className="rounded-lg border px-4 py-2 text-xs"
+          style={{ borderColor: '#bbf7d0', backgroundColor: '#f0fdf4', color: '#15803d' }}>
+          Одитът е публикуван. Промените по оценките, текстовете и корицата се виждат на публичната връзка след „Обнови публикацията".
+        </div>
+      )}
+
       {/* Visual preview notice */}
       {!isSharePage && (privScore || tocScore) && (
         <div className="rounded-lg border px-4 py-2 text-xs flex items-center gap-2"
@@ -705,7 +754,7 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
             criteria={privCriteria}
             score={displayPrivScore}
             docType="privacy"
-            readOnly={isPublished}
+            readOnly={isSharePage}
             onScoreChange={(id, v)       => updateCriterion('privacy', id, 'score', v)}
             onExplanationChange={(id, v) => updateCriterion('privacy', id, 'explanation', v)}
             onSkipChange={(id, v)        => updateCriterion('privacy', id, 'skipped', v)}
@@ -713,7 +762,7 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
           <RecommendationsSection
             id="recommendations-privacy"
             criteria={privCriteria}
-            readOnly={isPublished}
+            readOnly={isSharePage}
             onExplanationChange={(id, v)    => updateCriterion('privacy', id, 'explanation', v)}
             onRecommendationChange={(id, v) => updateCriterion('privacy', id, 'recommendation', v)}
           />
@@ -731,7 +780,7 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
             criteria={tocCriteria}
             score={displayTocScore}
             docType="toc"
-            readOnly={isPublished}
+            readOnly={isSharePage}
             onScoreChange={(id, v)       => updateCriterion('toc', id, 'score', v)}
             onExplanationChange={(id, v) => updateCriterion('toc', id, 'explanation', v)}
             onSkipChange={(id, v)        => updateCriterion('toc', id, 'skipped', v)}
@@ -739,7 +788,7 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
           <RecommendationsSection
             id="recommendations-toc"
             criteria={tocCriteria}
-            readOnly={isPublished}
+            readOnly={isSharePage}
             onExplanationChange={(id, v)    => updateCriterion('toc', id, 'explanation', v)}
             onRecommendationChange={(id, v) => updateCriterion('toc', id, 'recommendation', v)}
           />

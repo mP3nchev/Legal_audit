@@ -12,6 +12,7 @@ import {
   ExternalLink, ArrowLeft,
 } from 'lucide-react';
 import { EditModeClient }              from './EditModeClient';
+import { CoverSettings }              from './CoverSettings';
 import { CoverSection, ScopeSection }  from '@/app/toc-report/_sections';
 import { reportI18n }                  from '@/lib/i18n';
 
@@ -58,13 +59,14 @@ function StatusBadge({ status }) {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default async function TocReportPage({ params, searchParams }) {
-  const lang = searchParams?.lang === 'en' ? 'en' : 'bg';
-  const t    = { ...reportI18n[lang], lang };
-
   const data = await fetchAudit(params.uid);
   if (!data) notFound();
 
   const { audit, privacy_result, toc_result } = data;
+
+  // Stored audit language wins; ?lang= is only a fallback for audits without one
+  const lang = (audit.language || searchParams?.lang) === 'en' ? 'en' : 'bg';
+  const t    = { ...reportI18n[lang], lang };
   const isPublished = !!audit.published_at;
   const shareUid    = audit.share_uid ?? null;
 
@@ -94,6 +96,8 @@ export default async function TocReportPage({ params, searchParams }) {
           )}
         </div>
       </div>
+
+      <CoverSettings audit={audit} />
 
       {/* Cover section */}
       <CoverSection audit={audit} t={t} />
