@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
  *
  * Public routes (no auth required):
  *   /toc-report/share/[share_uid]  — public read-only report
+ *   /proposal/prop_xxxxxxxx         — public commercial proposal (static HTML in public/proposals/)
  *   /login                          — login page
  *   /_next/*                        — Next.js internals
  *   /api/*                          — API proxy (has its own x-api-key guard)
@@ -21,7 +22,8 @@ export function middleware(request) {
   // Always allow public paths
   if (
     pathname === '/login' ||
-    pathname.startsWith('/toc-report/share/')
+    pathname.startsWith('/toc-report/share/') ||
+    /^\/proposal\/prop_[a-f0-9]{8}$/.test(pathname)
   ) {
     return NextResponse.next();
   }
