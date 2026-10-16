@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>CraftPolicy - Търговско предложение за Издателство Лабиринт</title>
+  <style>
+    :root {
+      --bg-page: #ebf3fa;
+      --bg-cover: #e7edf5;
+      --bg-slide: #ffffff;
+      --bg-tint: #eef6ff;
+      --bg-row-alt: #f4f8fc;
+
+      --text-main: #0f172a;
+      --text-muted: #475569;
+
+      --brand-blue: #0066ff;
+      --brand-blue-text: #0052cc;
+      --brand-blue-dark: #003d99;
+
+      --rule: #cfdcec;
+      --rule-strong: #0066ff;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 40px 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--brand-blue-text); }
+
+    a:focus-visible {
+      outline: 3px solid var(--brand-blue-dark);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    .presentation-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .slide {
+      background: var(--bg-slide);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 48px;
+    }
+
+    .slide-title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .slide-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .slide-title + :not(.slide-subtitle) { margin-top: 28px; }
+
+    /* Слайд 1 */
+    .slide-cover {
+      background: var(--bg-cover);
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .logo-row { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+    .logo { display: block; height: 44px; width: auto; flex: none; }
+    .logo-client { height: 68px; }
+
+    .cover-main-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      max-width: 900px;
+      align-items: center;
+      gap: 40px;
+      margin-top: 32px;
+    }
+    .cover-image-container img { max-width: 100%; height: auto; display: block; }
+
+    .cover-title {
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+
+    .audit-hook {
+      border-left: 4px solid var(--rule-strong);
+      padding: 4px 0 4px 20px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .cover-desc { font-size: 1rem; color: var(--text-muted); line-height: 1.6; }
+
+    .cover-footer {
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid var(--rule);
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .cover-footer strong { color: var(--text-main); }
+
+    /* Находки и блокове с горна линия */
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px 40px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px 40px; }
+
+    .finding-list {
+      list-style: none;
+      counter-reset: finding;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px 40px;
+    }
+    .finding-list li {
+      counter-increment: finding;
+      border-top: 2px solid var(--rule-strong);
+      padding-top: 14px;
+    }
+    .finding-list li.wide { grid-column: 1 / -1; }
+    .finding-list h3 {
+      font-size: 1.05rem;
+      line-height: 1.35;
+      color: var(--brand-blue-text);
+      margin-bottom: 6px;
+    }
+    .finding-list h3::before { content: counter(finding) ". "; }
+    .finding-list p { font-size: 0.95rem; color: var(--text-muted); }
+
+    .block {
+      border-top: 1px solid var(--rule);
+      padding-top: 14px;
+    }
+    .block h3 {
+      font-size: 1.05rem;
+      line-height: 1.35;
+      color: var(--brand-blue-text);
+      margin-bottom: 6px;
+    }
+    .block p { font-size: 0.95rem; color: var(--text-muted); }
+    .block p + p { margin-top: 6px; }
+    .block p strong { color: var(--text-main); }
+
+    .slide-note {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-top: 28px;
+      max-width: 860px;
+    }
+    .slide-note strong { color: var(--text-main); }
+
+    .lead {
+      font-size: 1.1rem;
+      max-width: 820px;
+    }
+    .lead + .lead { margin-top: 16px; }
+    .lead.muted { color: var(--text-muted); font-size: 1rem; }
+
+    /* Таблици */
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--rule);
+    }
+    .custom-table th,
+    .custom-table td {
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--rule);
+    }
+    .custom-table thead th {
+      background: var(--bg-tint);
+      color: var(--brand-blue-text);
+      font-weight: 700;
+      border-bottom: 2px solid var(--rule-strong);
+    }
+    .custom-table tbody th { font-weight: 700; color: var(--text-main); }
+    .custom-table tbody tr:nth-child(even) > * { background: var(--bg-row-alt); }
+    .custom-table tbody tr:last-child > * { border-bottom: none; }
+
+    /* Слайд 6 */
+    .case-study-layout {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 40px;
+      align-items: start;
+    }
+    .case-image svg { width: 100%; height: auto; display: block; }
+    .case-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+    }
+    .case-table th { width: 28%; }
+
+    /* Слайд 7 */
+    .pricing {
+      text-align: center;
+      padding: 8px 0 32px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .pricing-price {
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: var(--brand-blue-text);
+      line-height: 1;
+    }
+    .pricing-price span { font-size: 1.5rem; font-weight: 500; }
+    .pricing-subprice { font-size: 1.1rem; color: var(--text-muted); margin-top: 6px; }
+    .pricing-scope { font-size: 0.95rem; color: var(--text-muted); margin-top: 10px; }
+    .pricing-same { font-size: 1rem; font-weight: 600; margin-top: 16px; }
+
+    .payment-terms {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    /* Слайд 8 */
+    .commitment {
+      margin-top: 32px;
+      background: var(--bg-tint);
+      border-left: 4px solid var(--rule-strong);
+      padding: 20px 24px;
+    }
+    .commitment h3 { font-size: 1.1rem; color: var(--brand-blue-dark); margin-bottom: 6px; }
+    .commitment p { font-size: 0.95rem; color: var(--text-muted); }
+    .commitment p + p { margin-top: 6px; }
+
+    /* Слайд 10 */
+    .cta-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .steps { list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 1rem; }
+    .steps strong { color: var(--brand-blue-text); }
+
+    .cta-button {
+      display: inline-block;
+      margin-top: 28px;
+      background: var(--brand-blue-text);
+      color: #ffffff;
+      padding: 14px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .cta-button:hover { background: var(--brand-blue-dark); }
+
+    .author h3 { font-size: 1.05rem; color: var(--brand-blue-text); margin-bottom: 6px; }
+    .author p { font-size: 0.95rem; color: var(--text-muted); }
+    .author p + p { margin-top: 6px; }
+
+    .contact-info-block {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--rule);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .contact-info-block strong { color: var(--text-main); }
+
+    .page-footnote {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Мобилен */
+    @media (max-width: 768px) {
+      body { padding: 16px; }
+      .slide { padding: 24px 20px; }
+      .grid-2, .grid-3, .finding-list, .cta-layout { grid-template-columns: 1fr; }
+      .cover-main-layout, .case-study-layout { grid-template-columns: 1fr; }
+      .cover-title { font-size: 1.8rem; }
+      .slide-title { font-size: 1.5rem; }
+      .pricing-price { font-size: 2.4rem; }
+      .logo { height: 36px; } .logo-client { height: 56px; }
+
+      .stack-table,
+      .stack-table tbody,
+      .stack-table tr,
+      .stack-table th,
+      .stack-table td { display: block; width: 100%; }
+      .stack-table thead {
+        position: absolute;
+        width: 1px; height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+      .stack-table tr { border-bottom: 1px solid var(--rule); padding: 6px 0; }
+      .stack-table tbody tr:last-child { border-bottom: none; }
+      .stack-table tbody tr > * { border-bottom: none; padding: 6px 14px; }
+      .stack-table tbody tr:nth-child(even) > * { background: transparent; }
+      .stack-table tbody th { color: var(--brand-blue-text); padding-top: 12px; }
+      .stack-table td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 2px;
+      }
+      .case-table th { width: 100%; }
+    }
+
+    /* Печат */
+    @media print {
+      @page { size: A4 landscape; margin: 12mm; }
+
+      * {
+        box-shadow: none !important;
+        text-shadow: none !important;
+        background-image: none !important;
+      }
+
+      body { background: #ffffff; padding: 0; font-size: 11pt; }
+      .presentation-container { max-width: none; gap: 0; }
+
+      .slide {
+        border: none;
+        border-radius: 0;
+        padding: 0;
+        break-after: page;
+        page-break-after: always;
+        break-inside: avoid;
+      }
+      .slide:last-of-type { break-after: auto; page-break-after: auto; }
+
+      .slide-cover { background: #ffffff; min-height: 0; }
+
+      .custom-table thead th,
+      .custom-table tbody tr:nth-child(even) > *,
+      .commitment { background: #ffffff !important; }
+
+      .custom-table tr, .finding-list li, .block { break-inside: avoid; }
+
+      .cta-button {
+        background: none;
+        color: var(--text-main);
+        padding: 0;
+        border: none;
+      }
+      .cta-button::after { content: " - martin@craftpolicy.com"; font-weight: 400; }
+
+      .page-footnote { display: none; }
+    }
+
+    /* Пакети */
+    .package h3 { font-size: 1.2rem; }
+    .block .package-price { font-size: 2rem; font-weight: 900; color: var(--brand-blue-text) !important; line-height: 1.1; margin-top: 4px; }
+    .block .package-price span { font-size: 1rem; font-weight: 500; color: var(--text-muted); }
+    .package-sub { font-size: 0.9rem; margin-bottom: 10px; }
+    .package ul { margin: 10px 0 0 18px; font-size: 0.92rem; color: var(--text-muted); }
+    .package ul ul { margin-top: 4px; }
+    .package li + li { margin-top: 6px; }
+
+    /* Начини на плащане */
+    .pay-section { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--rule); }
+    .pay-section h3 { font-size: 1.05rem; margin-bottom: 14px; }
+    .pay-card { background: var(--bg-tint); border-left: 4px solid var(--rule-strong); padding: 20px 24px; }
+    .pay-card h4 { font-size: 1.1rem; color: var(--brand-blue-dark); margin-bottom: 6px; }
+    .pay-card p { font-size: 0.95rem; color: var(--text-muted); }
+    .package-notes { margin-top: 28px; max-width: 860px; }
+    .package-notes p { font-size: 0.95rem; color: var(--text-muted); }
+    .package-notes p + p { margin-top: 8px; }
+    .pay-card p strong { color: var(--text-main); }
+    .pay-card p + p { margin-top: 4px; }
+    .author ul { margin: 6px 0 0 18px; font-size: 0.95rem; color: var(--text-muted); }
+    .author li + li { margin-top: 4px; }
+    @media print { .pay-card { background: #ffffff !important; border: 1px solid var(--rule); } }
+
+    .case-brand { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 24px 32px; margin-bottom: 24px; background: #f5f9f7; border: 1px solid #dfeae5; border-radius: 8px; }
+    .case-brand img { display: block; height: 96px; width: auto; max-width: 100%; }
+    .case-brand p { font-size: 0.9rem; color: var(--text-muted); text-align: right; line-height: 1.6; }
+    @media (max-width: 768px) { .case-brand { flex-direction: column; align-items: flex-start; padding: 20px; } .case-brand img { height: auto; width: 100%; } .case-brand p { text-align: left; } }
+    @media print { .case-brand { background: #ffffff !important; } }
+  </style>
+</head>
+<body>
+
+  <main class="presentation-container">
+
+    <!-- СЛАЙД 1 -->
+    <section class="slide slide-cover" id="nachalo" aria-labelledby="t1">
+      <div class="logo-row">
+        <img class="logo" src="data:image/png;base64,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" alt="CraftPolicy" width="186" height="96">
+      </div>
+
+      <div class="cover-main-layout">
+        <div>
+          <h1 class="cover-title" id="t1">Здравейте, издателство „Лабиринт“. Пише ви Мартин Пенчев от CraftPolicy.</h1>
+
+          <p class="audit-hook">
+            Прегледахме новия ви сайт преди пускането му: Общите условия, Политиката за поверителност, страниците „Бисквитки“ и „Доставка и връщане“. Документите са писани наскоро и са по-добри от средното за пазара, но не са довършени и на четири места обещават неща, които сайтът не прави или законът не позволява. Списъкът е на <a href="#nahodki">следващата страница</a> и остава ваш, независимо дали ще работим заедно.
+          </p>
+
+          <p class="cover-desc">
+            Никой не може да ви гарантира, че няма да получите проверка, защото тя започва по сигнал. Сайтът ви още не е публичен и това е най-евтиният момент да се оправят документите: днес промяната е редакция на текст, след старта е отговор до КЗП. Изготвяме Общи условия, Политика за поверителност и Политика за бисквитки така, че в деня на пускането да описват това, което сайтът реално прави, и ако дойде проверка, да имате какво да покажете и какво да отговорите.
+          </p>
+        </div>
+      </div>
+
+      <div class="cover-footer">
+        <div><strong>Изготвено за:</strong> Издателство Лабиринт ЕООД</div>
+        <div><strong>Дата на предложението:</strong> 16.10.2026 г.</div>
+        <div><strong>Валидност на офертата:</strong> 27.10.2026 г.</div>
+        <div><strong>Обхват:</strong> Общи условия · Политика за поверителност · Политика за бисквитки (един сайт)</div>
+        <div><strong>Изготвил:</strong> Мартин Пенчев, юрист, основател на CraftPolicy</div>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 2 -->
+    <section class="slide" id="nahodki" aria-labelledby="t2">
+      <h2 class="slide-title" id="t2">Какво видяхме на новия ви сайт</h2>
+
+      <ol class="finding-list">
+        <li id="nahodka-1">
+          <h3>Документите не са довършени, а това се вижда от първия прочит.</h3>
+          <p>В Политиката за поверителност има три полета „[ДА СЕ ПОПЪЛНИ]“: за длъжностното лице по защита на данните, за срока, в който пазите сървърните журнали, и за това дали данни излизат извън ЕИП. В раздел 9 на Общите условия стои бележка, адресирана до издателството, а не до клиента. Ако сайтът тръгне така, документът сам показва, че никой не е отговорил на въпросите в него. Това е първото, което забелязва проверяващ.</p>
+        </li>
+        <li id="nahodka-2">
+          <h3>Документите обещават, че сайтът не проследява. Това трябва да е вярно в деня на старта.</h3>
+          <p>Страницата „Бисквитки“ казва, че докато клиентът разглежда каталога, не се създава нито една бисквитка. В същото време страницата „Контакти“ зарежда карта на Google преди каквото и да е съгласие, а банер за бисквитки няма. WooCommerce в тази версия по подразбиране записва източника на всяка поръчка чрез собствени бисквитки, които не са в таблицата ви. Ако функцията е включена, твърдението не е вярно. А в деня, в който добавите Meta Pixel за рекламите във Facebook и Instagram, трите документа и банерът трябва да се сменят едновременно.</p>
+        </li>
+        <li id="nahodka-3">
+          <h3>Правото на отказ е описано по два различни начина.</h3>
+          <p>Раздел 6 на Общите условия го урежда правилно. Страницата „Доставка и връщане“ обаче поставя условие книгата да бъде върната „в търговски вид“. Законът не позволява отказът да зависи от това. Можете само да търсите обезщетение за намалената стойност. При спор КЗП ще прочете по-неблагоприятния за вас текст. Освен това рекламациите се приемат „в разумен срок“, без срок за отговор и без ред за подаване, не е казано как връщате парите на клиент, платил с наложен платеж, а фирмите, които купуват с фактура, са поставени при същите условия като потребителите.</p>
+        </li>
+        <li id="nahodka-4">
+          <h3>Ревютата и промоциите нямат правилата, които законът изисква.</h3>
+          <p>Сайтът събира ревюта с оценка, а нито един документ не казва дали и как проверявате, че ревюто е от човек, купил книгата. Когато публикувате потребителски отзиви, тази информация е задължителна. Промоциите с −30% показват предишна цена. Тя трябва да е най-ниската за последните 30 дни преди намалението, а документите мълчат как я определяте. Общите условия не уреждат и профила, „Любими“ и ревютата: кой отговаря за текста, кога го премахвате, какво става с профила при закриване.</p>
+        </li>
+      </ol>
+
+      <p class="slide-note">
+        Едно нещо е наред: таблицата с бисквитките. Имена, кога се създават, за какво служат и колко време живеят. Повечето магазини пускат общ текст. Ще я запазим и ще я допълним, за да остане вярна и след старта.
+      </p>
+    </section>
+
+    <!-- СЛАЙД 3 -->
+    <section class="slide" id="riskove" aria-labelledby="t3">
+      <h2 class="slide-title" id="t3">Къде несъответствието спира бизнеса</h2>
+      <p class="slide-subtitle">Проблемът рядко започва с глоба. Обикновено започва с някой от тези казуси:</p>
+
+      <table class="custom-table stack-table">
+        <tbody>
+          <tr>
+            <th scope="row" style="width: 32%;">Върната книга, която не приехте</th>
+            <td>Клиент връща книга с подвит ъгъл. Отказвате, защото не е „в търговски вид“, както пише на сайта. Той пише до КЗП и прилага вашата страница. Текстът, който трябваше да ви защити, става доказателство срещу вас.</td>
+          </tr>
+          <tr>
+            <th scope="row">Спрян или ограничен рекламен акаунт</th>
+            <td>Рекламните платформи изискват публикувана политика за поверителност при част от рекламните формати и я преглеждат при проверка на акаунта. Издателство, което продава нови заглавия през Facebook и Instagram, усеща спирането веднага. Възстановяването отнема дни.</td>
+          </tr>
+          <tr>
+            <th scope="row">Сигнал от клиент или конкурент</th>
+            <td>Проверките на КЗП и КЗЛД тръгват най-често по сигнал, а не по инициатива на органа. Първото искане е за писмени обяснения в кратък срок.</td>
+          </tr>
+          <tr>
+            <th scope="row">Санкция</th>
+            <td>Реална, но последна по ред. Тя идва след като предходните три вече са се случили.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- СЛАЙД 4 -->
+    <section class="slide" id="kakvo-poluchavate" aria-labelledby="t4">
+      <h2 class="slide-title" id="t4">Какво точно получавате</h2>
+      <p class="slide-subtitle">Три документа - Общи условия, Политика за поверителност, Политика за бисквитки. Ето по какво се различават.</p>
+
+      <div class="grid-2">
+        <div class="block">
+          <h3>1. Написани върху вашите процеси</h3>
+          <p>Питаме откъде идват клиентите, как протича една поръчка, кой доставя, кой има достъп до данните и как се обработват връщанията. Сега документите ви говорят за „куриерска фирма“ и „хостинг доставчик“ без имена. Ако пратките тръгват от склад или минават през куриер с достъп до адресите на клиентите, това трябва да е описано, иначе документът описва издателство, което не е вашето.</p>
+        </div>
+
+        <div class="block">
+          <h3>2. Питаме за нещата, за които не сте се сетили</h3>
+          <p>Въпросникът обхваща бюлетина за нови заглавия, предварителните поръчки, ревютата, списъка „Любими“, регистрацията за събития и поръчките от книжарници и библиотеки. Например: ще пращате ли имейл на клиент, когато излезе нова книга от автор, когото е купувал? Ако да, това е отделна дейност със свое основание и трябва да е описана, преди да изпратите първия имейл.</p>
+        </div>
+
+        <div class="block">
+          <h3>3. Написани за момента, в който някой попита</h3>
+          <p>За всяка дейност посочваме какви данни се обработват, за каква цел, на какво правно основание и с кого се споделят. Когато клиент или КЗЛД попита „защо ви е имейлът ми за едно ревю“, отговорът вече е в документа.</p>
+        </div>
+
+        <div class="block">
+          <h3>4. Разликата е в нивото на детайлност</h3>
+          <p>Издателство с онлайн магазин, профили, ревюта и събития обикновено има около 25 отделни дейности по обработване на лични данни: от поръчката, плащането и доставката до бюлетина, ревютата и регистрациите за събития. Описваме всяка поотделно, с цел, основание и срок за съхранение. Сегашната ви политика изброява 6 цели.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 5 -->
+    <section class="slide" id="proces" aria-labelledby="t5">
+      <h2 class="slide-title" id="t5">Как изготвяме вашите документи</h2>
+      <p class="slide-subtitle">Срок за изготвяне: 10-15 работни дни от деня, в който получим попълнения въпросник.</p>
+
+      <table class="custom-table stack-table">
+        <thead>
+          <tr>
+            <td style="width: 25%;"></td>
+            <th scope="col" style="width: 45%;">CraftPolicy</th>
+            <th scope="col" style="width: 30%;">Вие</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">1. Картографиране</th>
+            <td data-label="CraftPolicy">Изпращаме структуриран въпросник и преглеждаме сайта, процесите и внедрените технологии.</td>
+            <td data-label="Вие">Попълвате въпросника и посочвате едно лице за контакт.</td>
+          </tr>
+          <tr>
+            <th scope="row">2. Изготвяне</th>
+            <td data-label="CraftPolicy">Пишем трите документа спрямо установените реални процеси.</td>
+            <td data-label="Вие">Получавате пълна чернова на трите документа.</td>
+          </tr>
+          <tr>
+            <th scope="row">3. Нанасяне на корекции</th>
+            <td data-label="CraftPolicy">Нанасяме всички забележки в една редакция, върху една актуална версия на документа.</td>
+            <td data-label="Вие">Събирате всички забележки и коментари на едно място, в договорен срок.</td>
+          </tr>
+          <tr>
+            <th scope="row">4. Финализиране</th>
+            <td data-label="CraftPolicy">Предаваме финалните версии.</td>
+            <td data-label="Вие">Одобрявате писмено. Тук проектът приключва.</td>
+          </tr>
+          <tr>
+            <th scope="row">5. Проверка след публикуване</th>
+            <td data-label="CraftPolicy">Проверяваме как документите са качени на сайта и дали банерът за бисквитки спира проследяващите скриптове до съгласие.</td>
+            <td data-label="Вие">Публикувате документите и ни казвате кога сайтът е онлайн.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="slide-note">
+        Всеки пакет включва до два кръга корекции. Обикновено стига един. Вторият най-често се налага, защото нещо в бизнеса се е променило, докато пишем - нов куриер, нов начин на плащане, нова функция в сайта. При сайт преди старта това е още по-вероятно. Затова задаваме въпросите преди първата чернова, а не след нея.
+      </p>
+    </section>
+
+    <!-- СЛАЙД 6 -->
+    <section class="slide" id="kazus" aria-labelledby="t6">
+      <h2 class="slide-title" id="t6">CleverBook - документите и консултациите вървяха заедно с магазина</h2>
+
+      <table class="custom-table stack-table case-table">
+          <tbody>
+            <tr>
+              <th scope="row">Изходна ситуация</th>
+              <td>Онлайн магазин за книги, който искаше да продава без правни проблеми. Имаше текстове, сглобени от различни източници, които си противоречаха и не описваха как реално работи магазинът: кой доставя, как се връщат книгите, какво става с данните на регистрираните клиенти.</td>
+            </tr>
+            <tr>
+              <th scope="row">Извършена правна работа</th>
+              <td>Изготвихме Общи условия, Политика за поверителност и Политика за бисквитки наново, върху реалните процеси на магазина. Правото на отказ, рекламациите и ревютата са описани на едно място и по един начин, а всяка дейност по обработване на данни има своя цел, основание и срок.</td>
+            </tr>
+            <tr>
+              <th scope="row">Последващо правно консултиране</th>
+              <td>След предаването продължихме да работим с тях. Когато добавяха нов начин на плащане, нова промоция или нов маркетингов инструмент, ни питаха предварително и обновявахме документите.</td>
+            </tr>
+            <tr>
+              <th scope="row">Приложимост към вашия бизнес</th>
+              <td>Те също продават книги онлайн. Въпросите, които решихме с тях - връщането на книги, отзивите, промоциите и комуникацията с читателите - са същите, които стоят пред вас преди пускането на сайта и първия бюлетин за нови заглавия.</td>
+            </tr>
+          </tbody>
+        </table>
+    </section>
+
+    <!-- СЛАЙД 7 -->
+    <section class="slide" id="cena" aria-labelledby="t7">
+      <h2 class="slide-title" id="t7">Цена и пакети</h2>
+      <p class="slide-subtitle">И трите пакета включват едни и същи три документа. Разликата е колко помощ имате след предаването.</p>
+
+      <div class="grid-3">
+        <div class="block package" id="paket-bazov">
+          <h3>Базов</h3>
+          <p class="package-price">790 € <span>без ДДС</span></p>
+          <p class="package-sub">948 € с ДДС</p>
+          <p><strong>Пълен комплект правни документи, изготвени специално за вашия бизнес.</strong></p>
+          <ul>
+            <li>Общи условия, Политика за поверителност и Политика за бисквитки</li>
+            <li>Изготвени изцяло индивидуално, според вашия бизнес модел, процеси и технологии, без шаблони</li>
+            <li>До 2 кръга корекции по ваши коментари</li>
+          </ul>
+        </div>
+
+        <div class="block package" id="paket-preporachan">
+          <h3>Препоръчан</h3>
+          <p class="package-price">950 € <span>без ДДС</span></p>
+          <p class="package-sub">1 140 € с ДДС</p>
+          <p><strong>Всичко от „Базов“, плюс правна подкрепа след предаването.</strong></p>
+          <ul>
+            <li>2 часа правно съдействие, включени в цената:
+              <ul>
+                <li>за изменения в документите при промени в бизнеса ви - нови продукти, услуги, функционалности, партньори, платежни или куриерски решения</li>
+                <li>за отговори на въпроси, свързани с документите</li>
+              </ul>
+            </li>
+            <li>Срок за ползване на часовете: 6 месеца от предаването</li>
+            <li>Писмен отговор при запитване от КЗП или КЗЛД, свързано с документите, в първите 12 месеца</li>
+          </ul>
+        </div>
+
+        <div class="block package" id="paket-palen">
+          <h3>Пълен</h3>
+          <p class="package-price">1 250 € <span>без ДДС</span></p>
+          <p class="package-sub">1 500 € с ДДС</p>
+          <p><strong>Всичко от „Препоръчан“, за цяла година.</strong></p>
+          <ul>
+            <li>Общо 4 часа правно съдействие (2 допълнителни часа)</li>
+            <li>Срок за ползване на часовете: 12 месеца от предаването</li>
+            <li>Уведомление за законодателни промени в рамките на 12 месеца:
+              <ul>
+                <li>казваме ви, когато промяна в законодателството засяга вашите документи</li>
+                <li>измененията се правят за сметка на включените часове</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="package-notes">
+        <p>Ако след пускането ще добавяте реклама в Meta или бюлетин за нови заглавия, промените в документите и банера се правят в часовете правно съдействие. Това е разликата между „Базов“ и другите два пакета.</p>
+        <p>Неизползваните часове не се прехвърлят след изтичане на срока и не подлежат на парично възстановяване. Всеки час над включените е 80 € без ДДС и започва само след ваше писмено съгласие.</p>
+      </div>
+
+      <div class="pay-section">
+        <h3>Начини на плащане</h3>
+        <div class="grid-2">
+          <div class="pay-card">
+            <h4>Частично предплащане</h4>
+            <p><strong>50% при старт и 50% при предаване</strong></p>
+            <p>Подходящ, ако предпочитате да разпределите плащането между старта и предаването на готовия резултат.</p>
+          </div>
+          <div class="pay-card">
+            <h4>На етапи</h4>
+            <p><strong>Плащане с изпълнението на всеки етап</strong></p>
+            <p>Подходящ, ако вътрешните ви процедури изискват плащане срещу приет резултат.</p>
+          </div>
+        </div>
+        <p class="payment-terms">Срок за плащане: 5 дни от датата на фактурата. Плащане по банков път.</p>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 8 -->
+    <section class="slide" id="ne-pokriva" aria-labelledby="t8">
+      <h2 class="slide-title" id="t8">Какво това предложение не покрива</h2>
+      <p class="slide-subtitle">По-добре сега, отколкото на трета седмица.</p>
+
+      <div class="grid-3">
+        <div class="block">
+          <h3>Не поемаме проекти с 10-дневен срок.</h3>
+          <p>Въпросникът се попълва от вас и това отнема време. Ако пускането на сайта е насрочено за другата седмица, кажете ни веднага. Без вашите отговори документът се пише по шаблон, а шаблонът описва чужд магазин: при спор или проверка ви защитава за процеси, които нямате, и мълчи за тези, които имате - ревютата, промоциите, предварителните поръчки, поръчките от книжарници.</p>
+        </div>
+
+        <div class="block">
+          <h3>Не гарантираме, че няма да получите проверка.</h3>
+          <p>Проверката зависи от сигнал, не от нас. Гарантираме, че документите ще издържат прочит и че ще имате какво да отговорите.</p>
+        </div>
+
+        <div class="block">
+          <h3>Офертата покрива един сайт.</h3>
+          <p>Втори домейн, отделен маркетплейс профил или мобилно приложение изискват отделна класификация на бисквитките и се остойностяват отделно. Тестовият адрес и окончателният домейн на същия сайт са един сайт.</p>
+        </div>
+      </div>
+
+      <div class="commitment">
+        <h3>При запитване от КЗП или КЗЛД пишем отговора ние.</h3>
+        <p>При пакети „Препоръчан“ и „Пълен“: ако през първите 12 месеца получите запитване или искане за информация, свързано с документите, които сме изготвили, подготвяме писмения отговор и необходимите обяснения. Това е включено в цената на двата пакета и не се таксува допълнително.</p>
+        <p>Не поемаме наложени глоби и не представляваме дружеството пред съд.</p>
+      </div>
+    </section>
+
+    <!-- СЛАЙД 9 -->
+    <section class="slide" id="sledvashta-stapka" aria-labelledby="t9">
+      <h2 class="slide-title" id="t9">Ако решите да продължим</h2>
+
+      <div class="cta-layout">
+        <div>
+          <ol class="steps">
+            <li><strong>1.</strong> Отговаряте на имейла с избрания пакет и начин на плащане и посочвате лице за контакт.</li>
+            <li><strong>2.</strong> Изпращаме договор и въпросника до 48 часа.</li>
+            <li><strong>3.</strong> Започваме в деня, в който върнете попълнения въпросник. Документите са готови за 10-15 работни дни.</li>
+          </ol>
+
+          <a href="mailto:martin@craftpolicy.com?subject=Offer%20acceptance%20-%20Labirint" class="cta-button">Да, започваме</a>
+        </div>
+
+        <div class="author block">
+          <h3>Кой ще работи по документите</h3>
+          <p><strong>Мартин Пенчев</strong></p>
+          <ul>
+            <li>Член на Комитета по политики на IAB Europe</li>
+            <li>Юрист с над 5 години опит в правните аспекти на електронната търговия</li>
+            <li>Лектор на над 10 събития в България за B2B, eCommerce и маркетинг</li>
+            <li>Член на журито на eCommerce Awards 2022-2024</li>
+            <li>Участник в работни групи за подготовка на законопроекти</li>
+            <li>Докторант в Българската академия на науките</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="contact-info-block">
+        <strong>CraftPolicy, ЕИК: 208348861, София, бул. Арсеналски №11, ет.4</strong><br>
+        <strong>Уебсайт:</strong> <a href="https://www.craftpolicy.com/">https://www.craftpolicy.com/</a><br>
+        <strong>Телефон:</strong> +359 877732087<br>
+        <strong>Имейл:</strong> <a href="mailto:martin@craftpolicy.com">martin@craftpolicy.com</a><br>
+        Лице за контакт: Мартин Пенчев
+      </div>
+    </section>
+
+    <p class="page-footnote">Тази страница не използва бисквитки и не прави заявки към външни сървъри.</p>
+
+  </main>
+
+</body>
+</html>
