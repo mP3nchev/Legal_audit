@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { proxyUrl }              from '@/lib/utils';
 import { recalculateFromEditor } from '@/lib/toc-score-calculator';
+import { FineEstimate }         from '@/components/toc/FineEstimate';
 
 // ── Verbal scale ──────────────────────────────────────────────────────────────
 const VERBAL_SEGS = [
@@ -792,6 +793,9 @@ export function EditModeClient({ audit, privacy_result, toc_result, isPublished,
             onExplanationChange={(id, v)    => updateCriterion('toc', id, 'explanation', v)}
             onRecommendationChange={(id, v) => updateCriterion('toc', id, 'recommendation', v)}
           />
+          {audit?.business_type === 'ecommerce' && (
+            <FineEstimate criteria={tocCriteria} lang={audit?.language === 'en' ? 'en' : 'bg'} />
+          )}
         </div>
       ) : (
         <NotUploadedPlaceholder label="Terms & Conditions" />

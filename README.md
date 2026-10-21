@@ -38,6 +38,10 @@ Everything above, plus scores and texts, can be edited after publishing from the
 
 The logo is stored as a base64 data URL in `toc_audits.partner_logo_data`. Extra columns (`partner_logo_data`, `report_tagline`, `report_title`) are added by an idempotent migration on startup (`backend/src/database/migrate-add-toc.js`).
 
+### Estimated penalty (eCommerce T&C)
+
+For audits with business type **eCommerce** the T&C section ends with an indicative penalty estimate under the Consumer Protection Act (legal entities and traders only). Amounts and the criterion-to-provision mapping live in `frontend/lib/zzp-fines.js`; entries with `enabled: false` are excluded until legally confirmed. The figure sits around the middle of each statutory range (40-60%, shifted by the severity of the score) and is recalculated live while editing and on every publish.
+
 ---
 
 ## Local Development
