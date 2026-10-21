@@ -1,5 +1,5 @@
 /**
- * Shared report sections — used by both the edit view (/toc-report/[uid])
+ * Shared report sections - used by both the edit view (/toc-report/[uid])
  * and the public share page (/toc-report/share/[share_uid]).
  *
  * Server component (no 'use client').
@@ -59,7 +59,7 @@ export function CoverSection({ audit, t }) {
           <DetailCell icon={<User      className="h-4 w-4" />} label={t.preparedFor} value={audit.client_name || '-'} />
           <DetailCell icon={<Building2 className="h-4 w-4" />} label={t.preparedBy}  value="CraftPolicy Audit team" />
         </div>
-        {/* border-t confidence note removed — replaced by new ScopeSection design */}
+        {/* border-t confidence note removed - replaced by new ScopeSection design */}
       </div>
     </section>
   );
@@ -211,7 +211,7 @@ export function ScopeSection({ t }) {
       {/* ── 2-col grid ── */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
 
-        {/* LEFT — Audit scope card */}
+        {/* LEFT - Audit scope card */}
         <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: 'var(--cp-white)', border: `1px solid ${BORDER}` }}>
           <div className="flex items-center gap-2.5 px-5 py-4" style={{ borderBottom: `1px solid ${BORDER}` }}>
             <span className="h-2 w-2 rounded-full shrink-0"
@@ -249,7 +249,7 @@ export function ScopeSection({ t }) {
           ))}
         </div>
 
-        {/* RIGHT — methodology stack */}
+        {/* RIGHT - methodology stack */}
         <div className="flex flex-col gap-4">
 
           {/* Methodology card */}
@@ -288,7 +288,7 @@ export function ScopeSection({ t }) {
             </p>
           </div>
 
-          {/* Feature card 1 — weighted risk */}
+          {/* Feature card 1 - weighted risk */}
           <div className="flex items-start gap-4 rounded-2xl border p-5"
             style={{ backgroundColor: 'var(--cp-white)', borderColor: BORDER }}>
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
@@ -314,7 +314,7 @@ export function ScopeSection({ t }) {
             </div>
           </div>
 
-          {/* Feature card 2 — prioritised plan */}
+          {/* Feature card 2 - prioritised plan */}
           <div className="flex items-start gap-4 rounded-2xl border p-5"
             style={{ backgroundColor: 'var(--cp-white)', borderColor: BORDER }}>
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
@@ -345,7 +345,7 @@ export function ScopeSection({ t }) {
         </div>
       </div>
 
-      {/* ── Urgency — full width ── */}
+      {/* ── Urgency - full width ── */}
       <div className="relative mt-5 overflow-hidden rounded-2xl"
         style={{ background: 'linear-gradient(-133deg, #accef7, #e7edf5)' }}>
         {/* Decorative circle */}

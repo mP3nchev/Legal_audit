@@ -1,11 +1,11 @@
 /**
- * /toc-audit — Intake form
+ * /toc-audit - Intake form
  *
  * Server component: exports metadata + renders the client form.
  */
 import { TocAuditForm } from './TocAuditForm';
 
-export const metadata = { title: 'Нов TOC одит — CraftPolicy' };
+export const metadata = { title: 'Нов TOC одит - CraftPolicy' };
 
 export default function TocAuditPage() {
   return (

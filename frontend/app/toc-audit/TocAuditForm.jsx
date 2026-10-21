@@ -13,7 +13,7 @@ const BUSINESS_TYPES = [
   { value: 'b2b',       label: 'B2B' },
 ];
 
-// ── Section wrapper — defined OUTSIDE to avoid remount on every keystroke ──────
+// ── Section wrapper - defined OUTSIDE to avoid remount on every keystroke ──────
 function Section({ num, title, children }) {
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -28,7 +28,7 @@ function Section({ num, title, children }) {
   );
 }
 
-// ── Question field — defined OUTSIDE for the same reason ─────────────────────
+// ── Question field - defined OUTSIDE for the same reason ─────────────────────
 function QuestionField({ questionKey, question, value, onChange, yes, no }) {
   return (
     <div className="flex items-start justify-between gap-4 rounded-lg border border-gray-200 bg-white px-4 py-3">
@@ -68,7 +68,7 @@ function useAuditPolling(auditUid, onComplete, onError) {
           onError(data.error_details || 'Unknown error');
         }
       } catch {
-        // Network hiccup — keep polling
+        // Network hiccup - keep polling
       }
     }, 10_000);
     return () => clearInterval(interval);
@@ -125,7 +125,7 @@ function LogoUpload({ t, onLogoSelect }) {
           <p className="text-sm font-medium text-gray-700">
             <span className="text-blue-600 underline underline-offset-2">Избери лого</span>
           </p>
-          <p className="text-xs text-gray-400">PNG, JPG, SVG — макс. {LOGO_MAX_MB} MB</p>
+          <p className="text-xs text-gray-400">PNG, JPG, SVG - макс. {LOGO_MAX_MB} MB</p>
           <input
             ref={inputRef}
             type="file"
@@ -210,7 +210,7 @@ export function TocAuditForm() {
   const t = i18n[language];
 
   // ── Test-mode detection ──────────────────────────────────────────────────────
-  // ⚠️ TEMPORARY — remove together with lib/test-audit-fixture.js and app/toc-report/test/
+  // ⚠️ TEMPORARY - remove together with lib/test-audit-fixture.js and app/toc-report/test/
   const isTestMode =
     clientName.trim() === 'CP_TEST' &&
     siteUrl.trim()    === 'https://craftpolicy.com/';
@@ -278,7 +278,7 @@ export function TocAuditForm() {
     const err = validate();
     if (err) { setFormError(err); return; }
 
-    // ⚠️ TEST MODE — bypass API
+    // ⚠️ TEST MODE - bypass API
     if (isTestMode) {
       router.push(`/toc-report/test?lang=${language}`);
       return;
@@ -327,7 +327,7 @@ export function TocAuditForm() {
         <h2 className="text-lg font-semibold text-blue-900">{t.analyzingTitle}</h2>
         <p className="mt-2 text-sm text-blue-700">{pollingStatus}</p>
         <p className="mt-4 text-xs text-blue-500">
-          {t.elapsedLabel}: {timeStr} — {t.auditDuration}
+          {t.elapsedLabel}: {timeStr} - {t.auditDuration}
           <br />{t.auditRedirect}
         </p>
         <div className="mt-6 mx-auto max-w-xs rounded-lg bg-white border border-blue-200 px-4 py-3">
@@ -353,7 +353,7 @@ export function TocAuditForm() {
         )}
       </div>
 
-      {/* Section 1 — Client info */}
+      {/* Section 1 - Client info */}
       <Section num="1" title={t.s1Title}>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -426,19 +426,19 @@ export function TocAuditForm() {
         </div>
       </Section>
 
-      {/* Section 2 — Privacy Policy */}
+      {/* Section 2 - Privacy Policy */}
       <Section num="2" title={t.s2Title}>
         <UploadSection label={t.s2Title} fieldName="privacy" onFileSelect={setPrivacyFile} />
       </Section>
 
-      {/* Section 3 — T&C */}
+      {/* Section 3 - T&C */}
       <Section num="3" title={t.s3Title}>
         <UploadSection label={t.s3Title} fieldName="toc" onFileSelect={setTocFile} />
         {!privacyFile && !tocFile && (
           <p className="mt-2 text-xs text-amber-600">{t.uploadHint}</p>
         )}
 
-        {/* Audit tagline — inside section 3 as requested */}
+        {/* Audit tagline - inside section 3 as requested */}
         <div className="mt-4 border-t border-gray-100 pt-4">
           <label className="mb-1 block text-sm font-medium text-gray-700">
             {t.taglineLabel}
@@ -454,7 +454,7 @@ export function TocAuditForm() {
         </div>
       </Section>
 
-      {/* Section 4 — Contextual questions */}
+      {/* Section 4 - Contextual questions */}
       {questionsErr && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700 font-mono break-all">
           ⚠ Questions load error: {questionsErr}
@@ -479,7 +479,7 @@ export function TocAuditForm() {
         </Section>
       )}
 
-      {/* Section 5 — Partner logo */}
+      {/* Section 5 - Partner logo */}
       <Section num="5" title={t.s5Title}>
         <LogoUpload t={t} onLogoSelect={setLogoFile} />
       </Section>

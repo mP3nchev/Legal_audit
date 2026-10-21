@@ -40,7 +40,7 @@ async function proxyRequest(request, method) {
 
     if (method !== 'GET' && method !== 'HEAD') {
       if (contentType.includes('multipart/form-data')) {
-        // Pass FormData through — fetch will set the correct boundary header
+        // Pass FormData through - fetch will set the correct boundary header
         body = await request.formData();
       } else if (contentType.includes('application/json')) {
         body = await request.text();

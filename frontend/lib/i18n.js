@@ -1,4 +1,4 @@
-// Audit form UI translations — Bulgarian & English.
+// Audit form UI translations - Bulgarian & English.
 // Used exclusively by TocAuditForm; extend for other components when needed.
 
 export const i18n = {
@@ -34,7 +34,7 @@ export const i18n = {
     // Report title
     reportTitleLabel:       'Заглавие на одита',
     reportTitlePlaceholder: 'GDPR & Privacy Policy\nCompliance Audit',
-    reportTitleHint:        'Голямото заглавие в началото на одита. Ако е празно — използва се стандартното.',
+    reportTitleHint:        'Голямото заглавие в началото на одита. Ако е празно - използва се стандартното.',
 
     // Logo upload
     logoLabel:        'Лого (PNG, JPG, SVG)',
@@ -69,14 +69,14 @@ export const i18n = {
 
     // Polling overlay
     pollSending:      'Изпращане...',
-    pollStarted:      'Анализът стартира — Claude чете документите...',
-    pollDone:         'Завършено — пренасочване...',
-    pollPartial:      'Частичен успех — пренасочване...',
+    pollStarted:      'Анализът стартира - Claude чете документите...',
+    pollDone:         'Завършено - пренасочване...',
+    pollPartial:      'Частичен успех - пренасочване...',
     pollFailed:       'Анализът се провали: ',
     sendFailed:       'Неуспешно изпращане: ',
     analyzingTitle:   'Анализиране...',
     elapsedLabel:     'Изминало',
-    auditDuration:    'Анализът може да отнеме 2–5 минути.',
+    auditDuration:    'Анализът може да отнеме 2-5 минути.',
     auditRedirect:    'Страницата ще се пренасочи автоматично.',
     auditIdLabel:     'Одит ID',
   },
@@ -136,14 +136,14 @@ export const i18n = {
     errDoc:           'Upload at least one document (Privacy Policy or T&C).',
 
     pollSending:      'Sending...',
-    pollStarted:      'Analysis started — Claude is reading the documents...',
-    pollDone:         'Complete — redirecting...',
-    pollPartial:      'Partial success — redirecting...',
+    pollStarted:      'Analysis started - Claude is reading the documents...',
+    pollDone:         'Complete - redirecting...',
+    pollPartial:      'Partial success - redirecting...',
     pollFailed:       'Analysis failed: ',
     sendFailed:       'Failed to submit: ',
     analyzingTitle:   'Analyzing...',
     elapsedLabel:     'Elapsed',
-    auditDuration:    'Analysis may take 2–5 minutes.',
+    auditDuration:    'Analysis may take 2-5 minutes.',
     auditRedirect:    'Page will redirect automatically.',
     auditIdLabel:     'Audit ID',
   },

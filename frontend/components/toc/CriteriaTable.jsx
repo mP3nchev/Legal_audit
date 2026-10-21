@@ -1,12 +1,12 @@
 'use client';
 
 /**
- * CriteriaTable — interactive table with sliders for scoring criteria.
+ * CriteriaTable - interactive table with sliders for scoring criteria.
  *
  * Props:
- *   criteria        {Criterion[]}                      — flat array from API
- *   onCriterionChange(id, field, value) {Function}     — called on slider / explanation change
- *   readOnly        {boolean}                          — hides sliders, shows static scores
+ *   criteria        {Criterion[]} - flat array from API
+ *   onCriterionChange(id, field, value) {Function} - called on slider / explanation change
+ *   readOnly        {boolean} - hides sliders, shows static scores
  */
 
 const TIER_LABELS = {

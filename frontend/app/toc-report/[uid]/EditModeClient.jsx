@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * EditModeClient — interactive Privacy + T&C audit sections.
+ * EditModeClient - interactive Privacy + T&C audit sections.
  *
  * Design: 1:1 with /toc-report/test-edit.
  * Handles both Privacy Policy and Terms & Conditions with real API save/publish.
@@ -223,7 +223,7 @@ function AuditTableSection({ criteria, score, docType, readOnly, onScoreChange, 
                   {pct}% съответствие
                 </span>
               </div>
-              {/* Column headers — desktop only */}
+              {/* Column headers - desktop only */}
               <div className="hidden md:grid text-[11px] font-bold uppercase tracking-wide px-4 py-2"
                 style={{
                   gridTemplateColumns: '44px 1fr 160px 1fr', gap: '16px',

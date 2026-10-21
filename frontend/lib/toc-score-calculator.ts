@@ -1,4 +1,4 @@
-// VISUAL ONLY — backend is the source of truth for all authoritative scores.
+// VISUAL ONLY - backend is the source of truth for all authoritative scores.
 // This file is a TypeScript port of backend/src/analyzers/toc-score-calculator.js
 // used exclusively for instant UI feedback when the user drags sliders.
 

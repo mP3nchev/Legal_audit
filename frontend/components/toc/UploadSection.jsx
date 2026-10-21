@@ -11,13 +11,13 @@ const ACCEPTED_EXT  = ['.pdf', '.docx'];
 const MAX_SIZE_MB    = 10;
 
 /**
- * UploadSection — drag-and-drop file picker for PDF / DOCX.
+ * UploadSection - drag-and-drop file picker for PDF / DOCX.
  *
  * Props:
- *   label        {string}   — visible label, e.g. "Privacy Policy"
- *   fieldName    {string}   — form field name (informational, upload handled by parent)
- *   onFileSelect {Function} — called with (File | null) on selection or removal
- *   required     {boolean}  — shows a "required" badge (default false)
+ *   label        {string} - visible label, e.g. "Privacy Policy"
+ *   fieldName    {string} - form field name (informational, upload handled by parent)
+ *   onFileSelect {Function} - called with (File | null) on selection or removal
+ *   required     {boolean} - shows a "required" badge (default false)
  */
 export function UploadSection({ label, fieldName, onFileSelect, required = false }) {
   const [file,    setFile]    = useState(null);

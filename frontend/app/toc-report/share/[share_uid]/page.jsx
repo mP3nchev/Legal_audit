@@ -1,27 +1,18 @@
 /**
- * /toc-report/share/[share_uid] — Public read-only report
+ * /toc-report/share/[share_uid] - Public read-only report
  *
  * Uses the same Cover + Scope + EditModeClient layout as the edit view.
  * No navigation header (NavHeader hides itself on this path).
- * No auth required — public link.
+ * No auth required - public link.
  */
 
 import { notFound }                    from 'next/navigation';
 import { CoverSection, ScopeSection }  from '@/app/toc-report/_sections';
 import { EditModeClient }              from '@/app/toc-report/[uid]/EditModeClient';
 import { reportI18n }                  from '@/lib/i18n';
+import { normalizeDashes }             from '@/lib/utils';
 
 const BACKEND_URL = process.env.BACKEND_API_URL || 'http://localhost:3001';
-
-// Replace em dashes with ' - ' and en dashes with '-' in all snapshot strings
-function normalizeDashes(value) {
-  if (typeof value === 'string') return value.replace(/\s*\u2014\s*/g, ' - ').replace(/\u2013/g, '-');
-  if (Array.isArray(value))      return value.map(normalizeDashes);
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, normalizeDashes(v)]));
-  }
-  return value;
-}
 
 async function fetchShare(shareUid) {
   try {
@@ -64,7 +55,7 @@ export default async function SharePage({ params }) {
       {/* Scope & Methodology */}
       <ScopeSection t={t} />
 
-      {/* Audit content — identical layout to edit view, fully read-only */}
+      {/* Audit content - identical layout to edit view, fully read-only */}
       <EditModeClient
         audit={audit ?? {}}
         privacy_result={privacy_result}
