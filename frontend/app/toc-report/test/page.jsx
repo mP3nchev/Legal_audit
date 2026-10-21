@@ -1,5 +1,5 @@
 'use client';
-// ⚠️ TEST ONLY — delete together with lib/test-audit-fixture.js when done.
+// ⚠️ TEST ONLY - delete together with lib/test-audit-fixture.js when done.
 // Route: /toc-report/test  |  Trigger: client_name=CP_TEST + site=https://craftpolicy.com/
 
 import { Suspense } from 'react';
@@ -30,8 +30,8 @@ const PRIVACY_ANALYSIS_DATA = {
     const pct   = Math.round(ts.pct);
     return {
       id:           `tier${t}`,
-      name_bg:      `Ниво ${t} — ${TIER_LABELS[t]}`,
-      name_en:      `Level ${t} — ${TIER_LABELS[t]}`,
+      name_bg:      `Ниво ${t} - ${TIER_LABELS[t]}`,
+      name_en:      `Level ${t} - ${TIER_LABELS[t]}`,
       severity:     pct >= 76 ? 'low' : pct >= 61 ? 'medium' : pct >= 31 ? 'high' : 'critical',
       percentage:   pct,
       earnedPoints: ts.score,
@@ -51,12 +51,12 @@ const PRIVACY_ANALYSIS_DATA = {
 
 // ── Verbal scale helpers ──────────────────────────────────────────────────────
 const VERBAL_SEGS = [
-  { range_bg: '0–30%',   range_en: '0–30%',   label: 'Критичен риск',         min: 0,  max: 30  },
-  { range_bg: '31–50%',  range_en: '31–50%',  label: 'Несъответствие',         min: 31, max: 50  },
-  { range_bg: '51–60%',  range_en: '51–60%',  label: 'Частично съответствие',  min: 51, max: 60  },
-  { range_bg: '61–75%',  range_en: '61–75%',  label: 'Адекватно',              min: 61, max: 75  },
-  { range_bg: '76–89%',  range_en: '76–89%',  label: 'Високо съответствие',    min: 76, max: 89  },
-  { range_bg: '90–100%', range_en: '90–100%', label: 'Пълно съответствие',     min: 90, max: 100 },
+  { range_bg: '0-30%',   range_en: '0-30%',   label: 'Критичен риск',         min: 0,  max: 30  },
+  { range_bg: '31-50%',  range_en: '31-50%',  label: 'Несъответствие',         min: 31, max: 50  },
+  { range_bg: '51-60%',  range_en: '51-60%',  label: 'Частично съответствие',  min: 51, max: 60  },
+  { range_bg: '61-75%',  range_en: '61-75%',  label: 'Адекватно',              min: 61, max: 75  },
+  { range_bg: '76-89%',  range_en: '76-89%',  label: 'Високо съответствие',    min: 76, max: 89  },
+  { range_bg: '90-100%', range_en: '90-100%', label: 'Пълно съответствие',     min: 90, max: 100 },
 ];
 const INACTIVE_BG = ['#0155B9','#1e6ed4','#449AFF','#6badff','#ACCEF7','#C6E0FF'];
 
@@ -247,13 +247,13 @@ function AuditTableSection({ t }) {
               style={{ border: '1px solid var(--cp-neutral-40)' }}>
               <div className="flex items-center justify-between px-4 py-3"
                 style={{ backgroundColor: '#0175ff', color: 'white' }}>
-                <span className="text-sm font-bold">{t.tierWord} {num} — {label}</span>
+                <span className="text-sm font-bold">{t.tierWord} {num} - {label}</span>
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full"
                   style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
                   {pct}% {t.complianceWord}
                 </span>
               </div>
-              {/* Column headers — desktop only */}
+              {/* Column headers - desktop only */}
               <div className="hidden md:grid text-[11px] font-bold uppercase tracking-wide px-4 py-2"
                 style={{ gridTemplateColumns: '44px 1fr 150px 1fr', gap: '16px',
                   backgroundColor: 'var(--cp-blue-15)', color: 'var(--cp-blue-150)' }}>
@@ -498,7 +498,7 @@ function TestReportInner() {
       {/* TEST MODE banner */}
       <div className="flex items-center justify-between gap-3 rounded-lg px-4 py-2.5 text-sm"
         style={{ backgroundColor: 'var(--cp-blue-15)', border: '1px solid var(--cp-blue-40)', color: 'var(--cp-blue-150)' }}>
-        <span><strong>TEST MODE</strong> — {lang === 'en' ? 'simulated audit · no API calls · no tokens consumed' : 'симулиран одит · няма реални API извиквания'}</span>
+        <span><strong>TEST MODE</strong> - {lang === 'en' ? 'simulated audit · no API calls · no tokens consumed' : 'симулиран одит · няма реални API извиквания'}</span>
         <a href={TEST_AUDIT_META.site_url} target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-xs hover:underline shrink-0"
           style={{ color: 'var(--cp-blue-100)' }}>
@@ -515,7 +515,7 @@ function TestReportInner() {
   );
 }
 
-// ── Page export — wraps inner in Suspense (required by Next.js for useSearchParams) ─
+// ── Page export - wraps inner in Suspense (required by Next.js for useSearchParams) ─
 export default function TestReportPage() {
   return (
     <Suspense fallback={<div className="py-20 text-center text-sm" style={{ color: 'var(--cp-neutral-80)' }}>Зареждане...</div>}>

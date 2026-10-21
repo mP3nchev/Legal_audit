@@ -1,5 +1,5 @@
 /**
- * /dashboard — Audit list with pagination
+ * /dashboard - Audit list with pagination
  *
  * Server component: fetches from backend dashboard endpoint.
  */
@@ -11,7 +11,7 @@ import { DeleteAuditButton } from './DeleteAuditButton';
 const BACKEND_URL  = process.env.BACKEND_API_URL  || 'http://localhost:3001';
 const INTERNAL_KEY = process.env.INTERNAL_API_KEY || '';
 
-export const metadata = { title: 'Табло — CraftPolicy' };
+export const metadata = { title: 'Табло - CraftPolicy' };
 
 async function fetchDashboard(page = 1, limit = 20) {
   try {
@@ -43,7 +43,7 @@ function StatusBadge({ status }) {
 }
 
 function ScorePill({ pct, label }) {
-  if (pct == null) return <span className="text-xs text-gray-400">—</span>;
+  if (pct == null) return <span className="text-xs text-gray-400">-</span>;
   const rounded = Math.round(pct);
   const color = rounded >= 76 ? 'text-green-700' : rounded >= 61 ? 'text-blue-600' : rounded >= 51 ? 'text-yellow-700' : rounded >= 31 ? 'text-orange-600' : 'text-red-600';
   return (
@@ -102,7 +102,7 @@ export default async function DashboardPage({ searchParams }) {
               {audits.map(a => {
                 const date = a.created_at
                   ? new Date(a.created_at).toLocaleDateString('bg-BG', { day: 'numeric', month: 'short', year: 'numeric' })
-                  : '—';
+                  : '-';
                 return (
                   <tr key={a.uid} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3">
@@ -118,7 +118,7 @@ export default async function DashboardPage({ searchParams }) {
                           <span className="truncate">{a.site_url.replace(/^https?:\/\//, '')}</span>
                           <ExternalLink className="h-3 w-3 shrink-0" />
                         </a>
-                      ) : <span className="text-xs text-gray-400">—</span>}
+                      ) : <span className="text-xs text-gray-400">-</span>}
                     </td>
                     <td className="px-4 py-3 text-center"><StatusBadge status={a.status} /></td>
                     <td className="px-4 py-3 text-center">
@@ -135,7 +135,7 @@ export default async function DashboardPage({ searchParams }) {
                               className="text-xs text-green-600 hover:underline">Да ↗</Link>
                           : <span className="text-xs text-green-600">Да</span>
                       ) : (
-                        <span className="text-xs text-gray-400">—</span>
+                        <span className="text-xs text-gray-400">-</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-center">

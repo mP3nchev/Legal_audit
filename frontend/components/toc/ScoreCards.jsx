@@ -1,11 +1,11 @@
 'use client';
 
 /**
- * ScoreCards — displays total score + tier breakdown as summary cards.
+ * ScoreCards - displays total score + tier breakdown as summary cards.
  *
  * Props:
- *   scoringResult  {ScoringResult}  — from backend or toc-score-calculator
- *   docType        {string}         — 'privacy' | 'toc'
+ *   scoringResult  {ScoringResult} - from backend or toc-score-calculator
+ *   docType        {string} - 'privacy' | 'toc'
  */
 
 const VERBAL_COLOR = {

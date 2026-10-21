@@ -1,11 +1,11 @@
 'use client';
 
 /**
- * VerbalScale — visual representation of the 6-level verbal scale
+ * VerbalScale - visual representation of the 6-level verbal scale
  * with a marker on the current position.
  *
  * Props:
- *   pct  {number}  — 0-100
+ *   pct  {number} - 0-100
  */
 
 const SCALE = [

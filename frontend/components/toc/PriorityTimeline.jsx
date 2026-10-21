@@ -1,12 +1,12 @@
 'use client';
 
 /**
- * PriorityTimeline — shows criteria with score ≤ 3 ordered by priority
+ * PriorityTimeline - shows criteria with score ≤ 3 ordered by priority
  * (Tier 1 first, then by score ascending).
  *
  * Props:
- *   criteria  {Criterion[]}  — flat array (privacy or toc)
- *   docType   {string}       — 'privacy' | 'toc'
+ *   criteria  {Criterion[]} - flat array (privacy or toc)
+ *   docType   {string} - 'privacy' | 'toc'
  */
 
 const TIER_URGENCY = {

@@ -1,8 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// ⚠️  TEST ONLY — delete this file when test mode is no longer needed.
+// ⚠️  TEST ONLY - delete this file when test mode is no longer needed.
 //
 // Activated when: client_name = "CP_TEST" AND site_url = "https://craftpolicy.com/"
-// Purpose: instant simulated audit — no API calls, no token consumption.
+// Purpose: instant simulated audit - no API calls, no token consumption.
 //
 // Structure: 2 criteria per Tier (8 total), Privacy Policy only.
 //            Exactly 2 criteria with score ≤ 3  →  2 priority recommendations.
@@ -10,7 +10,7 @@
 
 /** @type {import('./toc-score-calculator').Criterion[]} */
 const CRITERIA = [
-  // ── Tier 1 — Critical (multiplier 3) ────────────────────────────────────────
+  // ── Tier 1 - Critical (multiplier 3) ────────────────────────────────────────
   {
     id: 101, tier: 1, multiplier: 3, skipped: false,
     name:        'Идентификация на администратора на данни',
@@ -24,12 +24,12 @@ const CRITERIA = [
     explanation: 'Документът не посочва конкретно правно основание по чл. 6 GDPR за всяка категория данни. Необходима е спешна корекция за постигане на съответствие.',
   },
 
-  // ── Tier 2 — Important (multiplier 2) ───────────────────────────────────────
+  // ── Tier 2 - Important (multiplier 2) ───────────────────────────────────────
   {
     id: 103, tier: 2, multiplier: 2, skipped: false,
     name:        'Права на субектите на данни (достъп, коригиране, изтриване)',
     score:       5,
-    explanation: 'Изчерпателно описание на всички права по GDPR — достъп, коригиране, изтриване, преносимост и ограничаване на обработката.',
+    explanation: 'Изчерпателно описание на всички права по GDPR - достъп, коригиране, изтриване, преносимост и ограничаване на обработката.',
   },
   {
     id: 104, tier: 2, multiplier: 2, skipped: false,
@@ -38,7 +38,7 @@ const CRITERIA = [
     explanation: 'Посочени са общи срокове. Препоръчително е да се добави структурирана таблица с конкретни срокове по категории данни.',
   },
 
-  // ── Tier 3 — Standard (multiplier 1.5) ──────────────────────────────────────
+  // ── Tier 3 - Standard (multiplier 1.5) ──────────────────────────────────────
   {
     id: 105, tier: 3, multiplier: 1.5, skipped: false,
     name:        'Бисквитки и технологии за проследяване',
@@ -52,7 +52,7 @@ const CRITERIA = [
     explanation: 'Посочени са третите държави получатели и приложените стандартни договорни клаузи (СДК). Добра практика.',
   },
 
-  // ── Tier 4 — Improvement (multiplier 1) ─────────────────────────────────────
+  // ── Tier 4 - Improvement (multiplier 1) ─────────────────────────────────────
   {
     id: 107, tier: 4, multiplier: 1, skipped: false,
     name:        'Информация за жалби до надзорен орган (КЗЛД)',

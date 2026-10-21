@@ -1,5 +1,5 @@
 'use client';
-// ⚠️ TEST ONLY — delete together with lib/test-audit-fixture.js when done.
+// ⚠️ TEST ONLY - delete together with lib/test-audit-fixture.js when done.
 // Route: /toc-report/test-edit  |  Edit view preview with mock data + new design.
 
 import { useState, useCallback, useEffect, useRef } from 'react';
@@ -151,13 +151,13 @@ function AuditTableEdit({ criteria, score, onScoreChange, onExplanationChange })
               {/* Tier header */}
               <div className="flex items-center justify-between px-4 py-3"
                 style={{ backgroundColor: '#0175ff', color: 'white' }}>
-                <span className="text-sm font-bold">Ниво {num} — {TIER_LABELS[num]}</span>
+                <span className="text-sm font-bold">Ниво {num} - {TIER_LABELS[num]}</span>
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full"
                   style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
                   {pct}% съответствие
                 </span>
               </div>
-              {/* Column headers — desktop only */}
+              {/* Column headers - desktop only */}
               <div className="hidden md:grid text-[11px] font-bold uppercase tracking-wide px-4 py-2"
                 style={{
                   gridTemplateColumns: '44px 1fr 160px 1fr', gap: '16px',
@@ -308,7 +308,7 @@ function RecommendationsEdit({ criteria, onExplanationChange, onRecommendationCh
       icon={<AlertTriangle className="h-5 w-5" />}>
       <div className="rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-sm text-green-700 flex items-center gap-2">
         <CheckCircle2 className="h-4 w-4 shrink-0" />
-        Няма критерии с оценка ≤ 3 — нняма препоръки.
+        Няма критерии с оценка ≤ 3 - нняма препоръки.
       </div>
     </ReportSection>
   );
@@ -342,7 +342,7 @@ function ScoreSummaryBar({ score }) {
       <div className="flex items-center justify-between px-6 py-4" style={{ backgroundColor: '#d2e2f5' }}>
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#0155b9' }}>
-            Краен резултат — Privacy Policy
+            Краен резултат - Privacy Policy
           </p>
           <p className="text-xs mt-0.5" style={{ color: '#0155b9', opacity: 0.7 }}>
             {total_score}/{total_max_score} точки
@@ -364,7 +364,7 @@ function ScoreSummaryBar({ score }) {
               outlineOffset:   '-2px',
               borderRight:     i < VERBAL_SEGS.length - 1 ? '1px solid rgba(255,255,255,0.2)' : 'none',
             }}>
-            <p className="text-[10px] font-bold">{s.min}–{s.max}%</p>
+            <p className="text-[10px] font-bold">{s.min}-{s.max}%</p>
             <p className="text-[9px] mt-0.5 opacity-90">{s.label}</p>
           </div>
         ))}
@@ -392,7 +392,7 @@ export default function TestEditPage() {
   const onRecommendationChange = useCallback((id, v)   => update(id, 'recommendation', v), [update]);
 
   function handleSave() {
-    setSaveMsg({ type: 'ok', text: 'TEST MODE — реален запис няма.' });
+    setSaveMsg({ type: 'ok', text: 'TEST MODE - реален запис няма.' });
     setTimeout(() => setSaveMsg(null), 3000);
   }
 
@@ -401,7 +401,7 @@ export default function TestEditPage() {
       {/* TEST MODE banner */}
       <div className="flex items-center justify-between gap-3 rounded-lg px-4 py-2.5 text-sm"
         style={{ backgroundColor: 'var(--cp-blue-15)', border: '1px solid var(--cp-blue-40)', color: 'var(--cp-blue-150)' }}>
-        <span><strong>TEST MODE</strong> — симулиран одит · редактиране · няма реални API извиквания</span>
+        <span><strong>TEST MODE</strong> - симулиран одит · редактиране · няма реални API извиквания</span>
         <a href={TEST_AUDIT_META.site_url} target="_blank" rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-xs hover:underline shrink-0"
           style={{ color: 'var(--cp-blue-100)' }}>

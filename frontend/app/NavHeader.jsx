@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 
 /**
- * NavHeader — hides itself on public share pages (/toc-report/share/*).
+ * NavHeader - hides itself on public share pages (/toc-report/share/*).
  * Must be a client component to read the current pathname.
  */
 export default function NavHeader() {

@@ -1,5 +1,5 @@
 /**
- * /toc-report/[uid] — Production audit report page (server component)
+ * /toc-report/[uid] - Production audit report page (server component)
  *
  * Design: 1:1 with /toc-report/test (Cover + Scope + Methodology),
  * followed by EditModeClient for interactive Privacy + T&C sections.
@@ -15,6 +15,7 @@ import { EditModeClient }              from './EditModeClient';
 import { CoverSettings }              from './CoverSettings';
 import { CoverSection, ScopeSection }  from '@/app/toc-report/_sections';
 import { reportI18n }                  from '@/lib/i18n';
+import { normalizeDashes }             from '@/lib/utils';
 
 const BACKEND_URL  = process.env.BACKEND_API_URL  || 'http://localhost:3001';
 const INTERNAL_KEY = process.env.INTERNAL_API_KEY || '';
@@ -27,7 +28,7 @@ async function fetchAudit(uid) {
     });
     if (res.status === 404) return null;
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    return normalizeDashes(await res.json());
   } catch {
     return null;
   }
