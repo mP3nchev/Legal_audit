@@ -1,5 +1,5 @@
 import { Scale, AlertTriangle } from 'lucide-react';
-import { estimateFines } from '@/lib/zzp-fines';
+import { estimateFines, findUnfairTermRisks } from '@/lib/zzp-fines';
 
 const fmt = n => `${Math.round(n).toLocaleString('bg-BG')} €`;
 
@@ -15,7 +15,9 @@ const T = {
     scope:    'Законов диапазон',
     perCase:  'за всеки отделен случай',
     none:     'При текущите оценки няма констатации, за които да се прогнозира санкция по включените разпоредби.',
-    note:     'Индикативна оценка, не правно становище. Ориентирът е около средата на законовия диапазон и се измества според тежестта на констатацията. Действителната санкция се определя от компетентния орган за всеки конкретен случай и може да бъде многократно по-висока, ако нарушенията са повече от един случай. Оценката не включва неравноправни клаузи и разпоредби извън списъка.',
+    unfairTitle: 'Неравноправни клаузи (без административна санкция)',
+    unfairText:  'За неравноправните клаузи няма самостоятелна административна санкция. Последицата е, че клаузата е нищожна (чл. 146, ал. 1 ЗЗП), а договорът остава в сила без нея (чл. 146, ал. 5); търговецът доказва, че клаузата е индивидуално уговорена (чл. 146, ал. 4). Сумата по-горе не ги включва. Критерии с възможен риск:',
+    note:     'Индикативна оценка, не правно становище. Ориентирът е около средата на законовия диапазон и се измества според тежестта на констатацията. Действителната санкция се определя от компетентния орган за всеки конкретен случай и може да бъде многократно по-висока, ако нарушенията са повече от един случай. Оценката обхваща само разпоредбите, изброени по-горе.',
   },
   en: {
     title:    'Estimated Consumer Protection Act Penalty',
@@ -28,7 +30,9 @@ const T = {
     scope:    'Statutory range',
     perCase:  'per separate case',
     none:     'With the current scores there are no findings for which a penalty under the included provisions is estimated.',
-    note:     'Indicative estimate, not legal advice. The figure sits around the middle of the statutory range and shifts with the severity of the finding. The actual penalty is set by the competent authority for each case and can be many times higher if there is more than one case. The estimate excludes unfair terms and provisions outside the list.',
+    unfairTitle: 'Unfair terms (no administrative penalty)',
+    unfairText:  'Unfair terms carry no separate administrative penalty. The consequence is that the term is void (Art. 146(1) Consumer Protection Act) while the contract stays in force without it (Art. 146(5)); the trader must prove the term was individually negotiated (Art. 146(4)). The total above does not include them. Criteria with a possible risk:',
+    note:     'Indicative estimate, not legal advice. The figure sits around the middle of the statutory range and shifts with the severity of the finding. The actual penalty is set by the competent authority for each case and can be many times higher if there is more than one case. The estimate covers only the provisions listed above.',
   },
 };
 
@@ -36,6 +40,7 @@ const T = {
 export function FineEstimate({ criteria, lang = 'bg' }) {
   const t = T[lang === 'en' ? 'en' : 'bg'];
   const { rows, totalMin, totalMax, totalEstimate } = estimateFines(criteria);
+  const unfair = findUnfairTermRisks(criteria);
 
   return (
     <section id="fine-estimate" className="scroll-mt-24 space-y-4">
@@ -94,6 +99,22 @@ export function FineEstimate({ criteria, lang = 'bg' }) {
             ))}
           </div>
         </>
+      )}
+
+      {unfair.length > 0 && (
+        <div className="rounded-xl border p-5"
+          style={{ borderColor: 'var(--cp-neutral-40)', backgroundColor: 'var(--cp-white)' }}>
+          <p className="text-sm font-semibold" style={{ color: 'var(--cp-neutral-100)' }}>{t.unfairTitle}</p>
+          <p className="mt-1 text-xs leading-relaxed" style={{ color: 'var(--cp-neutral-80)' }}>{t.unfairText}</p>
+          <ul className="mt-3 space-y-1.5">
+            {unfair.map(u => (
+              <li key={u.id} className="text-xs" style={{ color: 'var(--cp-neutral-90)' }}>
+                <span className="font-semibold">{u.name}</span>
+                <span style={{ color: 'var(--cp-neutral-80)' }}> - {u.refs}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       <div className="flex items-start gap-2 rounded-xl border p-4"

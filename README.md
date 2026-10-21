@@ -40,7 +40,7 @@ The logo is stored as a base64 data URL in `toc_audits.partner_logo_data`. Extra
 
 ### Estimated penalty (eCommerce T&C)
 
-For audits with business type **eCommerce** the T&C section ends with an indicative penalty estimate under the Consumer Protection Act (legal entities and traders only). Amounts and the criterion-to-provision mapping live in `frontend/lib/zzp-fines.js`; entries with `enabled: false` are excluded until legally confirmed. The figure sits around the middle of each statutory range (40-60%, shifted by the severity of the score) and is recalculated live while editing and on every publish.
+For audits with business type **eCommerce** the T&C section ends with an indicative penalty estimate under the Consumer Protection Act (legal entities and traders only). Amounts and the criterion-to-provision mapping live in `frontend/lib/zzp-fines.js`; entries with `enabled: false` are excluded (reason in `note`). Unfair terms (Art. 143-147) carry no administrative penalty in the supplied list, so they are shown separately as a nullity risk and are not part of the total. The figure sits around the middle of each statutory range (40-60%, shifted by the severity of the score) and is recalculated live while editing and on every publish.
 
 ---
 
