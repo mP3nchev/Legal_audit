@@ -77,6 +77,11 @@ export function FineEstimate({ criteria, lang = 'bg' }) {
                     <span className="font-semibold">{t.findings}:</span>{' '}
                     {r.hits.map(h => h.name).join('; ')}
                   </p>
+                  {r.consequences.length > 0 && (
+                    <ul className="mt-2 list-disc space-y-0.5 pl-4 text-xs" style={{ color: 'var(--cp-neutral-80)' }}>
+                      {r.consequences.map(c => <li key={c}>{c}</li>)}
+                    </ul>
+                  )}
                 </div>
                 <div className="sm:text-right">
                   <p className="text-xs" style={{ color: 'var(--cp-neutral-80)' }}>{t.est}</p>
