@@ -10,6 +10,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Settings2, Loader2, CheckCircle2, AlertCircle, ImagePlus, X } from 'lucide-react';
 import { proxyUrl } from '@/lib/utils';
+import { trimLogo } from '@/lib/trim-image';
 
 const LOGO_MAX_MB = 2;
 const INPUT = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition';
@@ -41,16 +42,17 @@ export function CoverSettings({ audit }) {
   const [busy, setBusy] = useState(false);
   const [msg,  setMsg]  = useState(null); // { type, text }
 
-  function pickLogo(file) {
-    if (!file) return;
-    if (!/\.(png|jpe?g|svg|webp)$/i.test(file.name)) {
+  async function pickLogo(raw) {
+    if (!raw) return;
+    if (!/\.(png|jpe?g|svg|webp)$/i.test(raw.name)) {
       setMsg({ type: 'err', text: 'Разрешени формати: PNG, JPG, SVG, WebP.' });
       return;
     }
-    if (file.size > LOGO_MAX_MB * 1024 * 1024) {
+    if (raw.size > LOGO_MAX_MB * 1024 * 1024) {
       setMsg({ type: 'err', text: `Логото трябва да е до ${LOGO_MAX_MB} MB.` });
       return;
     }
+    const file = await trimLogo(raw); // cut empty margins so the logo fills the fixed height
     setMsg(null);
     setLogoFile(file);
     setRemoveLogo(false);

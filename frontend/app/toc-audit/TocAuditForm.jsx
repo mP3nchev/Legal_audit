@@ -6,6 +6,7 @@ import { Loader2, AlertCircle, CheckCircle2, Upload, X, Image as ImageIcon } fro
 import { UploadSection } from '@/components/toc/UploadSection';
 import { proxyUrl }      from '@/lib/utils';
 import { i18n }          from '@/lib/i18n';
+import { trimLogo }      from '@/lib/trim-image';
 
 const BUSINESS_TYPES = [
   { value: 'ecommerce', label: 'eCommerce' },
@@ -84,16 +85,17 @@ function LogoUpload({ t, onLogoSelect }) {
   const [logoError, setLogoError] = useState(null);
   const inputRef = useRef(null);
 
-  function pickLogo(file) {
-    if (!file) return;
-    if (!LOGO_ACCEPTED_TYPES.includes(file.type) && !file.name.match(/\.(png|jpe?g|svg|webp)$/i)) {
+  async function pickLogo(raw) {
+    if (!raw) return;
+    if (!LOGO_ACCEPTED_TYPES.includes(raw.type) && !raw.name.match(/\.(png|jpe?g|svg|webp)$/i)) {
       setLogoError(t.logoTypeError);
       return;
     }
-    if (file.size > LOGO_MAX_MB * 1024 * 1024) {
+    if (raw.size > LOGO_MAX_MB * 1024 * 1024) {
       setLogoError(t.logoSizeError);
       return;
     }
+    const file = await trimLogo(raw); // cut empty margins so the logo fills the fixed height
     setLogoError(null);
     onLogoSelect(file);
     const reader = new FileReader();
