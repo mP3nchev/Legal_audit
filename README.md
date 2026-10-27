@@ -125,6 +125,7 @@ npm test                       # runs all tests in test/
 | POST | `/api/toc/:uid/save` | ✓ | Save edited criteria |
 | POST | `/api/toc/:uid/publish` | ✓ | Publish; on a published audit it refreshes the snapshot and keeps the link (`{"new_link": true}` issues a new link) |
 | POST | `/api/toc/:uid/unpublish` | ✓ | Take the public link down (audit stays editable) |
+| POST | `/api/toc/admin/demo` | ✓ | Create (or return) one published demo audit "ТЕСТОВ" with invented eCommerce data (T&C ~48%, Privacy ~56%); `{"recreate": true}` rebuilds it |
 | PATCH | `/api/toc/:uid/cover` | ✓ | Edit client, URL, date, title, subtitle, language, partner logo (multipart); applied to the public page after the next publish |
 | GET  | `/api/toc/share/:share_uid` | - | Public share |
 | GET  | `/api/toc/dashboard` | ✓ | Paginated audit list |
