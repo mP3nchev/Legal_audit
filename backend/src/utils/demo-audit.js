@@ -1,9 +1,12 @@
 'use strict';
 
 /**
- * Demo audit generator ("ТЕСТОВ"): builds realistic, fully invented criteria
- * for an eCommerce shop so the report, the penalty estimate and the public
- * link can be shown without using a real client. No EIK, phones, e-mails or links.
+ * Demo audit generator ("ТЕСТОВ"): builds an eCommerce audit by taking, for every
+ * criterion, a randomly chosen real finding (explanation + recommendation) from the
+ * audits already in the database, anonymised (company and site names, EIK, VAT,
+ * IBAN, phones, e-mails and links removed). Scores are steered to the target
+ * percentages and a few criteria are forced low so the penalty estimate shows
+ * several provisions. Hand-written / templated texts are only a fallback.
  */
 
 const fs   = require('fs');
@@ -70,42 +73,128 @@ function templated(c, score) {
   return { explanation: `По ${n} в документа практически няма уредба.`, recommendation: `Добавете отделен раздел, който изцяло урежда ${n}.` };
 }
 
-/** Pick scores for the free criteria so the weighted total lands on `target` %. */
-function build(criteria, forced, skippedIds, target, seed) {
+// ── Anonymisation of real findings ────────────────────────────────────────────
+
+function escapeRe(x) { return x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+function makeCleaner(clientName, siteUrl) {
+  const names = new Set();
+  String(clientName || '').split(/[^\p{L}\p{N}]+/u).filter(w => w.length >= 4).forEach(w => names.add(w));
+  const host = String(siteUrl || '').replace(/^https?:\/\//i, '').replace(/^www\./i, '').split(/[/?#]/)[0];
+  if (host) {
+    names.add(host);
+    const label = host.split('.')[0];
+    if (label.length >= 4) names.add(label);
+  }
+  const nameRe = names.size ? new RegExp(`(${[...names].map(escapeRe).join('|')})`, 'giu') : null;
+
+  return function clean(text) {
+    if (!text) return '';
+    let t = String(text)
+      .replace(/[\u2014\u2013]/g, '-')
+      // whole parentheses that carry contact / registration data, e.g. (ЕИК ..., тел. ..., имейл ...)
+      .replace(/\((?:[^()]|\([^()]*\))*?(ЕИК|ДДС|тел\.|телефон|имейл|e-mail|IBAN)(?:[^()]|\([^()]*\))*\)/giu, '')
+      .replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, '')                          // e-mails
+      .replace(/(https?:\/\/|www\.)\S+/gi, '')                              // links
+      .replace(/\b[A-Z]{2}\d{2}[A-Z0-9]{10,30}\b/g, '')                    // IBAN
+      .replace(/\bBG\s?\d{9,10}\b/gi, '')                                  // VAT
+      .replace(/(\+?359|\b0)[\s\-]?\d[\d\s\-]{7,}\d/g, '')                 // phones
+      .replace(/\b\d{9,13}\b/g, '');                                       // EIK / long ids
+    if (nameRe) {
+      t = t.replace(nameRe, 'дружеството')
+           .replace(/(дружеството[\s,]*)+(ЕООД|ООД|ЕАД|АД|ЕТ|СД|КД)?/giu, 'дружеството ');
+    }
+    t = t.replace(/(?<!\p{L})(тел\.?|телефон|имейл|е-мейл|e-mail|email|факс)(?!\p{L})[:\s]*(?=[,.;)\s]|$)/giu, '')
+         .replace(/\(\s*[,;:\s]*\)/g, '');
+    t = t.replace(/(ЕИК|ДДС номер|ДДС №)[:\s]*(?=[\s,.)]|$)/gi, '$1 (не е посочен)')
+         .replace(/\(\s*\)/g, '').replace(/\s+([,.;:])/g, '$1').replace(/\s{2,}/g, ' ').trim();
+    // drop anything that still looks like contact data or a domain
+    if (/@|https?:|www\.|\b[\w-]+\.(bg|com|eu|net|org|shop|store)\b/i.test(t)) return '';
+    return t;
+  };
+}
+
+/** Collect anonymised real findings per criterion id from the audits in the database. */
+function loadPool(db, docType) {
+  const rows = db.prepare(`
+    SELECT a.client_name, a.site_url, a.business_type,
+           COALESCE(r.editor_criteria_json, r.criteria_json) AS cj
+    FROM toc_results r JOIN toc_audits a ON a.uid = r.audit_uid
+    WHERE r.doc_type = ? AND a.uid NOT LIKE 'toc_demo%'
+  `).all(docType);
+
+  const wanted = docType === 'toc' ? rows.filter(r => r.business_type === 'ecommerce') : rows;
+  const source = wanted.length ? wanted : rows;
+
+  const pool = new Map();
+  for (const row of source) {
+    let list; try { list = JSON.parse(row.cj || '[]'); } catch { continue; }
+    const clean = makeCleaner(row.client_name, row.site_url);
+    for (const c of list) {
+      if (c.skipped || c.score == null) continue;
+      const explanation = clean(c.explanation);
+      if (!explanation) continue;
+      const entry = { score: c.score, explanation, recommendation: clean(c.recommendation), real: true };
+      const arr = pool.get(c.id) ?? [];
+      if (!arr.some(e => e.score === entry.score && e.explanation === entry.explanation)) arr.push(entry);
+      pool.set(c.id, arr);
+    }
+  }
+  return { pool, sources: source.length };
+}
+
+// ── Build one document ────────────────────────────────────────────────────────
+
+function build(criteria, forced, skippedIds, target, seed, pool) {
   const rand = rng(seed);
+  const pick = arr => arr[Math.floor(rand() * arr.length)];
+  const tpl  = (c, score) => ({ score, ...templated(c, score), real: false });
+
   const items = criteria.map(c => {
-    const skipped = skippedIds.includes(c.id);
+    if (skippedIds.includes(c.id)) return { c, skipped: true, cur: null, options: [], free: false };
+    const real = pool.get(c.id) ?? [];
     const f = forced[c.id];
-    const free = !skipped && !f;
-    const score = skipped ? null : f ? f.score : [2, 3, 3, 4, 4, 5][Math.floor(rand() * 6)];
-    return { ...c, skipped, score, free, forcedText: f };
+    if (f) {
+      const match = real.filter(e => e.score === f.score);
+      const options = match.length ? match : [{ ...f, real: false }];
+      return { c, skipped: false, cur: pick(options), options, free: false };
+    }
+    const fallback = [2, 3, 4, 5].map(sc => tpl(c, sc));
+    const options = real.length ? real : fallback;
+    return { c, skipped: false, cur: pick(options), options, free: true, fallback };
   });
 
-  const pctOf = () => calculateTotal(items).total_pct;
-  for (let i = 0; i < 400 && Math.abs(pctOf() - target) > 0.3; i++) {
-    let best = null;
-    for (const it of items) {
-      if (!it.free) continue;
-      for (const d of [-1, 1]) {
-        const ns = it.score + d;
-        if (ns < 2 || ns > 5) continue;
-        const old = it.score; it.score = ns;
-        const diff = Math.abs(pctOf() - target);
-        it.score = old;
-        if (!best || diff < best.diff) best = { it, ns, diff };
+  const pctOf = () => calculateTotal(items.map(it => ({
+    tier: it.c.tier, multiplier: it.c.multiplier, skipped: it.skipped, score: it.cur?.score,
+  }))).total_pct;
+
+  // Phase 1: swap between real findings only; phase 2: allow templated ones as a last resort.
+  for (const allowFallback of [false, true]) {
+    for (let i = 0; i < 300 && Math.abs(pctOf() - target) > 0.45; i++) {
+      const base = Math.abs(pctOf() - target);
+      let best = null;
+      for (const it of items) {
+        if (!it.free) continue;
+        const candidates = allowFallback ? [...it.options, ...(it.fallback ?? [])] : it.options;
+        for (const cand of candidates) {
+          if (cand === it.cur || cand.score === it.cur.score) continue;
+          const old = it.cur; it.cur = cand;
+          const diff = Math.abs(pctOf() - target);
+          it.cur = old;
+          if (diff < base && (!best || diff < best.diff)) best = { it, cand, diff };
+        }
       }
+      if (!best) break;
+      best.it.cur = best.cand;
     }
-    if (!best || best.diff >= Math.abs(pctOf() - target)) break;
-    best.it.score = best.ns;
   }
 
   return items.map(it => {
-    if (it.skipped) return { id: it.id, name: it.name, tier: it.tier, multiplier: it.multiplier, skipped: true, score: null, explanation: null };
-    const text = it.forcedText ?? templated(it, it.score);
+    const { c } = it;
+    if (it.skipped) return { id: c.id, name: c.name, tier: c.tier, multiplier: c.multiplier, skipped: true, score: null, explanation: null };
     return {
-      id: it.id, name: it.name, tier: it.tier, multiplier: it.multiplier,
-      skipped: false, score: it.score,
-      explanation: text.explanation, recommendation: text.recommendation || '',
+      id: c.id, name: c.name, tier: c.tier, multiplier: c.multiplier, skipped: false,
+      score: it.cur.score, explanation: it.cur.explanation, recommendation: it.cur.recommendation || '',
     };
   });
 }
@@ -135,12 +224,15 @@ function toResultRow(criteria, expectedCount) {
   };
 }
 
-function generateDemo() {
-  const tocCriteria     = build(loadCriteria('toc-criteria-toc.json'),     TOC_FORCED,     TOC_SKIPPED,     48, 4801);
-  const privacyCriteria = build(loadCriteria('toc-criteria-privacy.json'), PRIVACY_FORCED, PRIVACY_SKIPPED, 56, 5602);
+function generateDemo(db, seed = Date.now()) {
+  const tocPool     = loadPool(db, 'toc');
+  const privacyPool = loadPool(db, 'privacy');
+  const tocCriteria     = build(loadCriteria('toc-criteria-toc.json'),     TOC_FORCED,     TOC_SKIPPED,     48, seed % 99991 + 1, tocPool.pool);
+  const privacyCriteria = build(loadCriteria('toc-criteria-privacy.json'), PRIVACY_FORCED, PRIVACY_SKIPPED, 56, seed % 99989 + 2, privacyPool.pool);
   return {
     toc:     toResultRow(tocCriteria, 40),
     privacy: toResultRow(privacyCriteria, 37),
+    sources: { toc: tocPool.sources, privacy: privacyPool.sources },
   };
 }
 
