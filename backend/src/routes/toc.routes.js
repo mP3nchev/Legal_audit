@@ -577,7 +577,7 @@ function handleCreateDemo(req, res) {
       return res.json({ already_exists: true, uid: existing.uid, share_url: existing.share_uid ? `/toc-report/share/${existing.share_uid}` : null });
     }
 
-    const demo     = generateDemo();
+    const demo     = generateDemo(db);
     const uid      = 'toc_demo' + crypto.randomBytes(2).toString('hex');
     const shareUid = crypto.randomBytes(8).toString('hex');
     const now      = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -616,6 +616,7 @@ function handleCreateDemo(req, res) {
     return res.json({
       uid, share_url: `/toc-report/share/${shareUid}`,
       privacy_pct: Math.round(demo.privacy.total_pct), toc_pct: Math.round(demo.toc.total_pct),
+      source_audits: demo.sources,
     });
   } catch (err) {
     logger.error('demo-audit-failed', { error: err.message });
