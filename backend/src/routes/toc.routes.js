@@ -12,6 +12,7 @@ const { getDatabase }          = require('../database/db');
 const { createLogger }         = require('../utils/logger');
 const { recalculateFromEditor } = require('../analyzers/toc-score-calculator');
 const { runFullAnalysis }       = require('../analyzers/toc-analyzer');
+const { generateDemo }          = require('../utils/demo-audit');
 
 const logger = createLogger('toc');
 
@@ -561,12 +562,72 @@ function handleDelete(req, res) {
   return res.json({ ok: true, uid });
 }
 
+// ── POST /api/toc/admin/demo ──────────────────────────────────────────────────
+// Protected - creates ONE published demo audit ("ТЕСТОВ", invented eCommerce data:
+// T&C ~48%, Privacy ~56%). Returns the existing one unless {recreate: true}.
+
+function handleCreateDemo(req, res) {
+  try {
+    const db       = getDatabase();
+    const existing = db.prepare("SELECT uid, share_uid FROM toc_audits WHERE uid LIKE 'toc_demo%'").get();
+
+    if (existing && req.body?.recreate !== true) {
+      return res.json({ already_exists: true, uid: existing.uid, share_url: existing.share_uid ? `/toc-report/share/${existing.share_uid}` : null });
+    }
+
+    const demo     = generateDemo();
+    const uid      = 'toc_demo' + crypto.randomBytes(2).toString('hex');
+    const shareUid = crypto.randomBytes(8).toString('hex');
+    const now      = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    const tx = db.transaction(() => {
+      if (existing) {
+        db.prepare('DELETE FROM toc_results WHERE audit_uid = ?').run(existing.uid);
+        db.prepare('DELETE FROM toc_audits WHERE uid = ?').run(existing.uid);
+      }
+      db.prepare(`
+        INSERT INTO toc_audits
+          (uid, client_name, site_url, business_type, status, has_privacy, has_toc, report_tagline, language)
+        VALUES (?, ?, ?, 'ecommerce', 'completed', 1, 1, ?, 'bg')
+      `).run(uid, 'ТЕСТОВ - Онлайн магазин Демо', 'demo-shop.example',
+        'ТЕСТОВ одит с примерни, измислени данни. Не отразява реален клиент.');
+
+      for (const [docType, r] of [['privacy', demo.privacy], ['toc', demo.toc]]) {
+        db.prepare(`
+          INSERT INTO toc_results (
+            audit_uid, doc_type, criteria_json, total_score, total_max_score, total_pct,
+            tier_scores_json, low_score_count, verbal_scale, recommendations_json,
+            business_summary, evaluated_count, expected_count
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(uid, docType, r.criteria_json, r.total_score, r.total_max_score, r.total_pct,
+          r.tier_scores_json, r.low_score_count, r.verbal_scale, r.recommendations_json,
+          r.business_summary, r.evaluated_count, r.expected_count);
+      }
+
+      db.prepare(`
+        UPDATE toc_audits SET share_uid = ?, published_json = ?, published_at = ? WHERE uid = ?
+      `).run(shareUid, buildSnapshot(db, uid, shareUid, now), now, uid);
+    });
+    tx();
+
+    logger.info('demo-audit-created', { uid, shareUid });
+    return res.json({
+      uid, share_url: `/toc-report/share/${shareUid}`,
+      privacy_pct: Math.round(demo.privacy.total_pct), toc_pct: Math.round(demo.toc.total_pct),
+    });
+  } catch (err) {
+    logger.error('demo-audit-failed', { error: err.message });
+    return res.status(500).json({ error: 'Internal error', code: 'E500' });
+  }
+}
+
 // ── Route registration ────────────────────────────────────────────────────────
 // Static segments BEFORE :uid params
 
 router.get('/questions',        handleGetQuestions);              // public
 router.get('/share/:share_uid', handleShare);                     // public
 router.get('/dashboard',        authMiddleware, handleDashboard);
+router.post('/admin/demo',      authMiddleware, handleCreateDemo);
 
 router.post('/start',           authMiddleware, tocUpload, handleStart);
 router.get('/:uid/status',      handleStatus);                    // public (uid guards access)
