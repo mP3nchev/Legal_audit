@@ -7,6 +7,7 @@
 import Link from 'next/link';
 import { PlusCircle, ExternalLink } from 'lucide-react';
 import { DeleteAuditButton } from './DeleteAuditButton';
+import { CreateDemoButton } from './CreateDemoButton';
 
 const BACKEND_URL  = process.env.BACKEND_API_URL  || 'http://localhost:3001';
 const INTERNAL_KEY = process.env.INTERNAL_API_KEY || '';
@@ -67,12 +68,15 @@ export default async function DashboardPage({ searchParams }) {
           <h1 className="text-2xl font-bold text-gray-900">Табло</h1>
           <p className="mt-0.5 text-sm text-gray-500">{total} одит{total !== 1 ? 'а' : ''}</p>
         </div>
+        <div className="flex items-center gap-3">
+          <CreateDemoButton />
         <Link
           href="/toc-audit"
           className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition"
         >
           <PlusCircle className="h-4 w-4" /> Нов одит
         </Link>
+        </div>
       </div>
 
       {/* Table */}

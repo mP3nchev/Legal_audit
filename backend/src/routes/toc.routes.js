@@ -444,7 +444,9 @@ function handleDashboard(req, res) {
       LIMIT ? OFFSET ?
     `).all(limit, offset);
 
-    return res.json({ audits, page, limit });
+    const { total } = db.prepare('SELECT COUNT(*) AS total FROM toc_audits').get();
+
+    return res.json({ audits, total, page, limit });
   } catch (err) {
     logger.error('dashboard-failed', { error: err.message });
     return res.status(500).json({ error: 'Internal error', code: 'E500' });
